@@ -18,7 +18,7 @@ case "$#" in
 				rm -rf ./target
 				;;
 			*)
-				echo "Usage: $0 [package|-h]"
+				echo "Usage: $0 [-h|clean|package]"
 		esac
 		;;
 	*)
