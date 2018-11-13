@@ -1,0 +1,28 @@
+@000=	~Available only for BGEE series~
+@001=	~Available for BGEE only~
+@002=	~Available for SoD only~
+@003=	~Available for BG2EE only~
+
+@010=	~Automation~
+//@011=	~All default NPC portraits,~ 
+
+
+@040=	~Portraits for NPCs~
+@041=	~Automatically pick default portraits between alternatives~
+@042=	~No user prompt will be presented for NPCs with alternative portraits.~
+@043=	~Pick portrait for~
+@044=	~Enter number corresponding to the selected option: ~
+@050=	~Portraits of joinable NPCs~
+@060=	~Portraits of mod NPCs~
+@070=	~Portraits of plot NPCs~
+@071=	~Portraits of additional minor plot NPCs~
+//@072=	~override existing and add for minor characters~
+@081=	~Portraits of canon NPCs from SoD/BG2~
+@082=	~Portraits of canon NPCs from BG2~
+@083=	~Portraits of canon NPCs from BG1/SoD~
+
+
+@500=	~Portraits for CHARNAME~
+@501=	~Remove existing portraits from the selection screen~
+@511=	~Add unique PC portraits to the selection screen~
+@512=	~Add unique PC portraits to the user's home directory~
