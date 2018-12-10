@@ -1,0 +1,11 @@
+MOD_NAME=bface
+MOD_VERSION=0.1
+MOD_BUILDER=polymorphedsquirrel
+MOD_ARTISTS=artastrophe
+
+if [ "$MOD_ARTISTS" ]; then 
+    MOD_AUTHORS="$MOD_BUILDER; art: $MOD_ARTISTS"
+else
+    MOD_AUTHORS="$MOD_BUILDER"
+fi
+
