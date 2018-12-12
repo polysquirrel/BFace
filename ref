@@ -1,0 +1,72 @@
+#!/bin/sh
+
+
+
+action=""
+targetdir=""
+srcdir=""
+
+for p in "$@"; do
+	case "$action" in
+		"srcdir") 
+			if [[ "$p" =~ .*/$ ]]; then
+				srcdir=$p
+			else
+				srcdir="$p/"
+			fi
+			action=""
+			;;
+
+		"targetdir")
+			if [[ "$p" =~ .*/$ ]]; then
+				targetdir=$p
+			else
+				targetdir="$p/"
+			fi
+			action=""
+			;;
+
+		*) case "$p" in
+			"-h") 
+				echo "Usage: $0 [-h] [-d targetdir | -s srcdir | bmpfile]*" >&2
+				echo "   -h:           print this help" >&2
+				echo "   -s srcdir:    treat following file paths as relative to srcdir" >&2
+				echo "   -t targetdir: specify directory in which following ref files should be placed" >&2
+				echo "      <bmpfile>: path to a '.bmp' portrait file to reference from a '.ref' file" >&2
+				echo ""
+				echo "For each of portrait files given as parameters, create a link-like '.ref' file" >&2 
+				echo "with the same base name containing path to that file. Created reference file" >&2
+				echo "will be named after the portrait file, with '.bmp' extension replaced with" >&2
+				echo "'.ref', and will be placed in the current directory unless a '-t dir' switch" >&2
+				echo "is present in the argument list before the referenced file, in which case dir" >&2
+				echo "is used instead and created if needed. File paths given are used verbatim in" >&2
+				echo "the reference files, unless a '-s dir' switch is present in the argument list" >&2
+				echo "before the file name, in which case they are treated as relative to dir and" >&2
+				echo "created reference file points to 'dir/<file>'. Both -s and -t can occur" >&2
+				echo "multiple times in the argument list to reference portraits from different" >&2
+				echo "directories."
+				action=""
+				;;
+
+			"-s") action="srcdir"
+				;;
+
+			"-t") action="targetdir"
+				;;
+
+			*)
+				path="$srcdir$p"
+				
+				filename=`basename -s .bmp $p`
+
+				if [ "$targetdir" ]; then
+					mkdir -p "$targetdir"
+				fi
+
+				echo $path > "$targetdir$filename.ref"
+				;;
+		esac
+		;;
+	esac
+done
+
