@@ -1,0 +1,36 @@
+#!/bin/bash
+
+. release
+BGDIR="test/Baldur's Gate"
+BG2DIR="test/Baldur's Gate 2"
+SODDir="test/Siege of Dragonspear"
+
+if [ -d "$BGDIR" ]; then
+	if [ -d "$BGDIR/$MOD_NAME" ]; then
+		rm -rf "$BGDIR/$MOD_NAME.bak"
+		mv "$BGDIR/$MOD_NAME" "$BGDIR/$MOD_NAME.bak"
+	fi
+	cp -a main/src "$BGDIR/$MOD_NAME"
+	cp main/bin/weidu.exe "$BGDIR/setup-$MOD_NAME.exe"
+fi
+
+
+if [ -d "$SODDIR" ]; then
+	if [ -d "$SODDIR/$MOD_NAME" ]; then
+		rm -rf "$SODDIR/$MOD_NAME.bak"
+		mv "$SODDIR/$MOD_NAME" "$SODDIR/$MOD_NAME.bak"
+	fi
+	cp -a main/src "$SODDIR/$MOD_NAME"
+	cp main/bin/weidu.exe "$SODDIR/setup-$MOD_NAME.exe"
+fi
+
+
+if [ -d "$BG2DIR" ]; then
+	if [ -d "$BG2DIR/$MOD_NAME" ]; then
+		rm -rf "$BG2DIR/$MOD_NAME.bak"
+		mv "$BGDIR/$MOD_NAME" "$BG2DIR/$MOD_NAME.bak"
+	fi
+	cp -a main/src "$BG2DIR/$MOD_NAME"
+	cp main/bin/weidu.exe "$BG2DIR/setup-$MOD_NAME.exe"
+fi
+
