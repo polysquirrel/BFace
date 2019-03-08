@@ -1,0 +1,870 @@
+/** This field is automatically edited on module packaging based on build variable $MOD_NAME. */
+BACKUP ~bface/backup~
+
+/** This field is automatically edited on module packaging based on build variable $MOD_BUILDER. */
+AUTHOR ~polymorphedsquirrel~
+
+/** This is a readme for mod users. Another, more technical readme is available in project root for developers. */
+README ~%MOD_FOLDER%/readme.html~
+
+/** This field is automatically edited on module packaging based on build variable $MOD_VERSION. */
+VERSION ~SNAPSHOT~ 
+
+AUTO_EVAL_STRINGS
+
+ALWAYS
+	ACTION_IF NOT GAME_IS ~bgee bg2ee eet~ THEN BEGIN
+		FAIL @000
+	END
+END
+
+	
+LANGUAGE ~English~
+         ~english~		 
+         ~%MOD_FOLDER%/tra/english/setup.tra~
+
+	
+	
+BEGIN @020 //init
+INSTALL_BY_DEFAULT
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee~ @005
+	
+	/** Flag determining if the user will be offered choice of installing individual components with NPC portraits. */
+	OUTER_SET skip_npc = 1
+	/** Flag determining if the user will be offered choice of installing individual components with PC portraits. */
+	OUTER_SET skip_pc = 1
+	/** Patched all returning NPCs to use the portrait files from BG1, where applicable. */
+	OUTER_SET unified_portraits = 0
+
+	OUTER_TEXT_SPRINT changed_portrait_files ~~		
+	
+//	OUTER_TEXT_SPRINT npc_portraits_installed ~~
+	
+	
+	/** Set when the user opts to remove all existing portraits from the list presented on character generation. */
+	OUTER_SET portrait_selection_cleared = 0
+	/** Set when the user opts to remove all canon NPC portraits from the player selection. */
+	OUTER_SET npc_selection_cleared = 0
+	/** Set when the user opts to remove all BGEE portraits from the character generation selection. */
+	OUTER_SET bgee_selection_cleared = 0
+	/** Set when the user opts to remove all SoD-only portraits from the character generation selection. */
+	OUTER_SET sod_selection_cleared = 0
+	/** Set when the user opts to remove all BGEE portraits from the character generation selection. */
+	OUTER_SET bg2ee_selection_cleared = 0
+	/** Set when the user opts to remove default portraits used for Obe's training companions from the player selection. */
+	OUTER_SET obe_selection_cleared = 0
+	/** Set when the user opts to remove Arkanis' and Deder's portraits from the player selection. */
+	OUTER_SET AnD_selection_cleared = 0
+	
+	/** Directory where the buld of new PC portraits will be intalled. */
+	OUTER_TEXT_SPRINT pc_install_target ~~
+	
+	/** The value of this variable is injected on module packaging. */
+	OUTER_TEXT_SPRINT MOD_NAME ~bface~
+	
+	INCLUDE ~%MOD_FOLDER%/config.tph~
+	INCLUDE ~%MOD_FOLDER%/%MOD_NAME%.tph~
+	INCLUDE ~%MOD_FOLDER%/edwina.tph~
+
+	
+	/** Copy all portraits from under 'charname/defaults' to %pc_pool_dir%. */
+	DEFINE_ACTION_FUNCTION pool_pc_defaults 
+	RET
+		filelist
+	BEGIN
+		ACTION_IF NOT DIRECTORY_EXISTS ~%pc_pool_dir%~ THEN BEGIN
+			MKDIR ~%pc_pool_dir%~
+		END
+		LAF copy_pc_portraits 
+			INT_VAR new_only = 1 
+			STR_VAR game = ~override~ target = ~%pc_pool_dir%~ 
+			RET filelist END
+	END
+	
+
+
+	
+	/** Overrides specified portraits, which must already exist in the game. 
+	  * Copied files are removed from the %pc_pool_dir%, invalidating any file refs to them.
+	  * This effect is used to prevent adding that portrait in the future 
+	  * when copying charname sets. The use of reference makes it possible to use different names
+	  * when adding portrait files *not removed from the pool* to the portraits folder/selection screen,
+	  * resulting in better organization and sorting order.
+	  */
+	DEFINE_ACTION_FUNCTION override_from_pc_pool
+	INT_VAR 
+		/** Specifies if overriding files should be deleted from the pool after copying. */
+		depool = 1
+		/** Do not copy, simply list what would be overriden. Forces depool=0. */
+		list_only = 0
+	STR_VAR
+		game = ~override~
+		portraitset = ~~
+		exclude = ~~
+	RET
+		filelist
+	BEGIN
+		LAF copy_pc_portraits
+			INT_VAR existing_only = 1 list_only = list_only
+			STR_VAR game = ~%game%~ name = ~%portraitset%~ exclude = ~%exclude%~
+			RET filelist END
+		ACTION_IF depool AND NOT list_only THEN BEGIN
+			LAF delete_portraits STR_VAR dir = ~%pc_pool_dir%~ files = ~%filelist%~ END
+		END
+	END
+
+	
+	
+	
+	
+	/** Make portraits of the NPCs from the given game(s) available to players on character generation screen.
+	  * The type of the NPC defaults to 'canonnpcs' (official, joinable NPCs) but can be changed by `npctype` parameter.
+	  * 
+	  * This function makes use of several global variables:
+	  *   %pc_install_target% defines the directory to which any *new* portraits will be copied.
+	  *     Overrides for existing files will go to 'override' as normal. Additionally, if the target directory
+	  *     is itself 'override', it is assumed this is an EE game and the portrait list should be patched in BGEE.LUA
+	  *     so that the portraits will be picked up. Other legal directories are 'portraits', either directly
+	  *     in the game directory, or under the user's folder. In these cases all new files are copied normally
+	  *     and should be recognized automatically by the game.
+	  *
+	  *  %npc_portraits_installed% contains a list of all npc characters in the game which received new portraits
+	  *    from some of the components of this mod. The list is in the shared "double '/'" format used by all functions
+	  *    and is used as the exclude parameter when copying in order not to override portraits which might have
+	  *    been manually selected from between alternatives.
+	  */
+	DEFINE_ACTION_FUNCTION grant_npc_portraits_to_pc
+	STR_VAR
+		npctype = ~canonnpcs~
+		game = ~~
+		exclude = ~\\~
+	BEGIN
+		ACTION_IF ~%exclude%~ STR_EQ ~\\~ THEN BEGIN
+			OUTER_TEXT_SPRINT exclude ~%npc_portraits_installed%~
+		END
+		
+		ACTION_IF ~%pc_install_target%~ STR_EQ ~override~ THEN BEGIN
+			//First, remove all portraits from the game(s)- easier than verifying which are already there for other games.
+			LAF remove_npc_portraits 
+				STR_VAR npctype = ~%npctype%~ game = ~%game%~ 
+			END
+			//Patch the portrait list with all specified NPC portraits. 
+			LAF install_pc_portraits //todo:  this erronously excludes ~%exclude%~ items previously present
+				STR_VAR root = ~%npctype%~ game = ~%game%~ exclude = ~%exclude%~
+			END
+		END ELSE BEGIN
+			//override any of the specified NPC portraits existing, which weren't already overriden
+			LAF copy_npc_portraits 
+				INT_VAR existing_only = 1 
+				STR_VAR npctype = ~%npctype%~ game = ~%game%~ 
+				        target = ~%pc_install_target%~ exclude = ~%exclude%~ 
+			END
+			//copy any remaining portraits to the portrait directory
+			//todo: this bypasses the whole renaming-by-ref-to-pool mechanism :(
+			LAF copy_npc_portraits 
+				INT_VAR new_only = 1 
+				STR_VAR 
+					npctype = ~%npctype%~ 
+					game = ~%game%~ 
+					target = ~%pc_install_target%~
+					exclude = ~%exclude%~
+			END
+		END
+		
+	END
+	
+
+
+
+	
+	
+/*****************************************************************************/
+/*                   NPC PORTRAITS QUICK SELECTION                           */
+/*****************************************************************************/  
+	
+//BEGIN @510 //No NPC portraits
+//SUBCOMPONENT @500 //Quick path for NPC portraits
+//	OUTER_SET npc_quick_path = 1
+	
+	
+BEGIN @511 //Install portraits for canon NPCs only
+SUBCOMPONENT @500 
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
+	LAF copy_canon_npc_defaults END //override portraits of canon npcs from other installments
+	LAF copy_npc_portraits
+		STR_VAR npctype = ~canonnpcs~ 
+		RET npc_portraits_installed = filelist 
+	END	
+	
+	
+	
+	
+BEGIN @512 //Install portraits for official joinable and plot NPCs
+SUBCOMPONENT @500
+	LAF copy_canon_npc_defaults END //override portraits of canon npcs from other installments
+	LAF copy_npc_portraits 
+		STR_VAR	npctype = ~canonnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~
+		RET npc_portraits_installed = filelist	
+	END
+	LAF edwina_portrait_change END
+	
+	
+	
+BEGIN @513 //Install portraits for official joinable NPCs as well as major and minor plot NPCs	
+SUBCOMPONENT @500
+	LAF copy_canon_npc_defaults END //override portraits of canon npcs from other installments
+	LAF copy_npc_portraits 
+		STR_VAR npctype = ~canonnpcs\|plotnpcs\|minornpcs~ game = ~%game_dirs%\|obe~
+		RET npc_portraits_installed = filelist
+	END
+	LAF edwina_portrait_change END
+	
+	
+	
+BEGIN @514 //Install portraits for official and mod joinable NPCs as well as major plot NPCs
+SUBCOMPONENT @500
+	LAF copy_canon_npc_defaults END //override portraits of canon npcs from other game
+	LAF copy_npc_portraits 
+		STR_VAR npctype = ~canonnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~
+		RET npc_portraits_installed = filelist
+	END
+	LAF copy_npc_portraits //separate command as its existing_only=1
+		INT_VAR existing_only = 1 
+		STR_VAR npctype = ~modnpcs~ 
+		RET filelist
+	END
+	LAF edwina_portrait_change END
+	
+	
+	
+BEGIN @515 //Install portraits for official & mod joinable NPCs as well as both major and minor plot NPCs
+SUBCOMPONENT @500
+	LAF copy_canon_npc_defaults END //override portraits of canon npcs from other games
+	LAF copy_npc_portraits 
+		STR_VAR npctype = ~canonnpcs\|plotnpcs\|minornpcs~ game = ~%game_dirs%\|obe~
+		RET npc_portraits_installed = filelist
+	END
+	LAF copy_npc_portraits 
+		INT_VAR existing_only = 1 
+		STR_VAR npctype = ~modnpcs~ 
+		RET filelist
+	END
+	LAF edwina_portrait_change END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%filelist%~
+	
+	
+	
+BEGIN @516 //Manual selection of NPC components, automatic defaults for alternative portraits
+SUBCOMPONENT @500
+	OUTER_SET skip_npc = 0
+	OUTER_SET manual_alternatives = 0
+	
+	
+	
+BEGIN @517 //Manual selection of NPC components, hand-picked portraits between alternatives
+SUBCOMPONENT @500
+	OUTER_SET skip_npc = 0
+	OUTER_SET manual_alternatives = 1
+	
+//todo: options for asking about each mod npc individually	
+
+	
+/*****************************************************************************/
+/*                   COMPONENTS WITH NPC PORTRAITS                           */
+/*****************************************************************************/  
+
+
+BEGIN @533 //Portraits for present official and mod joinable NPCs
+SUBCOMPONENT @530 //Portraits for joinable NPCs
+REQUIRE_PREDICATE NOT skip_npc @501
+	LAF copy_npc_portraits 
+		INT_VAR existing_only = 1 
+		STR_VAR npctype = ~canonnpcs\|modnpcs~ 
+		RET npc_portraits_installed = filelist END
+	OUTER_SET companions_selected ~canonnpcs\|modnpcs~
+	
+		
+BEGIN @531 //overwrite portraits of joinable NPCs
+SUBCOMPONENT @530
+REQUIRE_PREDICATE NOT skip_npc @501
+	LAF copy_npc_portraits 
+		STR_VAR npctype = ~canonnpcs~ 
+		RET npc_portraits_installed = filelist END	
+	OUTER_SET companions_selected ~canonnpcs~
+		
+	
+BEGIN @532 //overwrite portraits of mod NPCs 
+SUBCOMPONENT @530
+REQUIRE_PREDICATE NOT skip_npc @501
+	LAF copy_npc_portraits 
+		INT_VAR existing_only = 1 
+		STR_VAR npctype = ~modnpcs~ 
+		RET npc_portraits_installed  = filelist END
+	OUTER_SET companions_selected ~modnpcs~
+	
+
+
+BEGIN @534 //Make all returning NPCs use the same portrait files
+REQUIRE_PREDICATE NOT skip_npc AND NOT (companions_selected STR_EQ ~~) @501
+REQUIRE_PREDICATE (GAME_IS ~bg2ee eet~) OR (GAME_INCLUDES ~sod~) @000
+	OUTER_SET unified_portraits = 1
+	LOG ~List npcs in the game.~
+	LAF copy_npc_portraits 
+		INT_VAR list_only=1 existing_only = 1 
+		STR_VAR npctype = ~%companions_selected%~ 
+		RET npcs = names END
+		
+	//todo: allow unification of mod npcs - requires checking if the npc exists unlike canon npcs here
+	LOG ~Update NPCs using different portraits in different games to reference always the first one instead.~
+	LAF copy_npc_portraits 
+		STR_VAR npctype = ~canonnpcs~ game = ~unified~ name = ~%npcs%~
+		RET unifiedfiles = filelist unified_npcs = names
+	END
+	
+	//Get the names of portrait files for unified npcs in this game
+	LOG ~Listing unused portraits of unified NPCs in this game.~
+	LAF copy_npc_portraits
+		INT_VAR list_only = 1
+		STR_VAR npctype = ~%companions_selected%~ name = ~%unified_npcs%~ exclude = ~%unifiedfiles%~
+		RET unusedfiles = filelist END
+	
+	//Remove unused files from the installed list	
+	OUTER_PATCH_SAVE npc_portraits_installed ~%npc_portraits_installed%~ BEGIN
+		REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
+			PATCH_IF NOT (unusedfiles STR_CONTAINS_REGEXP ~/%MATCH1%/~) 
+			      OR NOT (unifiedfiles STR_CONTAINS_REGEXP ~/%MATCH1%/~) THEN BEGIN
+				TEXT_SPRINT replacement ~~ //portrait file is either unused or among unified portraits
+			END ELSE BEGIN
+				TEXT_SPRINT replacement ~/%MATCH1%/~
+			END
+		END ~%replacement%~
+	END
+
+	OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%unifiedfiles%~
+	LOG ~NPC portraits used: %npc_portraits_installed%~
+	
+	
+	
+BEGIN @550 //overwrite portraits of major plot npcs
+REQUIRE_PREDICATE NOT skip_npc @501
+	LAF copy_npc_portraits STR_VAR npctype = ~plotnpcs~ RET filelist END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%filelist%~
+	
+
+	
+BEGIN @560 //add portraits to some minor npcs.
+REQUIRE_PREDICATE NOT skip_npc @501
+	LAF copy_npc_portraits STR_VAR npctype = ~minornpcs~ RET filelist END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%filelist%~
+		
+
+		
+
+
+BEGIN @571 //overwrite portraits of NPCs from BG2/SoD (this is only for mods which backport characters)
+REQUIRE_PREDICATE NOT skip_npc @501
+REQUIRE_PREDICATE GAME_IS ~bgee~ AND NOT GAME_INCLUDES ~sod~ @001
+	LAF copy_npc_portraits 
+		INT_VAR existing_only = 1 
+		STR_VAR npctype = ~canonnpcs~ game = ~sod\|bg2ee~ exclude = ~%npc_portraits_installed%~
+		RET filelist
+	END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%filelist%~
+	
+	
+	
+BEGIN @572 //overwrite portraits of NPCs from BG2
+REQUIRE_PREDICATE NOT skip_npc @501
+REQUIRE_PREDICATE GAME_IS ~bgee~ AND GAME_INCLUDES ~sod~ @002
+	LAF copy_npc_portraits 
+		INT_VAR existing_only = 1 
+		STR_VAR npctype = ~canonnpcs~ game = ~bg2ee~ exclude = ~%npc_portraits_installed%~ 
+		RET filelist
+	END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%filelist%~
+	
+	
+	
+BEGIN @573 //overwrite portraits of NPCs from BGEE
+REQUIRE_PREDICATE NOT skip_npc @501
+REQUIRE_PREDICATE GAME_IS ~bg2ee~ @003
+	LAF copy_npc_portraits 
+		INT_VAR existing_only = 1 
+		STR_VAR npctype = ~canonnpcs~ game = ~bgee\|sod~ exclude = ~%npc_portraits_installed%~
+		RET filelist
+	END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%filelist%~
+
+
+	
+BEGIN @576 //Overwrite portraits of Obe's training companions
+SUBCOMPONENT @575 //Obe's training companions
+REQUIRE_PREDICATE NOT skip_npc @501
+REQUIRE_PREDICATE GAME_IS ~bgee eet~ @001
+	//todo: where exactly would be best to place them?
+	LAF copy_npc_portraits 
+		INT_VAR existing_only = 1
+		STR_VAR npctype = ~plotnpcs~ game = ~obe~ exclude = ~%npc_portraits_installed%~ 
+		RET filelist
+	END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~npc_portraits_installed%%filelist%~
+	
+	
+	
+BEGIN @577 //Overwrite portraits of Arkanis and Deder
+SUBCOMPONENT @575
+REQUIRE_PREDICATE NOT skip_npc @501
+REQUIRE_PREDICATE GAME_IS ~bgee eet~ @001
+	//todo: where exactly would be best to place them?
+	LAF copy_npc_portraits 
+		INT_VAR existing_only = 1
+		STR_VAR npctype = ~plotnpcs~ game = ~obe~ name = ~Arkanis\|Deder~ exclude = ~%npc_portraits_installed%~ 
+		RET filelist 
+	END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~npc_portraits_installed%%filelist%~
+
+
+	
+	
+	
+BEGIN @599 //Edwina
+REQUIRE_PREDICATE NOT skip_npc @501
+REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ @003
+	LAF edwina_portrait_change END
+
+	
+	
+
+/*****************************************************************************/
+/*                   PC PORTRAITS QUICK SELECTION                            */
+/*****************************************************************************/  
+	
+
+//order of components forced by weidu requirement of fewest restrictions on the first component
+BEGIN @613 //Copy to ./portraits for all users, override default portraits
+SUBCOMPONENT @600  //Quick path for PC portraits
+	//Copy all pc portraits overriding some existing portrait to a separate 'pool' directory
+	LAF pool_pc_defaults END
+	//copy overrides for default portraits and remove them from the pool
+	LAF override_from_pc_pool STR_VAR portraitset = ~defaults\|obe~ END
+	
+	//Copy all pc portraits to ./portraits, including referenced not deleted files from the pool
+	LAF copy_pc_portraits STR_VAR target = ~portraits~ END
+	
+		
+	
+BEGIN @614 //Copy to ./portraits for all users, don't override default portraits
+SUBCOMPONENT @600
+	//Copy all possible portrait overrides to a pool directory referenced by symlinks in default charname copy tree
+	LAF pool_pc_defaults END
+	
+	LAF copy_pc_portraits STR_VAR target = ~portraits~ END
+	
+	
+		
+BEGIN @615 //Copy to user's folder, overwrite default portraits 
+SUBCOMPONENT @600
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000	
+	LAF pool_pc_defaults END
+	
+	LAF override_from_pc_pool STR_VAR portraitset = ~defaults\|obe~ END
+	
+	LAF copy_pc_portraits STR_VAR target = ~%portrait_dir%~ END
+	
+		
+BEGIN @616 //Copy to user's folder, leave the existing portraits
+SUBCOMPONENT @600
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
+	LAF pool_pc_defaults END
+	
+	LAF copy_pc_portraits STR_VAR target = ~%portrait_dir%~ END
+
+
+
+BEGIN @610 //Replace existing portrait selection and override replaced defaults with copies of new portraits
+SUBCOMPONENT @600 //todo: this component is somewhat redundant to overriding obe's companions' portraits
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000 //BGEE.LUA only in EE
+	LAF clear_pc_portraits END
+	
+	LAF pool_pc_defaults END
+	
+	LAF override_from_pc_pool INT_VAR depool = 0 STR_VAR portraitset = ~defaults\|obe~ END
+	
+	LAF install_pc_portraits END
+
+	
+BEGIN @611 //Copy to override, replace existing portrait selection
+SUBCOMPONENT @600 //Portraits for PC
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
+	LAF clear_pc_portraits END
+	
+	LAF pool_pc_defaults END //copy default portraits to pool dir referenced by symlink portraits
+	//copy all pc portraits, in particular renamed references to default portraits
+	LAF install_pc_portraits END
+	
+		
+BEGIN @612 //Copy to override, add to existing selection
+SUBCOMPONENT @600
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
+	//copy overrides for default portraits to a pool dir referenced by symlink portrait refs
+	LAF pool_pc_defaults END
+	//copy all pc portraits, following refs to default portraits in the pool dir
+	LAF install_pc_portraits END
+
+		
+	
+BEGIN @617 //Manually select portrait components for PC, install to override
+SUBCOMPONENT @600
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
+	OUTER_SET skip_pc = 0
+	OUTER_TEXT_SPRINT pc_install_target ~override~
+	LAF pool_pc_defaults END
+
+
+	
+BEGIN @618 //Manually select portraits for the portraits directory
+SUBCOMPONENT @600
+	OUTER_SET skip_pc = 0
+	OUTER_TEXT_SPRINT pc_install_target ~portraits~
+	LAF pool_pc_defaults END
+	
+		
+BEGIN @619 //Manually select portrait components for the user's folder
+SUBCOMPONENT @600
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
+	OUTER_SET skip_pc = 0
+	OUTER_TEXT_SPRINT pc_install_target ~%portrait_dir%~
+	LAF pool_pc_defaults END
+	
+
+	
+	
+	
+	
+	
+/*****************************************************************************/
+/*                   COMPONENTS WITH PC PORTRAITS                            */
+/*****************************************************************************/  
+
+
+
+BEGIN @629 //Clear portrait selection screen
+REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @601 
+	LAF clear_pc_portraits END
+	OUTER_SET portrait_selection_cleared = 1
+	
+
+	
+BEGIN @624 //Remove all canon NPC portraits from the selection screen
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared) @601
+REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @601 
+	LAF remove_npc_portraits END
+	OUTER_SET npc_selection_cleared = 1
+	
+
+	
+BEGIN @621 //Remove canon BGEE NPC portraits from the selection screen
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared OR npc_selection_cleared) @601
+REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @601 
+	LAF remove_npc_portraits STR_VAR game = ~bgee~ END 
+	OUTER_SET bgee_selection_cleared = 1
+	
+
+	
+BEGIN @622 //Remove SoD NPC portraits from the selection screen
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared OR npc_selection_cleared) @601
+REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @601 
+	LAF remove_npc_portraits STR_VAR game = ~sod~ END
+	OUTER_SET sod_selection_cleared = 1
+	
+
+	
+BEGIN @623 //Remove BG2EE NPC portraits from the selection screen
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared OR npc_selection_cleared) @601
+REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @601 
+	LAF remove_npc_portraits STR_VAR game = ~bg2ee~ END	
+	OUTER_SET bg2ee_selection_cleared = 1	
+	
+	
+	
+BEGIN @626 //Remove Obe's training companions from the selection screen
+SUBCOMPONENT @625 
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared) @601
+REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @601 
+	LAF remove_npc_portraits STR_VAR game = ~obe~ END
+	OUTER_SET obe_selection_cleared = 1
+	OUTER_SET AnD_selection_cleared = 1
+	
+	
+BEGIN @627 //Remove Obe's training companions with the exception of Arkanis and Deder from the selection screen`	
+SUBCOMPONENT @625
+	LAF override_from_pc_pool 
+		INT_VAR list_only = 1 
+		STR_VAR portraitset = ~Arkanis\|Deder~ 
+		RET AnD = filelist END
+	LAF remove_npc_portraits STR_VAR game = ~obe~ exclude = ~%AnD%~ END
+	OUTER_SET obe_selection_cleared = 1
+	
+	
+BEGIN @628 //Remove Arkanis' and Deder's portraits from the selection screen
+SUBCOMPONENT @625
+	LAF remove_npc_portraits STR_VAR game = ~obe~ name = ~Arkanis\|Deder~ END
+	OUTER_SET AnD_selection_cleared = 1
+	
+	
+	
+
+
+
+
+
+
+BEGIN @631 //Override default PC-only portraits with unique portraits
+SUBCOMPONENT @630
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared) @601
+	LAF override_from_pc_pool STR_VAR portraitset = ~defaults~ END
+
+	
+BEGIN @632 //Override default PC portraits, including Obe companions, with unique portraits
+SUBCOMPONENT @630 //todo: don't offer this component if Obe's companions where overriden in the NPC section
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared OR obe_selection_cleared) @601
+	LAF override_from_pc_pool STR_VAR portraitset = ~defaults\|obe~ END
+
+
+	
+	
+BEGIN @641 //override all unused NPC portraits with unique pc portraits
+SUBCOMPONENT @640 //override portraits of canon NPCs with portraits for PC
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared OR npc_selection_cleared) @601
+	//todo: requires specifying an override for *every* canon npc portrait - is it really worth it?
+	
+	LOG ~List NPCs present in this game and their portraits.~
+	LAF copy_npc_portraits
+		INT_VAR list_only=1
+		STR_VAR npctype = ~canonnpcs~ 
+		RET npcs = names exclude = filelist END		
+		
+	ACTION_IF unified_portraits THEN BEGIN
+		//OUTER_TEXT_SPRINT exclude ~%npc_portraits_installed%~ //this will exclude also any portraits overriden by extra comonents
+		LOG ~List all unified NPCs in this game and their portraits.~
+		LAF copy_npc_portraits
+			INT_VAR list_only = 1
+			STR_VAR npctype = ~canonnpcs~ game = ~unified~ name = ~%npcs%~
+			RET unifiednpcs = names unifiedportraits = filelist END
+		
+		LOG ~List unused portraits from this game of unified NPCs.~
+		LAF copy_npc_portraits
+			INT_VAR list_only = 1
+			STR_VAR npctype = ~canonnpcs~ name = ~%unifiednpcs%~ exclude = ~%unifiedportraits%~
+			RET unused = filelist END
+			
+		LOG ~List portrait files used by official NPCs in this game.~
+		LAF copy_npc_portraits 
+			INT_VAR list_only = 1
+			STR_VAR npctype = ~canonnpcs~ exclude = ~%unused%~ 
+			RET used = filelist END //this doesn't include unified portraits from earlier games, see below
+			
+		OUTER_TEXT_SPRINT exclude ~%used%%unifiedportraits%~
+		
+	END 
+
+	LOG ~Override all not overriden potraits of official NPCs which aren't used by game characters.~	
+	LAF override_from_pc_pool 
+		STR_VAR portraitset = ~npcs~ exclude = ~%npc_portraits_installed%%exclude%~
+	END
+
+
+	
+
+	
+BEGIN @642 //override portraits of NPCs not present in the game
+SUBCOMPONENT @640	
+	//note: this component does not override alternative (from other games) portraits of present NPCs
+	LOG ~List portraits of official joinable npcs used in the game~
+	LAF copy_npc_portraits 
+		INT_VAR list_only = 1 existing_only = 1
+		STR_VAR npctype = ~canonnpcs~ 
+		RET present = filelist excludednpcs = names
+	END
+	
+	LOG ~list portraits from all games of present npcs %excludenpcs%~
+	LAF copy_npc_portraits 
+		INT_VAR list_only = 1
+		STR_VAR npctype = ~canonnpcs~ game = ~%any_game%~ name = ~%excludedncps%~ END
+		RET excludefiles = filelist
+	END
+		
+	LOG ~Override portraits of remaining npcs~
+	LAF override_from_pc_pool 
+		STR_VAR portraitset = ~npcs~ exclude = ~%npc_portraits_installed%%excludefiles%~
+	END		
+	
+	
+	
+BEGIN @643  //override portraits from other games for present npcs
+SUBCOMPONENT @640
+REQUIRE_PREDICATE NOT (skip_pc OR portrait_selection_cleared OR npc_selection_cleared OR unified_portraits) @601
+REQUIRE_PREDICATE GAME_IS ~bg2ee~ OR (GAME_IS ~bgee~ AND GAME_INCLUDES ~sod~) @010
+
+	LOG ~List NPCs present in this game and their portraits.~
+	LAF copy_npc_portraits
+		INT_VAR list_only = 1
+		STR_VAR npctype = ~canonnpcs~ 
+		RET present = filelist npcs = names END
+		
+	LOG ~List all portraits of npcs from this game.~
+	LAF copy_npc_portraits
+		INT_VAR list_only = 1
+		STR_VAR npctype = ~canonncps~ game = ~%any_game%~ name = ~%npcs%~
+		RET allpresent = filelist END
+		
+	LOG ~List portraits of NPCs not present in this game.~
+	LAF copy_npc_portraits
+		INT_VAR list_only = 1
+		STR_VAR npctype = ~canonnpcs~ game = ~%any_game%~ exclude = ~%allpresent%~ 
+		RET notpresent = filelist END
+
+	ACTION_IF unified_portraits THEN BEGIN
+		LOG ~List unified NPCs in this game and their portraits.~
+		LAF copy_npc_portraits
+			INT_VAR list_only = 1
+			STR_VAR npctype = ~canonnpcs~ game = ~unified~ name = ~%npcs%~
+			RET unifiednpcs = names unifiedpresent = filelist END
+
+		LOG ~List unified NPCs present in this game and their unused portraits.~
+		LAF copy_npc_portraits
+			INT_VAR list_only = 1
+			STR_VAR npctype = ~canonnpcs~ name = ~%unifiednpcs%~ exclude = ~%unifiedpresent%~
+			RET unused = filelist END
+			
+		LOG ~List portrait files used by official NPCs in this game.~
+		LAF copy_npc_portraits
+			INT_VAR list_only = 1
+			STR_VAR npctype = ~canonnpcs~ exclude = ~%unused%~ 
+			RET present = filelist END
+			
+		OUTER_TEXT_SPRINT present ~%present%%unifiedpresent%~
+	END
+	
+	LAF override_from_pc_pool
+		STR_VAR portraitset = ~npcs~ exclude = ~%npc_portraits_installed%%exclude%~
+	END
+
+			
+
+
+	
+
+
+
+
+
+//todo these conflict with components overriding npc portraits with pc ones
+BEGIN @651 //Give PC the portraits for canon BGEE NPCs
+REQUIRE_PREDICATE NOT skip_pc @601 
+	LAF grant_npc_portraits_to_pc STR_VAR game = ~bgee~ END
+
+
+	
+BEGIN @652 //Give PC the portraits for canon SoD NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR game = ~sod~ END
+	
+	
+
+BEGIN @653 //Give PC the portraits for canon BG2EE NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR game = ~bg2ee~ END
+
+
+	
+	
+
+BEGIN @661 //Give PC the portraits for mod BGEE NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~modnpcs~ game = ~bgee~ END
+
+	
+	
+BEGIN @662 //Give PC the portraits for mod SoD NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~modnpcs~ game = ~sod~ END
+	
+	
+
+BEGIN @663 //Give PC the portraits for mod BG2EE NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~modnpcs~ game = ~bg2ee~ END
+	
+
+
+BEGIN @664 //Give PC the portraits for classic (non-EE) mod NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
+	//todo:
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~modnpcs~ game = ~bg\|soa\|tob\|bgt~ END
+
+
+	
+BEGIN @665 //Give PC the portraits for EE-only mod NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+REQUIRE_PREDICATE GAME_IS ~bg tob bgt~ @006
+	//todo: be careful about the game 'any' here
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~modnpcs~ game = ~bgee\|sod\|bg2ee~ END
+
+	
+	
+BEGIN @666 //Give PC the portraits for not installed mod NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LOG ~List all mod NPC portraits in the game~
+	LAF copy_npc_portraits 
+		INT_VAR list_only = 1 existing_only = 1 
+		STR_VAR npctype = ~modnpcs~ game = ~%any_dir%~ 
+		RET installed = filelist
+	END
+	//And now install all portraits not listed above
+	OUTER_TEXT_SPRINT exclude ~%npc_portraits_installed%%installed%~
+	//todo: all above is redundant, %npc_portraits_installed% contains %installed%, no?
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~modnpcs~ game = ~%any_dir%~ exclude = ~%exclude%~ END
+
+
+	
+	
+	
+BEGIN @671 //Give PC the portraits for minor BG NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~minornpcs~ game = ~bgee~ END
+	//todo: or copy the files directly without creating references (good if they are already named to the standard)
+	
+
+	
+BEGIN @672 //Give PC the portraits for minor SoD NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~minornpcs~ game = ~sod~ END
+	//todo: or copy the files directly without creating references (good if they are already named to the standard)
+	
+
+	
+BEGIN @673 //Give PC the portraits for minor BG2 NPCs
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~minornpcs~ game = ~bg2ee~ END
+	//todo: or copy the files directly without creating references (good if they are already named to the standard)
+
+
+	
+BEGIN @690 //Give PC unique portraits
+REQUIRE_PREDICATE NOT skip_pc @601
+	LAF grant_npc_portraits_to_pc STR_VAR npctype = ~charname~ game = ~any~ END
+	
+	
+	
+
+BEGIN @099 //Round up the installation
+INSTALL_BY_DEFAULT
+	ACTION_IF NOT skip_pc THEN BEGIN
+		PRINT ~Installing portraits for player characters granted by previous components...~
+		
+		
+	END
+	
+	
