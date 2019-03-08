@@ -1,0 +1,65 @@
+/*
+ *  This is a configuration file containing, above all, names of directories with portraits
+ *  and lists compatible games. This file is likely to differ between branches/versions of the library.
+ */
+
+
+/** Flag requesting prompting the user to hand-pick between altrenative portrait versions. */
+OUTER_SET manual_alternatives = 0
+
+/** Flag requesting to display readme files showcasing available alternatives for each NPC where they exist. */
+OUTER_SET show_alternatives = 0
+
+/** Directory where custom portraits are normally stored (under user's home directory). */
+OUTER_TEXT_SPRINT portrait_dir ~%USER_DIRECTORY%/portraits~
+	
+/** Matches directories corresponding to all three parts of the BG saga. */
+OUTER_TEXT_SPRINT any_game ~\(bgee\|sod\|bg2ee\|any\)~
+	
+/** Matches all three default 'gender' directories: male/female/other. The last one is for non-player portraits. */
+OUTER_TEXT_SPRINT any_gender ~\(male\|female\|other\)~
+	
+/** Matches directories corresponding to playable portraits of both genders: male|female. */
+OUTER_TEXT_SPRINT playable_race ~\(male\|female\)~
+	
+/** Matches all default root directories with portraits for NPCs. */
+OUTER_TEXT_SPRINT any_npc_type ~\(canonnpcs\|modnpcs\|plotnpcs\|\minornpcs\)~
+
+/** Matches any dir/file name other than symbolic . and .. */
+OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\\/]+\)~
+
+//OUTER_TEXT_SPRINT npc_regex ~%MOD_FOLDER%/%any_npc_type%/%game_dirs%/%any_gender%/\([^/\\]+\)~
+
+OUTER_TEXT_SPRINT pc_pool_dir ~%MOD_FOLDER%/charname/pool~
+	
+	
+//sets game_dirs to a regex alternative of included games, i.e. (bgee|sod|bg2ee)
+//sets game_code to a game code: [bgee|sod|bg2ee|eet]
+//sets other_games to a regex alternative of not included games - complement of game_dirs
+ACTION_IF GAME_IS ~bgee~ THEN BEGIN
+	ACTION_IF GAME_INCLUDES ~sod~ THEN BEGIN
+		OUTER_TEXT_SPRINT game_dirs ~bgee\|sod\|any~
+		OUTER_TEXT_SPRINT game_code ~sod~
+		OUTER_TEXT_SPRINT other_games ~bg2ee~
+	END ELSE BEGIN
+		OUTER_TEXT_SPRINT game_dirs ~bgee\|any~
+		OUTER_TEXT_SPRINT game_code ~bgee~
+		OUTER_TEXT_SPRINT other_games ~sod\|bg2ee~
+	END
+END ELSE BEGIN
+	ACTION_IF GAME_IS ~bg2ee~ THEN BEGIN
+		OUTER_TEXT_SPRINT game_dirs ~bg2ee\|any~
+		OUTER_TEXT_SPRINT game_code ~bg2ee~
+		OUTER_TEXT_SPRINT other_games ~bgee\|sod~
+	END ELSE BEGIN //EET
+		ACTION_IF GAME_IS ~eet~ BEGIN
+			OUTER_TEXT_SPRINT game_dirs ~bgee\|sod\|bg2ee\|any~
+			OUTER_TEXT_SPRINT game_code ~eet~
+			OUTER_TEXT_SPRINT other_games ~none~  //can't use empty string as it often denotes default value
+		END ELSE BEGIN
+			FAIL @000
+		END
+	END
+END
+
+
