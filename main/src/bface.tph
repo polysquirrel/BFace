@@ -373,7 +373,7 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 			END
 			
 			ACTION_IF altcount > 1 THEN BEGIN
-				OUTER_SPRINT prompt @525
+				OUTER_SPRINT prompt @504
 				PRINT ~%prompt% %npcname%:~
 			
 				OUTER_SET altcount = 0 //print alternative portrait dirs
@@ -393,7 +393,7 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 				
 				OUTER_SET idx = altcount //read user choice into idx
 				OUTER_WHILE (NOT IS_AN_INT %idx%) OR idx < 0 OR idx >= altcount BEGIN
-					PRINT @526
+					PRINT @505
 					ACTION_READLN ~idx~
 				END
 					
@@ -487,7 +487,6 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 		  * file is located next to the portrait file and contains at least one name of a creature
 		  * existing in the game (to be patched with the specified portrait).
 		  */
-		/** Overwrite-only: don't copy unless a file of the same name already exists in the game. */
 		existing_only = 0
 		/** Copy only files which do not exist in the game. */
 		new_only = 0
@@ -690,6 +689,7 @@ DEFINE_ACTION_FUNCTION copy_canon_npc_defaults
 		names
 	BEGIN
 		//OUTER_SET alternatives = manual_alternatives
+		//LOG ~Overwriting official npc portraits from all games...~
 		OUTER_SET manual_alternatives = 0
 		LAF copy_npc_portraits 
 			INT_VAR existing_only=1 list_only = list_only
@@ -700,7 +700,9 @@ DEFINE_ACTION_FUNCTION copy_canon_npc_defaults
 
 	
 	
-	
+
+
+
 	
 	
 	
@@ -796,7 +798,7 @@ DEFINE_ACTION_FUNCTION remove_pc_portraits
   */
 DEFINE_ACTION_FUNCTION remove_npc_portraits
 	STR_VAR
-		npctype = ~canonnpcs~
+		npctype = ~canonnpcs\|plotnpcs~
 		game = ~~
 		gender = ~~
 		name = ~~
@@ -812,7 +814,6 @@ DEFINE_ACTION_FUNCTION remove_npc_portraits
 			RET filelist END
 	
 		LAF remove_pc_portraits STR_VAR files = filelist END
-		//DELETE ~%MOD_FOLDER%/bg1npcs~	
 	END
 	
 	

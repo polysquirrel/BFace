@@ -17,12 +17,15 @@
 //@300 range reserved for BG2/BG2EE-only components
 //@400 range reserved for EET/BGT-only components
 
-@500=	~Portraits for NPCs~
+
 @501=	~Choice of NPC portraits already made~
 @502=	~No user prompt will be presented for NPCs with alternative portraits.~
 @503=	~You will be asked to select a portrait where several alternatives are available.~
+@504=	~Pick portrait for~
+@505=	~Enter the number corresponding to the selected option: ~
 
-@510=	~No changes to any NPC portraits~
+
+@510=	~Portraits for NPCs~
 @511=	~Portraits for official companions only~
 @512=	~Portraits for official companions and major plot characters~
 @513=	~Portraits for official companions as well as major and some minor plot characters~
@@ -33,31 +36,28 @@
 @518=	~Decide individually for each component and mod NPC using default portraits~
 @519=	~Decide individually for all mod NPCs and alternative portraits~
 
-@525=	~Pick portrait for~
-@526=	~Enter the number corresponding to the selected option: ~
-
 @530=	~Portraits of joinable NPCs~
 @531=	~Portraits of official companions only~
 @532=	~Portraits of installed mod companions only~
 @533=	~Portraits of official and mod companions~
 @534=	~Unify all returning NPCs to refer to the same (BGEE/SoD) portrait file names~
 
-//@540=	~Portraits of mod joinable NPCs~
 @550=	~Portraits of major plot NPCs~
 @560=	~Portraits of minor (originally faceless) plot NPCs~ 
+
 @571=	~Portraits of official companions from SoD/BG2 (for backporting mods and consistency)~
 @572=	~Portraits of official companions from BG2 (for backporting mods and consistency)~
 @573=	~Portraits of official companions from BG1/SoD (for mods and consistency)~
 
-@575=	~Portraits of Obe's training companions (some of default PC portraits)~
-@576=	~Overwrite all Obe's training companions (shared with PC portraits)~
-@577=	~Overwrite only Arkanis' and Deder's portraits (shared with PC portraits)~
+@590=	~Portraits of Obe's training companions (some of default PC portraits)~
+@591=	~Overwrite all Obe's training companions (shared with PC portraits)~
+@592=	~Overwrite only Arkanis' and Deder's portraits (shared with PC portraits)~
 //@578=	~Give all Obe's training companions separate portraits~
 //@579=	~Give Arkanis and Deder (Candlekeep catacombs) separate portraits~
 
-
-
 @599=	~Portrait change to and from Edwina (portraits for Edwina already bundled with plot NPCs)~
+
+
 
 @600=	~Portraits for player characters~
 @601=	~Choice of installed PC portraits already made~

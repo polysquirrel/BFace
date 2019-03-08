@@ -234,6 +234,7 @@ SUBCOMPONENT @500
 		RET filelist
 	END
 	LAF edwina_portrait_change END
+	OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%filelist%~
 	
 	
 	
