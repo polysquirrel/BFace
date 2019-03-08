@@ -1,0 +1,43 @@
+
+/** Installs Edwina portraits and adds portrait change effect to Edwin's transformation spells.
+  * Recognizes the game type and skips if it does not include SoA. 
+  * This function should be called *after* any patching of Edwin as it retrieves the male portrait
+  * name from his creature file.
+  * Adapted from code by Wendy Yung (cliffette).
+  */
+DEFINE_ACTION_FUNCTION edwina_portrait_change
+BEGIN
+	ACTION_IF GAME_IS ~bg2ee eet~ THEN BEGIN //todo:  soa tob bgt
+		COPY ~plotnpcs/%game_code%/other/Edwina~ ~override~
+
+		//find out what portraits should be used for restoring edwin's gender
+		COPY_EXISTING ~EDWIN7.CRE~ ~override~
+			READ_ASCII 0x34 small_edwin
+			READ_ASCII 0x3C large_edwin
+		BUT_ONLY_IF_IT_CHANGES
+		
+		PRINT ~%Installing Edwina portrait change from %small_edwin%/%large_edwin%~
+		
+		// add portrait change opcodes to edwin transform spells
+		COPY_EXISTING ~spin662.spl~ ~override~ // return to edwin
+			LPF ADD_SPELL_EFFECT
+				INT_VAR opcode = 107 target = 2 parameter2 = 1 timing = 1 
+				STR_VAR resource = ~%large_edwin%~ //nedwinl 
+			END // large portrait
+			LPF ADD_SPELL_EFFECT 
+				INT_VAR opcode = 107 target = 2 parameter2 = 0 timing = 1 
+				STR_VAR resource = ~%small_edwin%~
+			END // small portrait
+
+		// add portrait change opcodes to edwin transform spells
+		COPY_EXISTING ~spin916.spl~ ~override~ // change to edwina
+			LPF ADD_SPELL_EFFECT 
+				INT_VAR opcode = 107 target = 2 parameter2 = 1 timing = 1 
+				STR_VAR resource = edwinal 
+			END // large portrait
+			LPF ADD_SPELL_EFFECT 
+				INT_VAR opcode = 107 target = 2 parameter2 = 0 timing = 1 
+				STR_VAR resource = edwinam
+			END // small portrait
+	END
+END
