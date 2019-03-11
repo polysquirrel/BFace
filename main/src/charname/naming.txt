@@ -1,0 +1,15 @@
+Files for player-only portraits follow the naming pattern of:
+
+<prefixchars><genderchar><racechar><classchar><number2><sizechar>?.bmp
+
+Where:
+prefixchars:  BF - for Baldur's Face 
+genderchar:  [M|F] for Male/Female) 
+racechar:    [D|E|G|H|M|O|R] for Dwarf/Elf/Gnome/Halfling/huMan/halfOrc/dRow
+classchar:   [A|B|C|D|F|K|M|R|T|W] for Any/Bard/Cleric/Druid/Fighter(light armour)/Knight(plate)/Monk/Ranger/Thief/Wizard
+number2:      01..ZZ range (range A0-ZZ is reserved as special - for module implementation and/or NPCs)
+sizechar:    [F|L|M|N|O|P|S] for Full(optional whole figure)/Large/Medium/Small where 
+              F&L: 210x330; M: 169x266; N: 140x220; P:110x173; S: 54x84; O: other
+             This character is optional. Exact resolutions may differ between games.
+
+This assures a more easy organisation, handling and convenient sorting in the character generation screen.
