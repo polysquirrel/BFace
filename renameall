@@ -1,0 +1,10 @@
+#!/bin/sh
+
+#searches all subdirectories for bmp files starting with the first parameter
+#and renames them replacing it with the second parameter leaving the suffix intact.
+
+for path in `find -name "$1*.bmp"`; do
+	name=`echo $path | sed -e "s|\(.*\)/$1\(.*\)\.bmp|\1/$2\2\.bmp|g";
+	mv -v "$path" "$name";
+done
+
