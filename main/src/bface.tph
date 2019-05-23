@@ -201,13 +201,18 @@ DEFINE_ACTION_FUNCTION copy_portrait
 		  * If %list_only% is set, this will be `1` if the file *would* be copied. */
 		copied = 1
 	BEGIN
+		OUTER_TEXT_SPRINT indent ~        ~
+		ACTION_IF chain_call THEN BEGIN
+			OUTER_TEXT_SPRINT indent ~          ~
+		END
+		
 		ACTION_IF NOT FILE_EXISTS ~%path%~ THEN BEGIN
 			ACTION_IF FILE_EXISTS ~%path%.bmp~ THEN BEGIN
 				OUTER_TEXT_SPRINT path ~%path%.bmp~
 			END ELSE ACTION_IF FILE_EXISTS ~%path%.ref~ THEN BEGIN
 				OUTER_TEXT_SPRINT path ~%path%.ref~
 			END ELSE BEGIN
-				LOG ~        ignoring %name%: %path% (invalid path/ref)~
+				LOG ~%indent%ignoring %name%: %path% (invalid path/ref)~
 				OUTER_SET copied = 0
 			END
 
@@ -218,13 +223,13 @@ DEFINE_ACTION_FUNCTION copy_portrait
 			ACTION_IF FILE_EXISTS_IN_GAME ~%name%~ THEN BEGIN
 				ACTION_IF (when STR_EQ ~not exists~) THEN BEGIN
 					OUTER_SET copied = 0
-					LOG ~        ignoring %name%: %path% (game file exists)~
+					LOG ~%indent%ignoring %name%: %path% (game file exists)~
 				END
 				OUTER_SET file_exists = 1
 			END ELSE BEGIN
 				ACTION_IF (when STR_EQ ~exists~) THEN BEGIN
 					OUTER_SET copied = 0
-					LOG ~        ignoring %name%: %path% (game file does not exist)~
+					LOG ~%indent%ignoring %name%: %path% (game file does not exist)~
 				END 
 				OUTER_SET file_exists = 0
 			END
@@ -251,14 +256,14 @@ DEFINE_ACTION_FUNCTION copy_portrait
 					LAF patched_creatures STR_VAR file = ~%bname%.2da~ RET copied = number END
 				END
 				ACTION_IF NOT copied THEN BEGIN
-					LOG ~       ignoring %name%: %path% (game file does not exist and no creatures to patch)~
+					LOG ~%indent%ignoring %name%: %path% (game file does not exist and no creatures to patch)~
 				END
 			END
 		
 			ACTION_IF copied THEN BEGIN
 				ACTION_IF ~%bname%.bmp~ STR_EQ ~%path%~ THEN BEGIN //file name ends with '.bmp'
 					ACTION_IF list_only THEN BEGIN
-						LOG ~        %name%: %path%~
+						LOG ~%indent%%name%: %path%~
 					END ELSE BEGIN
 						COPY ~%path%~ ~%target%/%name%~
 					END
@@ -272,7 +277,7 @@ DEFINE_ACTION_FUNCTION copy_portrait
 						END ELSE BEGIN
 							READ_2DA_ENTRY 0 0 1 newpath
 
-							LOG ~        resolving %path% -> %newpath%~
+							LOG ~%indent%resolving %path% -> %newpath%~
 							LAF copy_portrait 
 								INT_VAR list_only = list_only chain_call = 1
 								STR_VAR path = ~%newpath%~ target = ~%target%~ name = ~%name%~ when = ~%when%~
@@ -341,7 +346,7 @@ DEFINE_ACTION_FUNCTION copy_portrait_list
 						OUTER_TEXT_SPRINT filelist ~%filelist%/%basename%/~
 					END											
 				END ELSE BEGIN
-					LOG ~        excluded entry: %basename% -> %path%~
+					LOG ~        excluding %basename%: %path%~
 				END
 			END
 		IF_EXISTS BUT_ONLY_IF_IT_CHANGES
@@ -701,6 +706,13 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 			ACTION_CLEAR_ARRAY gamedirs
 		END
 		ACTION_CLEAR_ARRAY roots
+		
+		LOG ~NPCs/sets: %names%~
+		ACTION_IF list_only THEN BEGIN
+			LOG ~Listed portraits: %filelist%~
+		END ELSE BEGIN
+			LOG ~Copied portraits: %filelist%~
+		END
 		
 		ACTION_IF NOT npccount THEN BEGIN
 			ACTION_DEFINE_ASSOCIATIVE_ARRAY filemap BEGIN ~~ => ~~ END

@@ -1,12 +1,14 @@
 1. Portrait groups and locations.
 
 All portrait files reside in several directory trees based on their purpose:
-  - canonnpcs:	joinable NPCs from unmodified games (including expansions, EE, etc.). 
-  - modnpcs:	joinable NPCs from fan modules.
+  - canonnpcs:	companions from unmodified games (including expansions, EE, etc.). 
+  - modnpcs:	companions from fan modules.
   - plotnpcs:	NPCs who are crucial to the plot and already have portraits in the games.
   - majornpcs:	some of the most prominent non-controllable characters in the games, such as bosses or recurring allies.
   - minornpcs:	quest givers and other characters from side-quests, usually appearing only once.
   - extranpcs:	cast 'extras' who might have only a single line of dialogue.
+  - unifiednpcs:special directory with portraits patching returning npcs to use 
+                the portrait files from the first game.
   - charname:	portraits for the player character.
 
 The style consistency of portraits will generally decrease together with the prominence of a character: extranpcs will 
@@ -32,11 +34,11 @@ where:
          	the user in certain cases. Not interpreted by module code.
 
 In addition, next to the portrait files, a special directory 'alternatives' may reside, containing alternate versions
-of the portraits when multiple are availble. Each subdirectory should have a descriptive name pointing out the difference
+of the portraits when multiple are available. Each subdirectory should have a descriptive name pointing out the difference
 from other portraits, so that once all are viewed together, it allows to identify the particular version. The directory
 names are used verbatim by module code when providing the user with a list of options to choose from. The default portraits
 (residing next to the 'alternatives' directory) should be present among other subdirectories again. Each alternative 
-directory should contain the exact same set of files (in terms of their name, not contents naturally).
+directory should contain the exact same set of files (in terms of their name, not contents naturally). The best practice here is having the default portraits be ref files pointing to one of the alternative directories.
 
 
 
