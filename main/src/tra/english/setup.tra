@@ -36,7 +36,7 @@
 @518=	~Decide individually for each component and mod NPC using default portraits~
 @519=	~Decide individually for all mod NPCs and alternative portraits~
 
-@530=	~Portraits of joinable NPCs~
+@530=	~Portraits of companions~
 @531=	~Portraits of official companions only~
 @532=	~Portraits of installed mod companions only~
 @533=	~Portraits of official and mod companions~
@@ -62,11 +62,11 @@
 @600=	~Portraits for player characters~
 @601=	~Choice of installed PC portraits already made~
 
-@610=	~Install to override, replace default portraits and the existing gender-specific selections~
+@610=	~Install to override, replace the existing gender-specific selections, but override also the default portraits~
 @611=	~Install to override, replace the existing gender-specific selections (recommended)~
 @612=	~Install to override, add to the existing gender-specific selections~
-@613=	~Install to game portraits directory, overwriting default portraits (if in conflict with GUI mods)~
-@614=	~Install to game portraits directory, leaving existing portraits~
+@613=	~Install to game portraits directory and override default portraits (if in conflict with GUI mods)~
+@614=	~Install to game portraits directory, leaving existing default portraits~
 @615=	~Install to user's documents folder (standard, shared by both genders) but overwrite default portraits~
 @616=	~Install to user's documents folder (standard, shared by both genders), leave existing portraits~ 
 @617=	~Manually select which PC portrait sets to install in the gender-specific selection screens~
@@ -76,18 +76,18 @@
 
 
 @620=	~Remove portraits from current character generation selection (patching BGEE.LUA)~
-@621=	~Remove canon BG(EE) NPC portraits from the character generation selection~
-@622=	~Remove canon SoD NPC portraits from the character generation selection~
-@623=	~Remove canon BG2(EE) NPC portraits from the character generation selection~
-@624=	~Remove portraits of all joinable NPCs from the character generation selection~
+@621=	~Remove canon BG(EE) companion portraits from the character generation selection~
+@622=	~Remove canon SoD companion portraits from the character generation selection~
+@623=	~Remove canon BG2(EE) companion portraits from the character generation selection~
+@624=	~Remove portraits of all companions from the character generation selection~
 @625=	~Remove portraits of Obe's training companions from the character generation selection~
 @626=	~Remove all Obe's training companion portraits (shared with PCs), including Arkanis' and Deder's~
-@627=	~Remove portraits of Obe's training companions, leaving Arkanis' and Deder's~
+@627=	~Remove portraits of Obe's training companions, leaving Arkanis' and Deder's (Candlekeep Catacombs)~
 @628=	~Remove portraits of Arkanis and Deder from the character generation selection~
 @629=	~Clear portrait selection screen (recommended; add new portraits or the game will crash!)~
 
 @630=	~Override default portraits for player characters with unique images from charname's pool~
-@631=	~Replace all player-only portrait files (recommended for non-ee if you installed all NPC portraits)~
+@631=	~Replace all player-only portrait files (recommended for non-EE if you installed all NPC portraits)~
 @632=	~Replace all player portrait files, including those of companions from Obe's training~
 @633=	~Replace player-only portraits and those shared with Arkanis and Deder~
 @634=	~Replace player portraits, including those shared with Obe's training copanions, but not Arkanis and Deder~

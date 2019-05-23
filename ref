@@ -41,7 +41,7 @@ for p in "$@"; do
 
 		*) case "$p" in
 			"-h") 
-				echo "Usage: $0 [-h] [-d targetdir | -s srcdir | -n refname | -f refsfile | bmpfile]*" >&2
+				echo "Usage: $0 [-h] [-t targetdir | -s srcdir | -n refname | -f refsfile | bmpfile]*" >&2
 				echo "   -h          : print this help" >&2
 				echo "   -s srcdir   : treat following file paths as relative to srcdir" >&2
 				echo "   -t targetdir: specify directory in which following ref files should be placed" >&2

@@ -20,7 +20,7 @@ OUTER_TEXT_SPRINT any_game ~\(bgee\|sod\|bg2ee\|any\)~
 OUTER_TEXT_SPRINT any_gender ~\(male\|female\|other\)~
 	
 /** Matches directories corresponding to playable portraits of both genders: male|female. */
-OUTER_TEXT_SPRINT playable_race ~\(male\|female\)~
+OUTER_TEXT_SPRINT playable_gender ~\(male\|female\)~
 	
 /** Matches all default root directories with portraits for NPCs. */
 OUTER_TEXT_SPRINT any_npc_type ~\(canonnpcs\|modnpcs\|plotnpcs\|\minornpcs\)~
@@ -31,7 +31,11 @@ OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\
 //OUTER_TEXT_SPRINT npc_regex ~%MOD_FOLDER%/%any_npc_type%/%game_dirs%/%any_gender%/\([^/\\]+\)~
 
 OUTER_TEXT_SPRINT pc_pool_dir ~%MOD_FOLDER%/charname/pool~
-	
+
+OUTER_TEXT_SPRINT unified_npc_dir ~%MOD_FOLDER%/unifiednpcs~
+
+/** An empty directory used as a target of COPY IF_EXISTS in ordere to simply read a file. */	
+OUTER_TEXT_SPRINT empty_dir ~%MOD_FOLDER%/empty~	
 	
 //sets game_dirs to a regex alternative of included games, i.e. (bgee|sod|bg2ee)
 //sets game_code to a game code: [bgee|sod|bg2ee|eet]
@@ -55,7 +59,7 @@ END ELSE BEGIN
 		ACTION_IF GAME_IS ~eet~ BEGIN
 			OUTER_TEXT_SPRINT game_dirs ~bgee\|sod\|bg2ee\|any~
 			OUTER_TEXT_SPRINT game_code ~eet~
-			OUTER_TEXT_SPRINT other_games ~none~  //can't use empty string as it often denotes default value
+			OUTER_TEXT_SPRINT other_games ~none~  //can't use empty string as it often denotes a default value
 		END ELSE BEGIN
 			FAIL @000
 		END
