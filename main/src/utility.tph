@@ -1,0 +1,177 @@
+/* 
+ * Several utility functions which don't concern themselves with details of directory
+ * structure or implementation details of module components.
+ */
+ 
+ 
+ 	
+/** Accepts a string of concatenated portrait names, each surrounded by a pair of '/'
+  * (as in values of the array returned by copy_npc_portraits) and returns an array
+  * containing those names.
+  */
+DEFINE_ACTION_FUNCTION split_file_list
+	STR_VAR
+		files
+	RET_ARRAY
+		names
+	BEGIN
+		ACTION_DEFINE_ARRAY names BEGIN END
+		OUTER_SET i = 0
+		OUTER_PATCH ~%files%~ BEGIN
+			REPLACE_EVALUATE CASE_SENSITIVE ~/[^/\\]+/~ BEGIN
+				SPRINT $names(~%i%~) ~%MATCH1%~
+				SET i += 1
+			END ~~
+		END
+	END
+
+
+
+
+/** Accepts a concatenated string list where each string is surrounded by a pair of '/'
+  * and sorts it lexicographically ignoring case. Returns the sorted list as both an
+  * array and another concatenated string. 
+  */
+DEFINE_ACTION_FUNCTION sort_file_list
+	STR_VAR
+		files
+	RET
+		length = 0
+		sorted = ~~
+	RET_ARRAY
+		sorted_array
+	BEGIN
+		LAF split_file_list STR_VAR files = ~%files%~ RET_ARRAY sorted_array = names END
+		//Bubble sort. Gods forgive me.
+		//OUTER_SET length = 0
+		ACTION_PHP_EACH sorted_array AS _ => _ BEGIN
+			OUTER_SET length += 1
+		END
+		
+		OUTER_SET limit = length
+		OUTER_WHILE limit > 1 BEGIN
+			OUTER_SET i = 0
+			OUTER_WHILE (i < limit - 1) BEGIN
+				OUTER_SET j = (i + 1)
+				OUTER_SPRINT str1 $sorted_array("%i%")
+				OUTER_SPRINT str2 $sorted_array("%j%")
+				ACTION_IF (~%str1%~ STRING_COMPARE ~%str2%~) THEN BEGIN
+					OUTER_SPRINT $sorted_array("%i%") ~%str2%~
+					OUTER_SPRINT $sorted_array("%j%") ~%str1%~
+				END
+				OUTER_SET i += 1
+			END
+			OUTER_SET limit -= 1
+		END
+		
+		ACTION_PHP_EACH sorted_array AS _ => str BEGIN
+			OUTER_TEXT_SPRINT sorted ~%sorted%/%str%/~
+		END
+	END
+
+		
+
+	
+	
+	
+DEFINE_ACTION_FUNCTION remove_from_list
+	STR_VAR
+		filelist = ~~
+		exclude = ~~
+	RET
+		filelist 
+	BEGIN
+		OUTER_PATCH_SAVE filelist ~%filelist%~ BEGIN
+			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
+				PATCH_IF NOT (exclude STR_CONTAINS_REGEXP ~/%MATCH1%/~) THEN BEGIN //returns 0 on success...
+					TEXT_SPRINT replacement ~~ 
+				END ELSE BEGIN
+					TEXT_SPRINT replacement ~/%MATCH1%/~
+				END
+			END ~%replacement%~
+		END
+	END
+		
+		
+		
+		
+		
+		
+/** Updates the creature file 'creature' with the given medium and large portraits.
+  * Returns non-zero value IFF the file existed in the game.
+  */	
+DEFINE_ACTION_FUNCTION update_creature_portraits 
+	STR_VAR 
+		creature = ~~
+		medium = ~None~
+	    large = ~None~
+	RET 
+		patched
+	BEGIN
+		OUTER_SET patched = 0
+		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
+			MKDIR ~override~
+		END
+		ACTION_IF FILE_EXISTS_IN_GAME ~%creature%~ THEN BEGIN
+			COPY_EXISTING ~%creature%~ ~override~
+				WRITE_EVALUATED_ASCII 0x34 ~%medium%~ #8
+				WRITE_EVALUATED_ASCII 0x3C ~%large%~ #8
+			BUT_ONLY_IF_IT_CHANGES
+			OUTER_SET patched = 1
+		END
+	END
+
+
+
+
+		
+
+	
+
+	
+	
+/** Delete portrait files, given as base names surrounded by '/' and concatenated to a single string, 
+  * from the given directory.
+  */  
+DEFINE_ACTION_FUNCTION delete_files
+	STR_VAR
+		/** Path to the directory containing the files to be deleted. */
+		dir = ~~
+		/** Names of files to be deleted, as returned by `copy_npc_portraits`'s `filemap` return array.
+		  * It has format of [/<filename>/]* (concatenated file names, each surrounded by a pair of '/'. */
+		files = ~~
+	BEGIN
+		OUTER_INNER_PATCH ~%files%~ BEGIN
+			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
+				INNER_ACTION BEGIN
+					DELETE ~%dir%/%MATCH1%.bmp~
+					DELETE ~%dir%/%MATCH1%.ref~
+				END
+			END ~~
+		END		
+
+	END
+
+
+
+DEFINE_ACTION_FUNCTION create_ref_file
+	STR_VAR
+		/** Directory in which the file must be created. */
+		dir = ~override~
+		/** Name of the reference file without the .ref extension. */
+		name = ~~
+		/** Path to the referenced portrait - either a bmp or a ref file - with or without the extension. */
+		path = ~~
+	BEGIN
+		OUTER_INNER_PATCH_SAVE relative ~%path%~ BEGIN
+			REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%MOD_FOLDER%/~ ~~
+		END
+		<<<<<<<< .../%MOD_FOLDER%-inlined/portrait/%name%.ref
+%relative%
+>>>>>>>>
+		COPY ~.../%MOD_FOLDER%-inlined/portrait/%name%.ref~ ~%dir%/%name%.ref~
+			EVALUATE_BUFFER
+					
+		DELETE ~.../%MOD_FOLDER%-inlined/portrait/%name%.ref~ 
+	
+	END

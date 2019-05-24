@@ -23,7 +23,9 @@
 @503=	~You will be asked to select a portrait where several alternatives are available.~
 @504=	~Pick portrait for~
 @505=	~Enter the number corresponding to the selected option: ~
-
+//@506=	~Do you want to be shown previews of alternative portraits for every companion? [Y]es
+@508=	~Install portraits for ~
+@509=	~? [I]nstall/[N]o:~
 
 @510=	~Portraits for NPCs~
 @511=	~Portraits for official companions only~
@@ -31,29 +33,39 @@
 @513=	~Portraits for official companions as well as major and some minor plot characters~
 @514=	~Portraits for official & mod companions as well as major plot characters~
 @515=	~Portraits for official & mod companions as well as major and some minor plot characters (recommended)~
-@516=	~Decide which portrait groups to install using their default NPC portraits~
-@517=	~Decide which portrait groups to install and select portraits of NPCs between available alternatives~
-@518=	~Decide individually for each component and mod NPC using default portraits~
-@519=	~Decide individually for all mod NPCs and alternative portraits~
+@516=	~Decide for each NPC component using default portraits~
+@517=	~Decide for each NPC component and select between alternative portraits~
+@518=	~Decide for each NPC component and select between alternative portraits after displaying their preview~
 
-@530=	~Portraits of companions~
-@531=	~Portraits of official companions only~
-@532=	~Portraits of installed mod companions only~
-@533=	~Portraits of official and mod companions~
-@534=	~Unify all returning NPCs to refer to the same (BGEE/SoD) portrait file names~
 
-@550=	~Portraits of major plot NPCs~
-@560=	~Portraits of minor (originally faceless) plot NPCs~ 
+@520=	~Portraits of companions~
+@521=	~Portraits of official and mod companions~
+@522=	~Portraits of official companions only~	
+@523=	~Portraits of installed mod companions only~
+@524=	~Portraits of all official companions and ask about each present mod companion~
 
-@571=	~Portraits of official companions from SoD/BG2 (for backporting mods and consistency)~
-@572=	~Portraits of official companions from BG2 (for backporting mods and consistency)~
-@573=	~Portraits of official companions from BG1/SoD (for mods and consistency)~
+@529=	~Unify all returning companions to refer to the same (BGEE/SoD) portrait file names~
 
-@590=	~Portraits of Obe's training companions (some of default PC portraits)~
-@591=	~Overwrite all Obe's training companions (shared with PC portraits)~
-@592=	~Overwrite only Arkanis' and Deder's portraits (shared with PC portraits)~
-//@578=	~Give all Obe's training companions separate portraits~
-//@579=	~Give Arkanis and Deder (Candlekeep catacombs) separate portraits~
+@530=	~Portraits of Obe's training companions (some of default PC portraits)~
+@531=	~Replace all Obe's training companions (shared with PC portraits)~
+@532=	~Replace only Arkanis' and Deder's portraits (from Candlekeep catacombs)~
+@533=	~Separate portraits for all Obe's companions (not shared with PC)~
+@534=	~Separate portraits for Arkanis and Deder (not shared with PC)~
+@535=	~Separate portraits for Arkanis and Deder and shared portraits for the rest~
+
+@540=	~Portraits of major plot NPCs~
+@550=	~Portraits of minor (originally faceless) plot NPCs~ 
+
+//@571=	~Portraits of official companions from SoD/BG2 (for backporting mods and consistency)~
+//@572=	~Portraits of official companions from BG2 (for backporting mods and consistency)~
+//@573=	~Portraits of official companions from BG1/SoD (for mods and consistency)~
+
+@580=	~Replace official companion portraits from other games (for any mods reintroducing that companion)~
+@581=	~Replace portraits of companions not normally present in this game with their default portraits~
+@582=	~Replace portraits of companions not normally present in this game with their selected portraits~
+@583=	~Replace all companion portraits not normally used in the game (player only) with their default portraits~
+@584=	~Replace all companion portraits not normally used in the game with those selected between their alternatives~
+
 
 @599=	~Portrait change to and from Edwina (portraits for Edwina already bundled with plot NPCs)~
 
@@ -62,16 +74,16 @@
 @600=	~Portraits for player characters~
 @601=	~Choice of installed PC portraits already made~
 
-@610=	~Install to override, replace the existing gender-specific selections, but override also the default portraits~
-@611=	~Install to override, replace the existing gender-specific selections (recommended)~
-@612=	~Install to override, add to the existing gender-specific selections~
-@613=	~Install to game portraits directory and override default portraits (if in conflict with GUI mods)~
-@614=	~Install to game portraits directory, leaving existing default portraits~
-@615=	~Install to user's documents folder (standard, shared by both genders) but overwrite default portraits~
-@616=	~Install to user's documents folder (standard, shared by both genders), leave existing portraits~ 
+@610=	~Install to game portraits directory and override default portraits (if in conflict with GUI mods)~
+@611=	~Install to game portraits directory, leaving existing default portraits~
+@612=	~Install to user's documents folder (standard, shared by both genders) but overwrite default portraits~
+@613=	~Install to user's documents folder (standard, shared by both genders), leave existing portraits~ 
+@614=	~Install to override, replace the existing gender-specific selections, but override also the default portraits~
+@615=	~Install to override, replace the existing gender-specific selections (recommended)~
+@616=	~Install to override, add to the existing gender-specific selections~
 @617=	~Manually select which PC portrait sets to install in the gender-specific selection screens~
 @618=	~Manually select which PC portrait sets to install to the game portraits directory~
-@619=	~Manually select which PC portrait sets to install in the user's portraits folder~
+@619=	~Manually select which PC portrait sets to install to the user's portraits folder~
 
 
 

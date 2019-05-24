@@ -1,0 +1,225 @@
+/*
+ * Library file containing functions directly implementing components' semanthics.
+ */
+ 
+
+/** Overrides any existing portraits from companions of the given game(s) which aren't normally
+  * present in the modded game. This is useful for example when a mod brings a bgee companion 
+  * to bg2ee and uses the original file name. It does *not* override portraits from those games
+  * of companions which are in this game (like bgee Edwin portrait in BG2EE).
+  */
+  /*
+ DEFINE_ACTION_FUNCTION override_unexpected_npcs
+	STR_VAR
+		npctype = ~canonnpcs~
+		game = ~~
+		name = ~~
+		exclude = ~~
+	RET
+		filelist
+	BEGIN
+		ACTION_IF game STR_EQ ~~ THEN BEGIN
+			OUTER_TEXT_SPRINT game ~%other_games%~
+		END
+		ACTION_IF name STR-EQ ~~ THEN BEGIN
+			OUTER_TEXT_SPRINT name ~%any_dir%~
+		END
+		
+		LOG ~List portraits from %game% of %game_code% %npctype% companions~
+		LAF list_npc_portraits 
+			STR_VAR npctype = ~%npctype%~ game = ~%game%~ name = ~%name%~ when = ~always~
+			RET alternatives = filelist END
+		
+		LOG ~Copy portraits from %game% not belonging to %game_code% companions~
+		LAF copy_npc_portraits 
+			STR_VAR npctype = ~%npctype%~ game = ~%game%~ when = ~exists~ exclude = ~%exclude%%alternatives%~
+			RET filelist END
+	END
+*/	
+	
+	
+DEFINE_ACTION_FUNCTION override_absent_npcs
+	INT_VAR
+		defaults = -1
+	STR_VAR
+		exclude = ~~
+	RET
+		/** Concatenated list of installed files, each surrounded by a pair of '/'. */
+		filelist
+	BEGIN
+		ACTION_IF defaults < 0 THEN BEGIN
+			OUTER_SET defaults = (NOT manual_alternatives)
+		END
+	
+		LOG ~List this game companions~
+		LAF list_npc_portraits STR_VAR npctype = ~canonnpcs~ when = ~always~	
+			RET present = names END
+		
+		LOG ~List portraits from other games of present companions~
+		LAF list_npc_portraits 
+			STR_VAR npctype = ~canonnpcs~ game = ~%other_games%~ name = ~%present%~ when = ~always~
+			RET exclude = filelist END
+		
+		LOG ~Copy portraits for companions not present in the game~
+		LAF copy_npc_portraits
+			INT_VAR defaults = defaults
+			STR_VAR npctype = ~canonncps~ game = ~%other_games%~ exclude = ~%npc_portraits_installed%%exclude%~
+			RET filelist END
+		OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%filelist%~
+	END
+	
+	
+	
+/*	
+DEFINE_ACTION_FUNCTION unify_npc_portraits	
+	STR_VAR
+		npctype = ~~
+		npcs = ~~
+	BEGIN
+		OUTER_SET unified_portraits = 1
+		
+		LOG ~Update NPCs using different portraits in different games to reference always the first one instead.~
+		LAF copy_npc_portraits 
+			STR_VAR npctype = ~unifiednpcs~ name = ~%npcs%~
+			RET unifiedfiles = filelist unified_npcs = names
+		END
+		
+		//Get the names of portrait files for unified npcs in this game
+		LOG ~Listing unused portraits of unified NPCs in this game.~
+		LAF list_npc_portraits
+			STR_VAR npctype = ~%npctype%~ name = ~%unified_npcs%~ exclude = ~%unifiedfiles%~ 
+			RET unusedfiles = filelist END
+		
+		//Remove unused files from the installed list	
+		OUTER_PATCH_SAVE npc_portraits_installed ~%npc_portraits_installed%~ BEGIN
+			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
+				PATCH_IF NOT (unusedfiles STR_CONTAINS_REGEXP ~/%MATCH1%/~) //returns 0 on success...
+					  OR NOT (unifiedfiles STR_CONTAINS_REGEXP ~/%MATCH1%/~) THEN BEGIN
+					TEXT_SPRINT replacement ~~ //portrait file is either unused or among unified portraits
+				END ELSE BEGIN
+					TEXT_SPRINT replacement ~/%MATCH1%/~
+				END
+			END ~%replacement%~
+		END
+
+		OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%unifiedfiles%~
+		LOG ~NPC portraits used: %npc_portraits_installed%~
+	
+	END
+*/	
+
+
+
+
+/** Create a pool of portraits which might be optionally granted to player characters based on
+  * the choice of installed components. This pool is created in the %pc_pool_dir% directory
+  * and contains overrides of default portrait files. Various charname portrait sets contain
+  * references to files located in the pool; deleting a file from the pool invalidates the
+  * reference and prevents the portrait from being installed. At the same time it allows a
+  * portrait file to be installed under different names, based on selected components.
+  * For example, a replacement for a companion portrait might be installed under its name
+  * and removed from the pool, or as a new file via a differently named reference pointing
+  * to that image in the pool.
+  */
+DEFINE_ACTION_FUNCTION pool_pc_defaults 
+	RET
+		filelist
+	BEGIN
+		ACTION_IF NOT DIRECTORY_EXISTS ~%pc_pool_dir%~ THEN BEGIN
+			MKDIR ~%pc_pool_dir%~
+		END
+		LAF copy_pc_portraits 
+			STR_VAR game = ~override~ target = ~%pc_pool_dir%~ when = ~not exists~
+			RET filelist END
+	END
+	
+
+
+	
+/** Overrides specified portraits, which must already exist in the game. 
+  * Copied files are removed from the %pc_pool_dir%, invalidating any file refs to them.
+  * This effect is used to prevent adding that portrait in the future 
+  * when copying charname sets. The use of reference makes it possible to use different names
+  * when adding portrait files *not removed from the pool* to the portraits folder/selection screen,
+  * resulting in better organization and sorting order.
+  */
+DEFINE_ACTION_FUNCTION override_from_pc_pool
+	INT_VAR 
+		/** Specifies if overriding files should be deleted from the pool after copying. */
+		depool = 1
+		/** Do not copy, simply list what would be overriden. Forces depool=0. */
+		list_only = 0
+	STR_VAR
+		game = ~override~
+		portraitset = ~~
+		exclude = ~~
+	RET
+		filelist
+	BEGIN
+		LAF copy_pc_portraits
+			INT_VAR list_only = list_only
+			STR_VAR game = ~%game%~ name = ~%portraitset%~ when = ~exists~ exclude = ~%exclude%~
+			RET filelist END
+		ACTION_IF depool AND NOT list_only THEN BEGIN
+			LAF delete_files STR_VAR dir = ~%pc_pool_dir%~ files = ~%filelist%~ END
+		END
+	END
+
+	
+	
+	
+	
+/** Make portraits of the NPCs from the given game(s) available to players on character generation screen.
+  * The type of the NPC defaults to 'canonnpcs' (official, joinable NPCs) but can be changed by the `npctype` parameter.
+  * 
+  * This function makes use of several global variables:
+  *   %pc_install_target% defines the directory to which any *new* portraits will be copied.
+  *     Overrides for existing files will go to 'override' as normal. Additionally, if the target directory
+  *     is itself 'override', it is assumed this is an EE game and the portrait list should be patched in BGEE.LUA
+  *     so that the portraits will be picked up. Other legal directories are 'portraits', either directly
+  *     in the game directory, or under the user's folder. In these cases all new files are copied normally
+  *     and should be recognized automatically by the game.
+  *
+  *  %npc_portraits_installed% contains a list of all npc characters in the game which received new portraits
+  *    from some of the components of this mod. The list is in the shared "double '/'" format used by all functions
+  *    and is used as the exclude parameter when copying in order not to override portraits which might have
+  *    been manually selected from between alternatives.
+  */
+DEFINE_ACTION_FUNCTION grant_npc_portraits_to_pc
+	STR_VAR
+		npctype = ~canonnpcs~
+		game = ~~
+		exclude = ~\\~
+	BEGIN
+		ACTION_IF ~%exclude%~ STR_EQ ~\\~ THEN BEGIN
+			OUTER_TEXT_SPRINT exclude ~%npc_portraits_installed%~
+		END
+		
+		ACTION_IF ~%pc_install_target%~ STR_EQ ~override~ THEN BEGIN
+			//First, remove all portraits from the game(s)- easier than verifying which are already there for other games.
+			LAF remove_npc_portraits 
+				STR_VAR npctype = ~%npctype%~ game = ~%game%~ exclude = ~%exclude%~
+			END
+			//Patch the portrait list with all specified NPC portraits. 
+			LAF install_pc_portraits 
+				STR_VAR root = ~%npctype%~ game = ~%game%~ exclude = ~%exclude%~
+			END
+		END ELSE BEGIN
+			//override any of the specified NPC portraits existing, which weren't already overriden
+			LAF copy_npc_portraits 
+				STR_VAR npctype = ~%npctype%~ game = ~%game%~ 
+				        target = ~%pc_install_target%~ when = ~exists~ exclude = ~%exclude%~ 
+			END
+			//copy any remaining portraits to the portrait directory
+			//todo: this bypasses the whole renaming-by-ref-to-pool mechanism :(
+			LAF copy_npc_portraits 
+				STR_VAR 
+					npctype = ~%npctype%~ 
+					game = ~%game%~ 
+					target = ~%pc_install_target%~
+					when = ~not exists~
+					exclude = ~%exclude%~
+			END
+		END
+		
+	END

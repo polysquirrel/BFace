@@ -5,64 +5,8 @@
 	
 
 	
-	
-	
-	
-/** Accepts a string of concatenated portrait names, each surrounded by a pair of '/'
-  * (as in values of the array returned by copy_npc_portraits) and returns an array
-  * containing those names.
-  */
-DEFINE_ACTION_FUNCTION split_portraits
-	STR_VAR
-		files
-	RET_ARRAY
-		names
-	BEGIN
-		ACTION_DEFINE_ARRAY names BEGIN END
-		OUTER_SET i = 0
-		OUTER_PATCH ~%files%~ BEGIN
-			REPLACE_EVALUATE CASE_SENSITIVE ~/[^/\\]+/~ BEGIN
-				SPRINT $names(~%i%~) ~%MATCH1%~
-				SET i += 1
-			END ~~
-		END
-	END
 
 
-
-
-
-	
-/** Updates the creature file 'creature' with the given medium and large portraits.
-  * Returns non-zero value IFF the file existed in the game.
-  */	
-DEFINE_ACTION_FUNCTION update_creature_portraits 
-	STR_VAR creature = ~~
-			medium = ~None~
-	        large = ~None~
-	RET 
-		patched
-	BEGIN
-		OUTER_SET patched = 0
-		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
-			MKDIR ~override~
-		END
-		ACTION_IF FILE_EXISTS_IN_GAME ~%creature%~ THEN BEGIN
-			COPY_EXISTING ~%creature%~ ~override~
-				WRITE_EVALUATED_ASCII 0x34 ~%medium%~ #8
-				WRITE_EVALUATED_ASCII 0x3C ~%large%~ #8
-			BUT_ONLY_IF_IT_CHANGES
-			OUTER_SET patched = 1
-		END
-	END
-	
-
-
-	
-
-	
-	
-	
 
 /** For a given portrait name `basename`, check for existance of a matching '<basename>.2da' file
   * containing a list of game creatures which should be updated with the portrait `basename`.
@@ -305,7 +249,7 @@ DEFINE_ACTION_FUNCTION copy_portrait
   * `copy_npc_portraits` function, and similarly, the return value contains the list of
   * files (entries from the first column) which were (or would  be) actually overriden.
   */
-DEFINE_ACTION_FUNCTION copy_portrait_list
+DEFINE_ACTION_FUNCTION copy_portrait_refs
 	INT_VAR
 		/** Don't copy anything, but otherwise behave no differently and return the list of files that 
 		  * would be copied were this flag not set. */
@@ -353,6 +297,7 @@ DEFINE_ACTION_FUNCTION copy_portrait_list
 		
 	END
 	
+
 
 
 
@@ -463,19 +408,8 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 					END
 					//COPY ~%portrait%~ ~%target%~
 					
-					OUTER_INNER_PATCH_SAVE relative ~%portrait%~ BEGIN
-						REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%MOD_FOLDER%/~ ~~
-					END
+					LAF create_ref_file STR_VAR dir = ~%dir%~ name = ~%basename%~ path = ~%portrait%~ END
 					
-					DELETE ~%dir%/%basename%\.\(bmp\|ref\|refs\)~
-					<<<<<<<< .../%MOD_FOLDER%-inlined/portrait/%basename%.ref
-%relative%
->>>>>>>>
-					COPY ~.../%MOD_FOLDER%-inlined/portrait/%basename%.ref~ ~%dir%/%basename%.ref~
-						EVALUATE_BUFFER
-					
-					DELETE ~.../%MOD_FOLDER%-inlined/portrait/%basename%.ref~ 
-
 				END
 				
 			END
@@ -486,6 +420,108 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 
 
 
+
+
+/** Copies portraits from a single directory. This function is called from copy_npc_portraits
+  * for every npc-level directory.
+  */
+DEFINE_ACTION_FUNCTION copy_portrait_set
+	INT_VAR
+		/** Copy no files, simply return the list of files that would be copied. 
+		  * Return value is the same as without this flag. */
+		list_only = 0
+		/** Allow the user to select between alternative portraits if available. Superceeded by list_only=1. */
+		defaults = -1
+	STR_VAR 
+		/** The complete path to the directory with the portrait files. */ 
+		dir = ~~
+		/** Switch which decides if a file should be copied based on its existance in the game. Can be one of:
+		  * 'exists' - override only; the file must already exist in the game.
+		  * 'not exists' - only new portraits; don't copy if the file already exists
+		  * 'always' - all portraits; copy regardless of previous presence.
+		  * 'used' - the portrait must exist, or a file with creatures to patch specifies at least one existing creature (default). 
+		  */
+		when = ~used~
+		/** Target directory into which all files are (flatly) copied. */
+		target = ~override~
+		/** List of file names (without extensions) that should be excluded from copying. 
+		  * Each entry on the list should be surrounded with '/'. */
+		exclude = ~~
+	RET
+		/** List of base names of copied files. Each name is surrounded with '/' on both sides:
+		  * unless the list is empty, string starts and ends with '/' and each two files are separated by '//'. */
+		filelist = ~~
+	BEGIN
+		
+		ACTION_DEFINE_ARRAY portraits BEGIN END
+		GET_FILE_ARRAY portraits ~%dir%~ ~^.+\.\(bmp\|ref\|refs\)$~ 
+		//OUTER_TEXT_SPRINT copied_files ~~
+		
+		
+		ACTION_PHP_EACH portraits AS _ => path BEGIN //copy all new bmp files to target
+			
+			OUTER_INNER_PATCH_SAVE filename ~%path%~ BEGIN //unqualified file name
+				REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%dir%/~ ~~
+			END
+			
+			OUTER_INNER_PATCH_SAVE basename ~%filename%~ BEGIN 
+				//check if the file actually contains a list of files to be copied
+				REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~.refs~ ~~
+			END
+			
+			
+			//A 2-column table with target portrait name and path to the file
+			ACTION_IF ~%basename%.refs~ STR_EQ ~%filename%~ THEN BEGIN
+				LAF copy_portrait_refs 
+					INT_VAR list_only = list_only
+					STR_VAR 
+						refsfile = ~%path%~ 
+						target = ~%target%~
+						exclude = ~%exclude%~
+						when = ~%when%~
+					RET refs = filelist END
+				OUTER_SET proceed = 0
+				OUTER_TEXT_SPRINT filelist ~%filelist%%refs%~
+				
+			END ELSE BEGIN //single file (or file ref)
+			
+				OUTER_INNER_PATCH_SAVE basename ~%filename%~ BEGIN
+					REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~.bmp~ ~~
+				END
+				ACTION_IF NOT (~%basename%.bmp~ STR_EQ ~%filename%~) THEN BEGIN
+					OUTER_INNER_PATCH_SAVE basename ~%filename%~ BEGIN
+						REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~.ref~ ~~
+					END 
+				END
+				//STRING_CONTAINS_REGEXP returns 0 on match!
+				ACTION_IF NOT (exclude STRING_CONTAINS_REGEXP ~/%basename%/~) THEN BEGIN
+					OUTER_SET proceed = 0
+					LOG ~        excluding %filename%~
+				END ELSE BEGIN
+					LAF copy_portrait 
+						INT_VAR list_only = list_only
+						STR_VAR
+							path = ~%path%~
+							target = ~%target%~
+							name = ~%basename%.bmp~
+							when = ~%when%~
+						RET proceed = copied END
+				END
+				ACTION_IF proceed THEN BEGIN
+					OUTER_TEXT_SPRINT filelist ~%filelist%/%basename%/~
+				END
+			END
+			
+		END
+		
+	
+	END
+
+
+
+
+
+	
 	
 /** Copy portrait files which path is covered by a sequence of regular expressions for individual directories.
   *	The directories on path serve as role/content/gender filter and thus subtries of the collection can be
@@ -494,7 +530,7 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
   *  
   * This function concers itself only if the standard '.bmp' files, symlink-like file refs '.ref' containing
   * a path to the actual file (see `copy_portrait` function's documentation) and '.refs' files aggregating
-  * several file links (see `copy_portrait_list` function's documetation).  Additionally, if a matching 
+  * several file links (see `copy_portrait_refs` function's documetation).  Additionally, if a matching 
   * file with a '2da' extension is found for a portrait (i.e. an ImoenM.2da for ImoenM.bmp), it is assumed to
   * contain a list of creature codes (their file names without the '.CRE' extension), one creature file per line,
   * which should be patched with the corresponding portrait. It will be set as both the large and medium sized 
@@ -508,11 +544,12 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
   * be applied in undetermined order and overwrite their modifications. See the `update_creatures` function
   * for details.
   *
-  * If the %manual_alternatives% global variable is set, `list_only` parameter is false, 
-  * and an 'alternatives' directory is present in the npc folder with portrait files, the user will be prompted 
-  * with the list of directories and asked to pick one. They should be named descriptively, with a limitation of 
-  * disallowed characters '/', '\', '.', and are assumed to contain a file with the same name for all '.bmp'/'.ref' 
-  * files in the parent npc directory. See the `select_alternative_portraits` for more.
+  * If the defaults parameter is zero, or it is negative and the %manual_alternatives% global variable is set, 
+  *`the list_only` parameter is false, and an 'alternatives' directory is present in the npc folder with portrait 
+  * files, the user will be prompted with the list of directories and asked to pick one. They should be named 
+  * descriptively, with a limitation of disallowed characters '/', '\', '.', and are assumed to contain a file 
+  * with the same name for all '.bmp'/'.ref' files in the parent npc directory. 
+  * See the `select_alternative_portraits` for more.
   *
   * @returns filelist a string with concatenated portrait names, each surrounded by a pair of '/'.
   * @returns names a string with concatenated names of npc-level directories from which files were copied.
@@ -528,7 +565,9 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 		  * Return value is the same as without this flag. */
 		list_only = 0
 		/** Allow the user to select between alternative portraits if available. */
-		alternatives = -1
+		defaults = -1
+		/** If not zero, the user will be prompted about every portrait set (npc directory). */
+		ask_each = 0
 	STR_VAR 
 		/** Regexp for name of root directory with npc portraits (alternative from npcs|modnpcs|plotnpcs etc.)*/
 		npctype = ~~
@@ -571,8 +610,8 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 		ACTION_IF (~%name%~ STRING_EQUAL ~~) THEN BEGIN
 			OUTER_TEXT_SPRINT name ~%any_dir%~
 		END
-		ACTION_IF alternatives < 0 THEN BEGIN
-			OUTER_SET alternatives = manual_alternatives
+		ACTION_IF defaults < 0 THEN BEGIN
+			OUTER_SET defaults = (NOT manual_alternatives)
 		END
 		
 		ACTION_IF NOT list_only THEN BEGIN
@@ -610,81 +649,54 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 							REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%sex%/~ ~~
 						END
 						
-						ACTION_DEFINE_ARRAY portraits BEGIN END
-						GET_FILE_ARRAY portraits ~%npc%~ ~^.+\.\(bmp\|ref\|refs\)$~ 
 						OUTER_TEXT_SPRINT copied_files ~~
+						OUTER_SET proceed = 0
+						ACTION_IF ask_each && NOT list_only THEN BEGIN
+							LOG ~        verifying if there are any files to be copied before asking the user...~
+							LAF copy_portrait_set 
+								INT_VAR list_only = 1
+								STR_VAR dir = ~%npc%~ when = ~%when%~ exclude = ~%exclude%~ target = ~~
+								RET copied_files = filelist END
+							
+							ACTION_IF NOT (copied_files STR_EQ ~~) THEN BEGIN
+								OUTER_TEXT_SPRINT copied_files ~~
+								OUTER_SPRINT prompt_prefix @508
+								OUTER_SPRINT prompt_suffix @509
+								OUTER_TEXT_SPRINT decision ~~ 
+								WHILE NOT ((decision STRING_EQUAL_CASE ~I~) || (decision STRING_EQUAL_CASE ~N~)) BEGIN
+									PRINT ~  %prompt_prefix% %npcname%%prompt_suffix% ~								
+									ACTION_READLN ~decision~									
+								END
+								ACTION_IF (decision STRING_EQUALS_CASE ~I~) THEN BEGIN
+									LOG ~        installing %npcname%:~
+									OUTER_SET proceed = 1
+								END 
+							END								
+						END ELSE BEGIN
+							OUTER_SET proceed = 1
+						END
 						
-						
-						ACTION_PHP_EACH portraits AS _ => portrait BEGIN //copy all new bmp files to target
-							
-							OUTER_INNER_PATCH_SAVE filename ~%portrait%~ BEGIN //unqualified file name
-								REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%npc%/~ ~~
-							END
-							
-							OUTER_INNER_PATCH_SAVE basename ~%filename%~ BEGIN 
-								//check if the file actually contains a list of files to be copied
-								REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~.refs~ ~~
-							END
-							
-							
-							//A 2-column table with target portrait name and path to the file
-							ACTION_IF ~%basename%.refs~ STR_EQ ~%filename%~ THEN BEGIN
-								LAF copy_portrait_list 
-									INT_VAR list_only = list_only
-									STR_VAR 
-										listfile = ~%filename%~ 
-										target = ~%target%~
-										exclude = ~%exclude%~
-										when = ~%when%~
-									RET refs = filelist END
-								OUTER_SET proceed = 0
-								OUTER_TEXT_SPRINT copied_files ~%copied_files%%refs%~
-								
-							END ELSE BEGIN //single file (or file link)
-							
-								OUTER_INNER_PATCH_SAVE basename ~%filename%~ BEGIN
-									REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~.bmp~ ~~
-								END
-								ACTION_IF NOT (~%basename%.bmp~ STR_EQ ~%filename%~) THEN BEGIN
-									OUTER_INNER_PATCH_SAVE basename ~%filename%~ BEGIN
-										REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~.ref~ ~~
-									END 
-								END
-								//STRING_CONTAINS_REGEXP returns 0 on match!
-								ACTION_IF NOT (exclude STRING_CONTAINS_REGEXP ~/%basename%/~) THEN BEGIN
-									OUTER_SET proceed = 0
-									LOG ~        excluding %filename%~
-								END ELSE BEGIN
-									LAF copy_portrait 
-										INT_VAR list_only = list_only
-										STR_VAR
-											path = ~%portrait%~
-											target = ~%target%~
-											name = ~%basename%.bmp~
-											when = ~%when%~
-										RET proceed = copied END
-								END
-								ACTION_IF proceed THEN BEGIN
-									OUTER_TEXT_SPRINT copied_files ~%copied_files%/%basename%/~
-								END
-							END
-							
+						ACTION_IF proceed THEN BEGIN
+							LAF copy_portrait_set
+								INT_VAR list_only = list_only
+								STR_VAR dir = ~%npc%~ when = ~%when%~ exclude = ~%exclude%~ target = ~%target%~
+								RET copied_files = filelist END
 						END
 						
 						ACTION_IF NOT (~%copied_files%~ STR_EQ ~~) THEN BEGIN
 							ACTION_IF names STR_EQ ~~ THEN BEGIN
-								OUTER_TEXT_SPRINT names ~%npc%~
+								OUTER_TEXT_SPRINT names ~%npcname%~
 							END ELSE BEGIN
-								OUTER_TEXT_SPRINT names ~%names%\|%npc%~
+								OUTER_TEXT_SPRINT names ~%names%\|%npcname%~
 							END
 							ACTION_IF NOT list_only THEN BEGIN
 								LAF update_creatures 
 									STR_VAR dir = ~%npc%~ basename = ~%basename%~ 
-								RET creatures = creatures_patched END
+									RET creatures = creatures_patched END
 								ACTION_IF creatures THEN BEGIN
 									LOG ~          patched %creatures% creatures.~
 								END
-								ACTION_IF alternatives THEN BEGIN
+								ACTION_IF NOT defaults THEN BEGIN
 									//verify if there is an 'alternatives' subdirectory with alternate files
 									LAF select_alternative_portraits STR_VAR
 										dir = ~%npc%~ npcname = ~%npcname%~ target = ~%target%~
@@ -695,7 +707,6 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 							
 						OUTER_SET npccount += 1
 						ACTION_DEFINE_ASSOCIATIVE_ARRAY filemap BEGIN ~%npc%~ => ~%copied_files%~ END
-						ACTION_CLEAR_ARRAY portraits
 						OUTER_TEXT_SPRINT filelist ~%filelist%%copied_files%~
 				
 					END
@@ -722,6 +733,35 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 	
 
 	
+
+/** A minimalistic wrapper over copy_npc_portraits which simply sets list_only = 1. */	
+DEFINE_ACTION_FUNCTION list_npc_portraits
+	STR_VAR 
+		npctype = ~~
+		game = ~~
+		gender = ~male\|female\|other~ 
+		name = ~~ 
+		when = ~used~
+		exclude = ~~
+	RET
+		filelist
+		names
+	RET_ARRAY
+		filemap
+	BEGIN
+		LAF copy_npc_portraits 
+			INT_VAR list_only = 1 defaults = 1
+			STR_VAR npctype = ~%npctype%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~
+			        when = ~%when%~ exclude = ~%exclude%~ target = ~~
+			RET filelist names
+			RET_ARRAY filemap
+		END
+	END
+
+
+
+
+	
 	
 /** A light wrapper over `copy_npc_portraits`, which overrides all portraits
   * for the official joinable npcs in the game (assuming replacement exists).
@@ -739,10 +779,8 @@ DEFINE_ACTION_FUNCTION copy_canon_npc_defaults
 		filelist
 		names
 	BEGIN
-		//OUTER_SET alternatives = manual_alternatives
-		//LOG ~Overwriting official npc portraits from all games...~
-		OUTER_SET manual_alternatives = 0
 		LAF copy_npc_portraits 
+			INT_VAR defaults = 1
 			INT_VAR list_only = list_only
 			STR_VAR npctype = ~canonnpcs~ game = ~%any_game%~ when = ~exists~ exclude = ~%exclude%~
 			RET filelist names
@@ -751,278 +789,3 @@ DEFINE_ACTION_FUNCTION copy_canon_npc_defaults
 
 	
 	
-
-		
-
-
-	
-	
-	
-
-/** This is a very light wrapper over `copy_npc_portraits` providing default arguments for
-  * names of directories in the pc portrait tree. Before `copy_npc_portraits` is called,
-  * %manual_alternatives% is temporarily set to 0 in order to prevent asking the user for the prompt.
-  * Sets `npctype = ~charname~`, gender = `male|female` by default; all other parameters are passed 
-  * verbatim to the target function and have the same default values. Similarly, the values returned 
-  * by `copy_npc_portraits` are returned without any modification.
-  * See `copy_npc_portraits` documentation.
-  */  
-DEFINE_ACTION_FUNCTION copy_pc_portraits
-	INT_VAR
-		list_only = 0
-	STR_VAR
-		root = ~charname~
-		game = ~~
-		gender = ~male\|female~
-		name = ~~
-		target = ~override~
-		when = ~used~
-		exclude = ~~
-	RET
-		filelist
-		names
-	RET_ARRAY
-		filemap
-	BEGIN
-		OUTER_SET manual_alternatives = 0
-		LAF copy_npc_portraits 
-			INT_VAR list_only = list_only
-			STR_VAR 
-				npctype = ~%root%~ 
-				game = ~%game%~ 
-				gender = ~%gender%~
-				name = ~%name%~ 
-				target = ~%target%~
-				when = ~when~
-				exclude = ~%exclude%~
-			RET filelist names
-			RET_ARRAY filemap END
-	END
-
-
-
-	
-
-/** Removes all portraits from the selection list present on character generation.
-  * This will crash the game if no new portraits are installed!
-  * Patches BGEE.LUA file to clear the portraits = { ... } list. 
-  */
-DEFINE_ACTION_FUNCTION clear_pc_portraits
-	BEGIN
-		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
-			MKDIR ~override~
-		END
-		COPY_EXISTING ~BGEE.LUA~ ~override~
-			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{]*{[^{}]*\({[^}]*}[^{}]*\)*}~ 
-				~portraits = 
-{
-}~		
-	END
-
-	
-
-/** Removes entries for given portrait files from the selection list on character generation.
-  * The file list must be a concatenated sequence of names without the '.bmp' suffix and each surrounded
-  * by an individual pair of '/' - as returned by `copy_npc_portraits` function.
-  */
-DEFINE_ACTION_FUNCTION remove_pc_portraits
-	STR_VAR
-		files = ~~
-	BEGIN
-		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
-			MKDIR ~override~
-		END
-		LAF split_portraits STR_VAR files = files RET_ARRAY names END
-		ACTION_PHP_EACH names AS _ => name BEGIN
-			COPY_EXISTING ~BGEE.LUA~ ~override~
-				//three cases, depending on whether the file is the only, first, or in the middle of the list
-				REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~{[^{}]*'%name%'[^{}]*},~ ~~
-				REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~,[^{}]*{[^{}]*'%name%'[^{}]*}~ ~~
-				REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~{[^{}]*'%name%'[^{}]*}~ ~~
-			BUT_ONLY_IF_IT_CHANGES
-		END
-	END
-	
-	
-	
-/** Resolves the names of portrait files to copy based on exact same parameters and rules as
-  * `copy_npc_portraits`, but doesn't copy (or delete) anything. Instead, it removes any
-  * references to these files from the portrait selection list in the character generation screen.
-  */
-DEFINE_ACTION_FUNCTION remove_npc_portraits
-	STR_VAR
-		npctype = ~canonnpcs\|plotnpcs~
-		game = ~~
-		gender = ~~
-		name = ~~
-		exclude = ~~
-	RET
-		filelist
-	BEGIN
-		ACTION_IF ~%game%~ STR_EQ ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT game ~%any_game%~
-		END
-		LAF copy_npc_portraits 
-			INT_VAR list_only = 1 
-			STR_VAR npctype = ~%npctype%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~ 
-			        when = ~exists~ exclude = ~%exclude%~
-			RET filelist END
-	
-		LAF remove_pc_portraits STR_VAR files = filelist END
-	END
-	
-	
-	
-	
-/** Executes copy_npc_portraits for a single gender, replacing its return array of files with 
-  * a single string of portrait entries insertable to BGEE.lua. Assumes directory structure shared
-  * with NPC portrait directories.
-  */
-DEFINE_ACTION_FUNCTION pc_portrait_selection
-	STR_VAR
-		root = ~charname~
-		game = ~~
-		gender = ~~
-		npc = ~~
-		when = ~used~
-		exclude = ~~
-	RET
-		portraits
-	BEGIN
-		ACTION_IF ~%game%~ STR_EQ ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT game ~%any_dir%~
-		END
-		ACTION_IF ~%npc%~ STR_EQ ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT npc ~%any_dir%~
-		END
-		ACTION_MATCH ~%gender%~	WITH 
-			~male~ ~Male~ ~MALE~ ~M~ ~m~ BEGIN
-				OUTER_SET pc_gender = 1
-			END
-			~female~ ~Female~ ~FEMALE~ ~F~ ~f~ BEGIN
-				OUTER_SET pc_gender = 2
-			END
-			DEFAULT
-				FAIL ~Unrecognized gender: %gender%~
-		END
-
-		LAF copy_npc_portraits 
-			STR_VAR 
-				npctype	= ~%group%~ 
-				game	= ~%game%~ 
-				gender	= ~%gender%~ 
-				npc     = ~%npc%~
-				when    = ~%when%~
-				exclude = ~%exclude%~
-			RET filelist END
-	
-		
-		OUTER_INNER_PATCH_SAVE portraits ~%filelist%~ BEGIN
-			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
-			END ~	{'%MATCH1%', %pc_gender%},
-~
-		END
-		OUTER_INNER_PATCH_SAVE portraits ~%portraits%~ BEGIN //remove trailing ','
-			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~,[^{}]*$^$~ ~~
-		END		
-	END
-	
-	
-	
-/** Copies bmp files from the specified branches of a portrait directory tree using copy_npc_portraits
-  * and updates BGEE.LUA to add the new portraits to the selection list for both playable sexes.
-  * The 'gender' directories in the trie must be named 'male' and 'female', the names of directories 
-  * on all other levels are completely optional. Only the root level argument (corresponding to 'npctype'
-  * for npc portraits) must be specified; the rest will default to all directories.
-  */
-DEFINE_ACTION_FUNCTION install_pc_portraits 
-	STR_VAR
-		root = ~charname~
-		game = ~~
-		//gender = ~male\|female~
-		group = ~~
-		when = ~used~
-		exclude = ~~
-	BEGIN
-	
-		LAF pc_portrait_selection 
-			STR_VAR 
-				root = ~%root%~ 
-				game = ~%game%~
-				gender = ~male~ 
-				npc = ~%group%~
-				when = ~%when%~
-				exclude = ~%exclude%~
-			RET selection = portraits 
-		END
-		
-		LAF pc_portrait_selection 
-			STR_VAR 
-				root = ~%root%~ 
-				game = ~%game%~
-				gender = ~female~ 
-				npc = ~%group%~
-				when = ~%when%~
-				exclude = ~%exclude%~
-			RET portraits 
-		END
-	
-		ACTION_IF ~%selection%~ STRING_EQUAL ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT selection ~%portraits%~
-		END ELSE ACTION_IF NOT (~%portraits%~ STRING_EQUAL ~~) THEN BEGIN
-			OUTER_TEXT_SPRINT selection ~%selection%,
-%portraits%~
-		END
-	
-		LOG ~Installing portrait set:~
-		LOG ~%selection%~
-	
-	
-		ACTION_IF NOT (~%selection%~ STRING_EQUAL ~~) THEN BEGIN
-			LOG ~Patching BGEE.LUA; no files modified here signifies conflit with another module.~
-			//Patch portrait selection list if it's not empty
-			COPY_EXISTING ~BGEE.LUA~ ~override~ 
-				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
-					~portraits = 
-{
-%selection%,~
-			IF ~^portraits =[^{}]*{[^{}]*\({[^{}]*}[^{}]*\)+}~
-		
-
-			//Patch portrait selection list if it's empty
-			COPY_EXISTING ~BGEE.LUA~ ~override~ //
-				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{[^{}]*}~ 
-					~portraits =
-{
-%selection%
-}~
-			IF ~^portraits =[^{}]*{[^{}]*}~
-		END		
-	END
-	
-
-	
-	
-/** Delete portrait files, given as base names surrounded by '/' and concatenated to a single string, 
-  * from the given directory.
-  */  
-DEFINE_ACTION_FUNCTION delete_portraits
-	STR_VAR
-		/** Path to the directory containing the files to be deleted. */
-		dir = ~~
-		/** Names of files to be deleted, as returned by `copy_npc_portraits`'s `filemap` return array.
-		  * It has format of [/<filename>/]* (concatenated file names, each surrounded by a pair of '/'. */
-		files = ~~
-	BEGIN
-		OUTER_INNER_PATCH ~%files%~ BEGIN
-			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
-				INNER_ACTION BEGIN
-					DELETE ~%dir%/%MATCH1%.bmp~
-				END
-			END ~~
-		END		
-
-	END
-
-
-

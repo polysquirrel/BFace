@@ -44,7 +44,6 @@ case "$#" in
                 				fi
                 				cp -a target/exploded/$MOD_NAME target/exploded/setup-$MOD_NAME.exe "$GAMEDIR"
 #               				mv "$GAMEDIR/$MOD_NAME/bface.tp2" "$GAMEDIR/$MOD_NAME/$MOD_NAME.tp2"
-#               				mv "$GAMEDIR/$MOD_NAME/bface.tph" "$GAMEDIR/$MOD_NAME/$MOD_NAME.tph"
 #               				cp -a main/src "$GAMEDIR/$MOD_NAME"
 #               				cp main/bin/weidu.exe "$GAMEDIR/setup-$MOD_NAME.exe"
         				fi
