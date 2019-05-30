@@ -4,7 +4,7 @@ MOD_BUILDER=polymorphedsquirrel
 MOD_ARTISTS=artastrophe
 
 if [ "$MOD_ARTISTS" ]; then 
-    MOD_AUTHORS="$MOD_BUILDER; art: $MOD_ARTISTS"
+    MOD_AUTHORS="art: $MOD_ARTISTS; bugs: $MOD_BUILDER"
 else
     MOD_AUTHORS="$MOD_BUILDER"
 fi

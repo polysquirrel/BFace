@@ -9,8 +9,20 @@
 @008=	~Applicable only to classic BG2~
 @009=	~Applicable only to BGT~
 @010=	~Not aplicable to this game~
-
+@011=	~Not relevant to your previous choices~
 @020=	~Automation~
+
+@080=	~when~
+@081=	~Copy portraits from~
+@082=	~Overwrite portraits with~
+
+
+@090=	~Hi! It is recommended that you install one of the bulk options for NPC and PC portrait sets.
+If you choose to manually select components, consider reading the README file or think carefully, 
+as some of the components may overwrite the choices of previously installed components.
+~
+
+@099=	~Finalisation~
 
 //@100 range reserved for BG/BGEE-only components
 //@200 range reserved for SoD-only components
@@ -56,16 +68,12 @@
 @540=	~Portraits of major plot NPCs~
 @550=	~Portraits of minor (originally faceless) plot NPCs~ 
 
-//@571=	~Portraits of official companions from SoD/BG2 (for backporting mods and consistency)~
-//@572=	~Portraits of official companions from BG2 (for backporting mods and consistency)~
-//@573=	~Portraits of official companions from BG1/SoD (for mods and consistency)~
 
 @580=	~Replace official companion portraits from other games (for any mods reintroducing that companion)~
-@581=	~Replace portraits of companions not normally present in this game with their default portraits~
-@582=	~Replace portraits of companions not normally present in this game with their selected portraits~
-@583=	~Replace all companion portraits not normally used in the game (player only) with their default portraits~
-@584=	~Replace all companion portraits not normally used in the game with those selected between their alternatives~
-
+@581=	~Replace all companion portraits not normally used in the game (player only) with their default portraits~
+@582=	~Replace all companion portraits not normally used in the game with those selected between their alternatives~
+@583=	~Replace portraits of companions not normally present in this game with their default portraits~
+@584=	~Replace portraits of companions not normally present in this game with their selected portraits~
 
 @599=	~Portrait change to and from Edwina (portraits for Edwina already bundled with plot NPCs)~
 
@@ -73,6 +81,9 @@
 
 @600=	~Portraits for player characters~
 @601=	~Choice of installed PC portraits already made~
+@602=	~No portraits to install~
+@608=	~Installing chosen portraits to the selection screen...~
+@609=	~Portrait selection cannot be empty!~
 
 @610=	~Install to game portraits directory and override default portraits (if in conflict with GUI mods)~
 @611=	~Install to game portraits directory, leaving existing default portraits~
@@ -87,43 +98,59 @@
 
 
 
-@620=	~Remove portraits from current character generation selection (patching BGEE.LUA)~
-@621=	~Remove canon BG(EE) companion portraits from the character generation selection~
-@622=	~Remove canon SoD companion portraits from the character generation selection~
-@623=	~Remove canon BG2(EE) companion portraits from the character generation selection~
-@624=	~Remove portraits of all companions from the character generation selection~
+@620=	~Remove portraits of official companions from the character generation selection~
+@621=	~Remove portraits of all official companions~
+@622=	~Remove all portraits (old and new) of official companions from this game~
+@623=	~Remove portraits used by official companions in this game~
 @625=	~Remove portraits of Obe's training companions from the character generation selection~
 @626=	~Remove all Obe's training companion portraits (shared with PCs), including Arkanis' and Deder's~
 @627=	~Remove portraits of Obe's training companions, leaving Arkanis' and Deder's (Candlekeep Catacombs)~
 @628=	~Remove portraits of Arkanis and Deder from the character generation selection~
 @629=	~Clear portrait selection screen (recommended; add new portraits or the game will crash!)~
 
-@630=	~Override default portraits for player characters with unique images from charname's pool~
+@630=	~Replace default portraits for player characters with unique images from charname's pool~
 @631=	~Replace all player-only portrait files (recommended for non-EE if you installed all NPC portraits)~
 @632=	~Replace all player portrait files, including those of companions from Obe's training~
 @633=	~Replace player-only portraits and those shared with Arkanis and Deder~
 @634=	~Replace player portraits, including those shared with Obe's training copanions, but not Arkanis and Deder~
 	
 
-@640=	~Override some unused portraits of official NPCs with player portraits~
-@641=	~Replace not overriden canon NPC's portraits unused by this game (for non-ee if you installed NPC portraits)~
-@642=	~Replace not overriden portraits of NPCs not appearing in the game~
-@643=	~Replace not overriden portraits from other games of present NPCs~
+@640=	~Replace some unused portraits of official NPCs with portraits for player characters~
+@641=	~Replace all not overriden unused portraits of official companions from the whole series~
+@642=	~Replace not overriden portraits of official companions not appearing in the game~
+@643=	~Replace all not overriden unused portraits of official companions from this game~
 
-@651=	~Give player characters access to portraits of all official NPCs from BG(EE)~
-@652=	~Give player characters access to portraits of all official NPCs from SoD (non-BGEE)~
-@653=	~Give player characters access to portraits of all official NPCs from BG2(EE)~
+@650=	~Give player characters access to the portraits of official companions~
+@651=	~Some of alternative portraits of all official companions~
+@652=	~Default portraits of all official companions in the series~
+@653=	~Default and alternative portraits of all official companions~
+@654=	~Default and alternative portraits of absent companions and alternative portraits of present companions.~
+@655=	~Some of alternative portraits of official companions not from this game~
+@656=	~Default portraits of official companions not from this game~
+@657=	~Default and alternative portraits of official companions not from this game~
 
-@661=	~Give player characters access to portraits of all mod NPCs from BG(EE)~
-@662=	~Give player characters access to portraits of all mod NPCs from SoD~
-@663=	~Give player characters access to portraits of all mod NPCs from BG2(EE)~
-@664=	~Give player characters access to portraits of non-EE mod NPCs~
-@665=	~Give player characters access to portraits of EE-only mod NPCs~
-@666=	~Give player characters access to portraits of not installed mod NPCs~
+//@657=	~Give player characters access to portraits of all official NPCs from BG(EE)~
+//@658=	~Give player characters access to portraits of all official NPCs from SoD (non-BGEE)~
+//@659=	~Give player characters access to portraits of all official NPCs from BG2(EE)~
 
-@671=	~Give player characters access to portraits of minor BG(EE) characters~
-@672=	~Give player characters access to portraits of minor SoD characters~
-@673=	~Give player characters access to portraits of minor BG2(EE) characters~
+@660=	~Give player characters access to the portraits of mod companions~
+@661=	~Some of alternative portraits of all mod companions~
+@662=	~Default portraits of all known mod companions~
+@663=	~Default and alternative portraits of all known mod companions~
+@664=	~All portraits of not installed mod companions and alternative portraits of installed companions~
+@665=	~Some of alternative portraits of not installed mod companions~
+@666=	~Default portraits of not installed mod companions~
+@667=	~Default and alternative portraits of not installed mod companions~
+@668=	~Some of alternative portraits of mod companions from other games~
+@669=	~Default portraits of mod companions from other games~
+@670=	~Default and alternative portraits of mod companions from other games~
+@671=	~Alternative portraits of legacy (non-EE) mod companions~
+@672=	~Default portraits of legacy (non-EE) mod companions~
+@673=	~All suitable portraits of legacy (non-EE) mod companions~
 
 
-@690=	~Give player characters a custom set unique portraits (main component)~
+@680=	~Give player characters access to portraits of some suitable minor NPCs~
+
+
+@690=	~Give player characters a custom set of unique portraits (main component)~
+

@@ -18,29 +18,34 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 		list_only = 0
 	STR_VAR
 		root = ~charname~
-		game = ~~
+		group = ~~
 		gender = ~male\|female~
 		name = ~~
 		target = ~override~
 		when = ~always~
+		include = ~*~
 		exclude = ~~
 	RET
+		npccount
 		filelist
 		names
 	RET_ARRAY
 		filemap
 	BEGIN
 		LAF copy_npc_portraits 
-			INT_VAR list_only = list_only defaults = 1
+			INT_VAR 
+				list_only = list_only 
+				defaults = 1
 			STR_VAR 
 				npctype = ~%root%~ 
-				game = ~%game%~ 
+				game = ~%group%~ 
 				gender = ~%gender%~
 				name = ~%name%~ 
 				target = ~%target%~
 				when = ~%when%~
+				include = ~*~
 				exclude = ~%exclude%~
-			RET filelist names
+			RET npccount filelist names
 			RET_ARRAY filemap END
 	END
 
@@ -52,7 +57,7 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
   * This will crash the game if no new portraits are installed!
   * Patches BGEE.LUA file to clear the portraits = { ... } list. 
   */
-DEFINE_ACTION_FUNCTION clear_pc_portraits
+DEFINE_ACTION_FUNCTION clear_pc_portrait_selection
 	BEGIN
 		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
 			MKDIR ~override~
@@ -77,7 +82,8 @@ DEFINE_ACTION_FUNCTION remove_pc_portraits
 		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
 			MKDIR ~override~
 		END
-		LAF split_file_list STR_VAR files = files RET_ARRAY names END
+		LOG ~Removing portraits from the selection screen: %files%~
+		LAF split_file_list STR_VAR list = files RET_ARRAY names END
 		ACTION_PHP_EACH names AS _ => name BEGIN
 			COPY_EXISTING ~BGEE.LUA~ ~override~
 				//three cases, depending on whether the file is the only, first, or in the middle of the list
@@ -107,6 +113,7 @@ DEFINE_ACTION_FUNCTION remove_npc_portraits
 		ACTION_IF ~%game%~ STR_EQ ~~ THEN BEGIN
 			OUTER_TEXT_SPRINT game ~%any_game%~
 		END
+		LOG ~Listing companion portraits to remove: %npctype%/%game%/%gender%/%name%~
 		LAF list_npc_portraits 
 			STR_VAR npctype = ~%npctype%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~ 
 			        when = ~exists~ exclude = ~%exclude%~
@@ -117,28 +124,14 @@ DEFINE_ACTION_FUNCTION remove_npc_portraits
 	
 	
 	
-	
-/** Executes copy_npc_portraits for a single gender, replacing its return array of files with 
-  * a single string of portrait entries insertable to BGEE.lua. Assumes directory structure shared
-  * with NPC portrait directories.
-  */
+/** Translates the given list of portraits into a string injectable to BGEE.LUA. */
 DEFINE_ACTION_FUNCTION pc_portrait_selection
 	STR_VAR
-		root = ~charname~
-		game = ~~
 		gender = ~~
-		npc = ~~
-		when = ~used~
-		exclude = ~~
+		filelist = ~~
 	RET
 		portraits
 	BEGIN
-		ACTION_IF ~%game%~ STR_EQ ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT game ~%any_dir%~
-		END
-		ACTION_IF ~%npc%~ STR_EQ ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT npc ~%any_dir%~
-		END
 		ACTION_MATCH ~%gender%~	WITH 
 			~male~ ~Male~ ~MALE~ ~M~ ~m~ BEGIN
 				OUTER_SET pc_gender = 1
@@ -150,17 +143,6 @@ DEFINE_ACTION_FUNCTION pc_portrait_selection
 				FAIL ~Unrecognized gender: %gender%~
 		END
 
-		LAF copy_npc_portraits 
-			STR_VAR 
-				npctype	= ~%group%~ 
-				game	= ~%game%~ 
-				gender	= ~%gender%~ 
-				npc     = ~%npc%~
-				when    = ~%when%~
-				exclude = ~%exclude%~
-			RET filelist END
-	
-		
 		OUTER_INNER_PATCH_SAVE portraits ~%filelist%~ BEGIN
 			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
 			END ~	{'%MATCH1%', %pc_gender%},
@@ -172,58 +154,23 @@ DEFINE_ACTION_FUNCTION pc_portrait_selection
 	END
 	
 	
-	
-/** Copies bmp files from the specified branches of a portrait directory tree using copy_npc_portraits
-  * and updates BGEE.LUA to add the new portraits to the selection list for both playable sexes.
-  * The 'gender' directories in the trie must be named 'male' and 'female', the names of directories 
-  * on all other levels are completely optional. Only the root level argument (corresponding to 'npctype'
-  * for npc portraits) must be specified; the rest will default to all directories.
-  */
-DEFINE_ACTION_FUNCTION install_pc_portraits 
+
+
+
+
+DEFINE_ACTION_FUNCTION install_pc_portrait_list
 	STR_VAR
-		root = ~charname~
-		game = ~~
-		//gender = ~male\|female~
-		group = ~~
-		when = ~used~
-		exclude = ~~
+		gender = ~~
+		filelist = ~~
 	BEGIN
-	
-		LAF pc_portrait_selection 
-			STR_VAR 
-				root = ~%root%~ 
-				game = ~%game%~
-				gender = ~male~ 
-				npc = ~%group%~
-				when = ~%when%~
-				exclude = ~%exclude%~
-			RET selection = portraits 
-		END
-		
-		LAF pc_portrait_selection 
-			STR_VAR 
-				root = ~%root%~ 
-				game = ~%game%~
-				gender = ~female~ 
-				npc = ~%group%~
-				when = ~%when%~
-				exclude = ~%exclude%~
-			RET portraits 
-		END
-	
-		ACTION_IF ~%selection%~ STRING_EQUAL ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT selection ~%portraits%~
-		END ELSE ACTION_IF NOT (~%portraits%~ STRING_EQUAL ~~) THEN BEGIN
-			OUTER_TEXT_SPRINT selection ~%selection%,
-%portraits%~
-		END
-	
+		LAF pc_portrait_selection STR_VAR gender = ~%gender%~ filelist = ~%filelist%~
+			RET selection = portraits END
+
 		LOG ~Installing portrait set:~
 		LOG ~%selection%~
-	
-	
+		
 		ACTION_IF NOT (~%selection%~ STRING_EQUAL ~~) THEN BEGIN
-			LOG ~Patching BGEE.LUA; no files modified here signifies conflit with another module.~
+			LOG ~Patching BGEE.LUA; no files modified here signifies a conflit with another module.~
 			//Patch portrait selection list if it's not empty
 			COPY_EXISTING ~BGEE.LUA~ ~override~ 
 				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
@@ -242,4 +189,94 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 }~
 			IF ~^portraits =[^{}]*{[^{}]*}~
 		END		
+			
 	END
+	
+	
+	
+	
+	
+	
+/** Copies bmp files from the specified branches of a portrait directory tree using copy_npc_portraits
+  * and updates BGEE.LUA to add the new portraits to the selection list for both playable sexes.
+  * The 'gender' directories in the trie must be named 'male' and 'female', the names of directories 
+  * on all other levels are completely optional. Only the root level argument (corresponding to 'npctype'
+  * for npc portraits) must be specified; the rest will default to all directories.
+  */
+DEFINE_ACTION_FUNCTION install_pc_portraits 
+	STR_VAR
+		root = ~charname~
+		game = ~~
+		group = ~~
+		when = ~used~
+		exclude = ~~
+	BEGIN
+
+		LAF copy_npc_portraits 
+			INT_VAR defaults = 1
+			STR_VAR 
+				npctype = ~%root%~ 
+				game = ~%game%~ 
+				gender = ~male~ 
+				npc = ~%group%~ 
+				exclude = ~%exclude%~ 
+				when = ~%when%~
+			RET males = filelist END
+			
+		LAF copy_npc_portraits 
+			INT_VAR defaults = 1
+			STR_VAR 
+				npctype = ~%root%~ 
+				game = ~%game%~ 
+				gender = ~female~ 
+				npc = ~%group%~ 
+				exclude = ~%exclude%~ 
+				when = ~%when%~
+			RET females = filelist END
+			
+		LAF install_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
+		LAF install_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
+/*		
+		LAF pc_portrait_selection STR_VAR gender = ~male~ filelist = ~%males%~
+			RET selection = portraits END
+		
+		LAF pc_portrait_selection STR_VAR gender = ~female~ filelist = ~%females%~
+			RET portraits END
+	
+		ACTION_IF ~%selection%~ STRING_EQUAL ~~ THEN BEGIN
+			OUTER_TEXT_SPRINT selection ~%portraits%~
+		END ELSE ACTION_IF NOT (~%portraits%~ STRING_EQUAL ~~) THEN BEGIN
+			OUTER_TEXT_SPRINT selection ~%selection%,
+%portraits%~
+		END
+	
+		LOG ~Installing portrait set:~
+		LOG ~%selection%~
+	
+	
+		ACTION_IF NOT (~%selection%~ STRING_EQUAL ~~) THEN BEGIN
+			LOG ~Patching BGEE.LUA; no files modified here signifies a conflit with another module.~
+			//Patch portrait selection list if it's not empty
+			COPY_EXISTING ~BGEE.LUA~ ~override~ 
+				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
+					~portraits = 
+{
+%selection%,~
+			IF ~^portraits =[^{}]*{[^{}]*\({[^{}]*}[^{}]*\)+}~
+		
+
+			//Patch portrait selection list if it's empty
+			COPY_EXISTING ~BGEE.LUA~ ~override~ //
+				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{[^{}]*}~ 
+					~portraits =
+{
+%selection%
+}~
+			IF ~^portraits =[^{}]*{[^{}]*}~
+		END		
+*/
+	END
+	
+	
+	
+	

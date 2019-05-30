@@ -1,0 +1,91 @@
+#!/bin/sh
+
+if [[ "$#" -lt 2 ]]; then
+    echo "Usage: $0 [<bmp file>|<ref file>|<refs file>]* dir"
+    echo "Copies to the destination directory dir while resolving reference files"
+elif [[ ! -d "$$($#)" ]]; then
+    echo "Not a directory: $$($#)" > &2
+else
+verbose=0
+dst=""
+plurality=0
+action=""
+
+for param in "$@"; do
+    if [[ "$next" == "basedir"]]; then
+        basedir="$param"
+	action=""
+    else case "$param" match
+        "-v") verbose = 1
+	    ;;
+	"-vv") verbose = 2
+	    ;;
+	"-d") action="basedir"
+	    ;;
+        "-h")
+            echo "Usage: $0 [OPTION]* [<bmp file>|<ref file>|<refs file>]+ destdir"
+            echo "       $0 [OPTION]* [<bmp file>|<ref file>] destfile"
+            echo "Copies portrait files to the destination while following the references."
+            echo "Options:"
+            echo "    -h	print this help"
+            echo "    -v  	print all copied files
+            echo "    -vv	print all copied files and each resolved reference."
+            echo "    -d base   base directory for all relative paths defined by reference files."
+            echo "          	If not present, current directory is used."
+            ;;
+        *)  dest="$param"
+            if [[ $plurality == "0" ]]; then
+                plurality=1
+            elif [[ $plurality == "1" ]]; then
+                plurality=2
+            elif [[ $plurality == "2" ]]; then
+               plurality=3
+            fi
+            ;;
+    esac fi
+done
+
+if [[ "$plurality" -lt 2 ]]; then
+    `$0 -h`
+elif [[ "$plurality" == 2 ]]; then
+   for param in "$@"; do
+   done
+   if [[ -d "$dest" ]]; then
+   fi
+elif [[ "$plurality" == 2 && ! -d "$dest" ]]; then 
+    echo "Not a directory: '$dest' > &2
+else
+
+    for i in `seq "$#"`; do
+    	case "$($i)" match
+	    "-v") verbose=1
+                ;;
+	    *)	
+	        basename=`basename "$file"`
+	        prefix=`basename "$file" | sed -e "s/\.\(bmp\|ref\|refs\)^//g"`
+	        if [[ "$prefix.ref" -eq "$basename" ]]; then 
+	            `target=`cat "$file"`
+		    `$0 "$target" "$dst"`
+		elif [[ "$basename.refs" -eq "$file ]]; then
+		    cat "$file" | while IFS="	" read -r name target; do
+		        if [[ ! -f "$target" ]]; then
+			    if [[ -f "$target.bmp ]]; then
+			        target="$target.bmp"
+			    elif [[ -f "$target.ref ]]; then
+			        target="$target.ref"
+			    else
+			        echo "Invalid ref target in $file: $name <= $target" > &2
+			    fi
+			fi
+			`$0 "$target" "$dst/$name`
+		    done
+	        elif [[ verbose == 1 ]]; then
+	            #cp -v "$file" "$dst" 
+		    echo "$file => $dst/
+		else
+		    echo "$file
+	        fi
+	        ;;
+	esac
+    done
+fi

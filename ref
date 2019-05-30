@@ -7,12 +7,13 @@ targetdir=""
 targetname=""
 refsfile=""
 srcdir=""
+moddir=""
 
 for p in "$@"; do
 	case "$action" in
 		"srcdir") 
 			if [[ "$p" =~ .*/$ ]]; then
-				srcdir=$p
+				srcdir="$p"
 			else
 				srcdir="$p/"
 			fi
@@ -21,13 +22,20 @@ for p in "$@"; do
 
 		"targetdir")
 			if [[ "$p" =~ .*/$ ]]; then
-				targetdir=$p
+				targetdir="$p"
 			else
 				targetdir="$p/"
 			fi
 			action=""
 			;;
-		
+		"moddir")
+			if [[ "$p" =~ .*/$ ]]; then
+				moddir="$p"
+			else
+				moddir="$p/"
+			fi
+			action=""
+			;;
 		"rename")
 			targetname=$p
 			action=""
@@ -45,6 +53,16 @@ for p in "$@"; do
 				echo "   -h          : print this help" >&2
 				echo "   -s srcdir   : treat following file paths as relative to srcdir" >&2
 				echo "   -t targetdir: specify directory in which following ref files should be placed" >&2
+				echo "   -m moddir   : specifies root directory of the module; all ref paths" >&2
+				echo "                 created with the '-p' option will be relative to this" >&2
+				echo "                 directory instead of being absolute." >&2
+				echo "   -p          : prefix all referenced files with the path to the current" >&2
+				echo "                 directory. Created references will use the absolute path">&2
+				echo "                 as if given the option '-t \`pwd\` '. If additionally the" >&2
+				echo "                 '-m dir' option was specified, and 'dir' is a prefix" >&2
+				echo "                 of the path to the current directory, it will be stripped" >&2
+				echo "                 in the created reference files, resulting in paths" >&2
+				echo "                 relative to the 'dir' directory." >&2
 				echo "   -n refname  : rename the next reference file to 'refname.ref' instead of" >&2
 				echo "                 using the original file's base name" >&2
 				echo "   -f refsfile : put all following references into a single aggregate file" >&2
@@ -77,20 +95,32 @@ for p in "$@"; do
 				action="targetdir"
 				refsfile=""
 				;;
+			"-m") action="moddir"
+				;;
 
 			"-n") action="rename"
 				;;
 
 			"-f") action="aggregate"
 				;;
+			"-p")
+				srcdir=`pwd`
+				if [[ ! "$srcdir" =~ ".*/$" ]]; then
+					srcdir="$srcdir/"
+				fi
+				;;
 
 			*)
 				path="$srcdir$p"
-				
+			
+				if [[ "$moddir" ]]; then
+					script="s\\^$moddir\\\\g"
+					path=`echo "$path" | sed -e "$script"`
+				fi
 				if [ "$targetname" ]; then
 					filename="$targetname"
 				else
-					filename=`basename -s .bmp $p`
+					filename=`basename "$p" | sed -e "s/\.\(bmp\|ref\)$//g"`
 				fi
 				targetname=""
 

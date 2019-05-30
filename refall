@@ -1,0 +1,7 @@
+#!/bin/sh
+
+for p in "$@"; do
+    case "$p" in
+        "-h", "--help")
+	    echo "usage: $0 [-h|--help|-v|--verbose] [-s srcdir | -t targetdir | prefix]*"
+done

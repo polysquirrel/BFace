@@ -1,11 +1,11 @@
 /*
  *  This is a configuration file containing, above all, names of directories with portraits
- *  and lists compatible games. This file is likely to differ between branches/versions of the library.
+ *  and lists of compatible games. This file is likely to differ between branches/versions of the library.
  */
 
 
 /** Flag requesting prompting the user to hand-pick between altrenative portrait versions. */
-OUTER_SET manual_alternatives = 0
+OUTER_SET use_default_portraits = 1
 
 /** Flag requesting to display readme files showcasing available alternatives for each NPC where they exist. */
 OUTER_SET show_alternatives = 0
@@ -15,6 +15,8 @@ OUTER_TEXT_SPRINT portrait_dir ~%USER_DIRECTORY%/portraits~
 	
 /** Matches directories corresponding to all three parts of the BG saga. */
 OUTER_TEXT_SPRINT any_game ~\(bgee\|sod\|bg2ee\|any\)~
+
+OUTER_TEXT_SPRINT non_ee ~\(bg\|soa)~
 	
 /** Matches all three default 'gender' directories: male/female/other. The last one is for non-player portraits. */
 OUTER_TEXT_SPRINT any_gender ~\(male\|female\|other\)~
@@ -27,6 +29,12 @@ OUTER_TEXT_SPRINT any_npc_type ~\(canonnpcs\|modnpcs\|plotnpcs\|\minornpcs\)~
 
 /** Matches any dir/file name other than symbolic . and .. */
 OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\\/]+\)~
+
+/** Regexp matching '.bmp' and '.ref' files. */
+OUTER_TEXT_SPRINT portrait_file ~^[^\./\\]+\.\(bmp\|ref\)$~
+
+/** Regexp matching '.bmp', '.ref' and '.refs' files. */
+OUTER_TEXT_SPRINT supported_file ~^[^\./\\]+\.\(bmp\|ref\|refs)$~
 
 //OUTER_TEXT_SPRINT npc_regex ~%MOD_FOLDER%/%any_npc_type%/%game_dirs%/%any_gender%/\([^/\\]+\)~
 

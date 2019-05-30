@@ -1,0 +1,42 @@
+#!/bin/sh
+
+#copies all files from under charname/override to charname/pool.
+#References are copied, not followed. Aggregate reference files
+#are read and followed once, but should contain entries without 
+#extensions or the script might not work.
+#Note that charname/pool is excluded during build and populated
+#during module installation normally; this script is intended
+#to help verify the integrity of reference files with 'reftest'.
+
+dir="./"
+if [[ "$#" == 2 && "$1" == "-d" ]]; then
+    dir="$2"
+fi
+
+if [[ ! -d "$dir/charname/pool" ]]; then
+    mkdir "$dir/charname/pool"
+fi
+
+find "$dir/charname/override" \( -name "*.bmp" -or -name ".ref" \) -exec cp -a {} "$dir/charname/pool" \; 
+
+find "$dir/charname/override" -name "*.refs" -print0 | while IFS= read -r -d '' file; do
+    cat "$file" | while IFS="	" read -r name path; do
+        dst=`echo "$name" | sed -e "s/^[[:space:]]*//g" -e "s/[[:space:]]*$//g" -e "s/\.\(bmp|ref\)$//g"`
+	src=`echo "$path" | sed -e "s/^[[:space:]]*//g" -e "s/[[:space:]]*$//g"`
+	if [[ "$src" ]]; then
+	    if [[ ! -f "$dir/$src" ]]; then
+	        if [[ -f "$dir/$src.bmp" ]]; then 
+	            src="$src.bmp"
+		    dst="$dst.bmp"
+	        elif [[ -f "$dir/$src.ref" ]]; then
+	            src="$src.ref"
+		    dst="$dst.ref"
+	        else
+		    echo "Invalid ref $dst:	$src"
+	        fi
+	    fi
+            cp -a "$dir/$src" "$dir/charname/pool/$dst" 
+	fi
+    done
+done
+

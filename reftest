@@ -1,0 +1,30 @@
+#!/bin/sh
+
+#searches for all '.ref' and '.refs' files under the current directory
+#(or, if -d dir parameter is given, under the specified directory)
+#and validates that the referenced files exist. Extensions are appended
+#to base file names normally. 
+#Note that some references may depend on files which are copied or
+#created during installation and thus may be invalid in the sources.
+
+dir="./"
+if [[ "$#" == 2 && "$1" == "-d" ]]; then
+    dir="$2"
+fi
+
+find $dir -name "*.ref" -print0 | while IFS= read -r -d '' file; do
+    read -r -d '' ref < "$file"
+    ref=`echo "$ref" | sed -e "s/^[ \t]//g" -e "s/[ \t]$//g"`
+    if [[ ! -f "$dir/$ref" && ! -f "$dir/$ref.bmp" && ! -f "$dir/$ref.ref" ]]; then
+        echo "$file:	'$ref'"
+    fi
+done
+
+find $dir -name "*refs" -print0 | while IFS= read -r -d '' file; do
+    cut -f 2 -s "$file" | while IFS= read -r ref; do
+        if [[ ! -f "$dir/$ref" && ! -f "$dir/$ref.bmp" && ! -f "$dir/$ref.ref" ]]; then
+	    echo "$file:	'$ref'"
+	fi
+    done
+done
+
