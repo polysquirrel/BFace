@@ -26,7 +26,7 @@ options. The path to a npc portrait file is interpreted as follows:
 
 where:
   - group:	one of the listed top-level npc/pc portrait groups
-  - game:	the shortened game name: bg1ee, bg2ee, sod. ToB and TotSC are included in the base games. Used explcitly 
+  - game:	the shortened game name: bg1ee, bg2ee, sod. ToB and TotSC are included in the base games. Used explicitly 
            	by the module code to select the proper portraits for a given game.
   - gender:	male/female/other. The last one serves to explicitly exclude a portrait from use by the pc, even if an
            	appropriate installation option is selected.

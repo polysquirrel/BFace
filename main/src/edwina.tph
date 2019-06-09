@@ -33,11 +33,11 @@ BEGIN
 		COPY_EXISTING ~spin916.spl~ ~override~ // change to edwina
 			LPF ADD_SPELL_EFFECT 
 				INT_VAR opcode = 107 target = 2 parameter2 = 1 timing = 1 
-				STR_VAR resource = edwinal 
+				STR_VAR resource = EdwinaL 
 			END // large portrait
 			LPF ADD_SPELL_EFFECT 
 				INT_VAR opcode = 107 target = 2 parameter2 = 0 timing = 1 
-				STR_VAR resource = edwinam
+				STR_VAR resource = EdwinaM
 			END // small portrait
 	END
 END

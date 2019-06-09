@@ -48,7 +48,7 @@ for p in "$@"; do
 
 
 		*) case "$p" in
-			"-h") 
+			"-h"|"--help") 
 				echo "Usage: $0 [-h] [-t targetdir | -s srcdir | -n refname | -f refsfile | bmpfile]*" >&2
 				echo "   -h          : print this help" >&2
 				echo "   -s srcdir   : treat following file paths as relative to srcdir" >&2

@@ -1,28 +1,80 @@
-/*
- * Library file containing functions directly implementing components' semanthics.
- */
+/**************************************************************************************
+ *   Library file containing functions directly implementing components' semanthics.  *
+ *************************************************************************************/
  
 
-	
-	
-DEFINE_ACTION_FUNCTION override_absent_npcs
+
+
+/** Overrides companion portraits which are not used by the (unmodified) game with new portraits of
+  * the depicated companion. These will generally be portraits from other games included for the use
+  * by charname, although unifying the NPCs to always use the first portrait will affect which files
+  * exactly are unused. If `defaults==0`, the user will be presented with a prompt asking to
+  * choose between alternatives, where several versions of a portrait are available.
+  * Sets the `installed_unused_npcs` flag.
+  */
+DEFINE_ACTION_FUNCTION install_unused_npcs
 	INT_VAR
-		defaults = -1
-	STR_VAR
-		exclude = ~~
+		defaults = 666
+	RET
+		/** List of overriden unused npc portraits. */
+		filelist
+		/** Concatenation of filelist and npc_portraits_installed returned for conveniance. */
+		installed
+		/** Names of NPCs with overriden unused portraits. */
+		names
+	BEGIN
+		ACTION_IF defaults > 1 THEN BEGIN
+			OUTER_SET defaults = use_default_portraits
+		END
+
+		ACTION_IF ~%unified_portraits%~ STR_EQ ~~ THEN BEGIN
+			ACTION_IF defaults THEN BEGIN
+				LOG ~Override companion portraits from other games with their default portraits~
+			END ELSE BEGIN
+				LOG ~Override companion portraits from other games with their selected alternatives~
+			END
+			LAF copy_npc_portraits 
+				INT_VAR defaults = defaults //list_only = list_only
+				STR_VAR npctype = ~canonnpcs~ game = ~%other_games%~ when = ~exists~ exclude = ~%npc_portraits_installed%~
+				RET filelist names END
+		END ELSE BEGIN
+			ACTION_IF defaults THEN BEGIN
+				LOG ~Override not unified, unused companion portraits with their default portraits~
+			END ELSE BEGIN
+				LOG ~Override not unified, unused companion portraits with their selected alternatives~
+			END
+			LAF copy_npc_portraits 
+				INT_VAR defaults = defaults //list_only = list_only
+				STR_VAR npctype = ~canonnpcs~ game = ~%any_game%~ when = ~exists~ exclude = ~%npc_portraits_installed%~
+				RET filelist names END
+		
+		END
+		
+		OUTER_TEXT_SPRINT installed ~%npc_portraits_installed%%filelist%~
+	END
+	
+	
+	
+
+
+
+/** Overrides all portraits which depict companions not present	in the (unmodified) game with their
+  * appropriate portraits. If `defaults==0`, the user will be presented with a prompt asking to choose
+  * between alternative versions when multiple are available instead of using the default portraits.
+  */
+DEFINE_ACTION_FUNCTION install_absent_npcs
+	INT_VAR
+		defaults = 666
 	RET
 		/** Concatenated list of installed files, each surrounded by a pair of '/'. */
-		filelist = ~~
-		names = ~~
+		filelist 
+		/** Names of companions (4-th level directory names) separated by regexp alternative \| */
+		names 
 	BEGIN
-		ACTION_IF defaults < 0 THEN BEGIN
+		ACTION_IF defaults > 1 THEN BEGIN
 			OUTER_SET defaults = use_default_portraits
 		END
 	
-		//LOG ~List this game companions~
-		//LAF list_npc_portraits STR_VAR npctype = ~canonnpcs~ when = ~always~	
-		//	RET canon_game_npcs = names END
-		
 		LOG ~List portraits from other games of present companions~
 		LAF list_npc_portraits 
 			STR_VAR npctype = ~canonnpcs~ game = ~%other_games%~ name = ~%canon_game_npcs%~ when = ~always~
@@ -36,63 +88,114 @@ DEFINE_ACTION_FUNCTION override_absent_npcs
 	END
 	
 	
+
 	
-/*	
-DEFINE_ACTION_FUNCTION unify_npc_portraits	
-	STR_VAR
-		npctype = ~~
-		npcs = ~~
-	BEGIN
-		OUTER_SET unified_portraits = 1
-		
+
+
+
+
+
+
+/** Patches all official companions in the game to use portrait files from the game of their first 
+  * (official) appearance. The unification's scope is restricted to only those companions, who already
+  * received portraits from this mod (hence if mod npc portraits component is not installed, none of these
+  * npcs will be affected or their portraits copied). This is done using the same mechanism with everything else: 
+  * copying portraits from under the 'unifiednpcs' directory. Additionally, global variable %npc_portraits_installed%
+  * is updated to reflect the changes (new portraits added, previous, now unused, removed). Once the macro 
+  * returns, %unified_portraits% will contain the list of portraits used by *unified* (not all) npcs in this game.
+  */
+DEFINE_ACTION_MACRO unify_npc_portraits	
+	BEGIN		
 		LOG ~Update NPCs using different portraits in different games to reference always the first one instead.~
 		LAF copy_npc_portraits 
-			STR_VAR npctype = ~unifiednpcs~ name = ~%npcs%~
-			RET unifiedfiles = filelist unified_npcs = names
+			STR_VAR npctype = ~unifiednpcs~ name = ~%npcs_installed%~
+			RET unified_portraits = filelist unified_npcs = names
 		END
 		
-		//Get the names of portrait files for unified npcs in this game
 		LOG ~Listing unused portraits of unified NPCs in this game.~
 		LAF list_npc_portraits
-			STR_VAR npctype = ~%npctype%~ name = ~%unified_npcs%~ exclude = ~%unifiedfiles%~ 
-			RET unusedfiles = filelist END
+			STR_VAR npctype = ~%companions_selected%~ name = ~%unified_npcs%~  exclude = ~%unified_portraits%~ 
+			RET unused_unified_portraits = filelist END
 		
-		//Remove unused files from the installed list	
-		OUTER_PATCH_SAVE npc_portraits_installed ~%npc_portraits_installed%~ BEGIN
-			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
-				PATCH_IF NOT (unusedfiles STR_CONTAINS_REGEXP ~/%MATCH1%/~) //returns 0 on success...
-					  OR NOT (unifiedfiles STR_CONTAINS_REGEXP ~/%MATCH1%/~) THEN BEGIN
-					TEXT_SPRINT replacement ~~ //portrait file is either unused or among unified portraits
-				END ELSE BEGIN
-					TEXT_SPRINT replacement ~/%MATCH1%/~
-				END
-			END ~%replacement%~
-		END
+		//Remove unused files from the installed list var
+		LAF	remove_from_list 
+			STR_VAR list = ~%npc_portraits_installed%~ exclude = ~%unified_portraits%%unused_unified_portraits%~
+			RET npc_portraits_installed = filelist END
 
-		OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%unifiedfiles%~
+		OUTER_TEXT_SPRINT npc_portraits_installed ~%npc_portraits_installed%%unified_portraits%~
 		LOG ~NPC portraits used: %npc_portraits_installed%~
 	
 	END
-*/	
+	
 
+
+
+
+
+/** Lists the portraits of official NPCs used in the game. Unless the portraits have been unified
+  * (that is, character files always refer to the portrait from the game of their first appearance),
+  * this is simply ~%canon_game_portraits%~. Otherwise it lists the first portrait set for every
+  * official NPC in the game.
+  */
+DEFINE_ACTION_FUNCTION used_portraits
+	RET
+		filelist
+	BEGIN
+		OUTER_TEXT_SPRINT used ~%canon_game_portraits%~
+			
+		ACTION_IF NOT (unified_portraits STR_EQ ~~) THEN BEGIN
+			
+			LOG ~List unused portraits from this game of unified NPCs.~
+			LAF list_npc_portraits
+				STR_VAR npctype = ~canonnpcs~ name = ~%unified_npcs%~ exclude = ~%unified_portraits%~
+				RET unused = filelist END
+				
+			LOG ~List portraits from this game used by official companions.~
+			LAF list_npc_portraits 
+				STR_VAR npctype = ~canonnpcs~ exclude = ~%unused%~ 
+				RET used = filelist END //this doesn't include unified portraits from earlier games, see below
+				
+			OUTER_TEXT_SPRINT used ~%used%%unified_portraits%~
+		END 
+	
+	END
 
 
 
 
 
 		
+/** Makes available copies of specified default NPC portraits to player characters. The files will use
+  * different names, consistent with the naming scheme of player portraits. The copying is limited to
+  * the portraits from directories under the standard depth of 4, excluding any alternative subdirectories.
+  * All references are followed, including those that pick between alternative portrait versions, meaning
+  * user choices are recognized.
+  * This function browses the portraits under two separate directory tries: one with npc portraits,
+  * specified by 'npctype', which is used to filter required portrait sets using the trie structure, 
+  * and the other is the charname/npcs subtrie, which serves as a whitelist of files legal for CHARNAME.
+  * The renaming trick is done by including an additional '.ref' file with every suitable NPC together
+  * with their standard 'override' portraits. The basename of the ref file is the one used when 
+  * copying/installing the portrait. The same ref file (for simplicitly, although the name is verfied)
+  * must be again present in the directory 'charname/npcs/<gender>/<npctype>' to be actually copied.
+  */  
 DEFINE_ACTION_FUNCTION grant_pc_default_npc_portraits		
 	STR_VAR
 		npctype = ~~
 		game = ~~
+		name = ~~
 		exclude = ~~
+	RET
+		males 
+		females
 	BEGIN
 		ACTION_IF ~%game%~ STR_EQ ~~ THEN BEGIN
 			OUTER_TEXT_SPRINT game ~%any_game%~
 		END
 		LOG ~List all the default portraits of %npctype% (including aliases for charname) not on the list.~
 		LAF list_npc_portraits 
-			STR_VAR npctype = ~%npctype%~ game = ~%game%~ gender = ~male\|female~ exclude = ~%exclude%~ when = ~always~
+			STR_VAR 
+				npctype = ~%npctype%~ game = ~%game%~ gender = ~male\|female~ name = ~%name%~ 
+				exclude = ~%exclude%~ when = ~always~
 			RET include = filelist END
 
 		LOG ~Copy charname aliases for portraits of male %npctype%~
@@ -100,8 +203,8 @@ DEFINE_ACTION_FUNCTION grant_pc_default_npc_portraits
 			STR_VAR 
 				group = ~npcs~ name = ~%npctype%~ gender = ~male~ 
 				include = ~%include%~ target = ~%pc_install_target%~
-			RET males END
-		OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
+			RET males = filelist END
+		//OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
 
 		LOG ~Copy charname aliases for portraits of female %npctype%~
 		LAF copy_pc_portraits 
@@ -109,18 +212,36 @@ DEFINE_ACTION_FUNCTION grant_pc_default_npc_portraits
 			STR_VAR 
 				group = ~npcs~ name = ~%npctype%~ gender = ~female~ 
 				include = ~%include%~ target = ~%pc_install_target%~
-			RET females END
-		OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~	
+			RET females = filelist END
+		//OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~	
 	END
 
 
 
 
+
+
+/** Makes available copies of alternative NPC portraits to player characters. The files will use
+  * different names, consistent with the naming scheme of player portraits. Whenever an alternatives
+  * directory is present under an npc (portrait set) directory, versions from all subdirectoreis are used.
+  * In the case of its absence, the usual file located directly in the npc directory are copied.
+  * This function browses the portraits under two separate directory tries: one with npc portraits,
+  * specified by 'npctype', which is used to filter required portrait sets using the trie structure, 
+  * and the other is the charname/npcs subtrie, which serves as a whitelist of files legal for CHARNAME.
+  * The renaming trick is done by including an additional '.ref' file with every suitable NPC together
+  * with their standard 'override' portraits. The basename of the ref file is the one used when 
+  * copying/installing the portrait. The same ref file (for simplicitly, although the name is verfied)
+  * must be again present in the directory 'charname/npcs/<gender>/<npctype>' to be actually copied.
+  */  
 DEFINE_ACTION_FUNCTION grant_pc_alternative_npc_portraits
 	STR_VAR
 		npctype = ~~
 		game = ~~
+		name = ~~
 		exclude = ~~
+	RET
+		males
+		females
 	BEGIN
 		ACTION_IF ~%game%~ STR_EQ ~~ THEN BEGIN
 			OUTER_TEXT_SPRINT game ~%any_game%~
@@ -132,26 +253,27 @@ DEFINE_ACTION_FUNCTION grant_pc_alternative_npc_portraits
 				npctype = ~%npctype%~ 
 				game = ~%game%~ 
 				gender = ~male\|female~ 
+				name = ~%name%~
 				exclude = ~%exclude%~ 
-				when = ~always~`
+				when = ~always~
 				target = ~%pc_install_target%~
 			RET whitelist = filelist END
 			
-		LOG ~Copy charname aliases for alternative portraits of male %npctype%~
+		LOG ~Copy charname aliases for defult portraits of male %npctype%~
 		LAF copy_pc_portraits
 			STR_VAR 
 				group = ~npcs~ gender = ~male~ name = ~%npctype%~ 
 				include = ~%whitelist%~ target = ~%pc_install_target%~
-			RET males END
-		OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
+			RET males = filelist END
+		//OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
 
 		LOG ~Copy charname aliases for alternative portraits of female %npctype%~
 		LAF copy_pc_portraits
 			STR_VAR 
 				group = ~npcs~ gender = ~female~ name = ~%npctype%~ 
 				include = ~%whitelist%~ target = ~%pc_install_target%~
-			RET females END
-		OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
+			RET females = filelist END
+		//OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
 
 	END
 		
@@ -160,13 +282,20 @@ DEFINE_ACTION_FUNCTION grant_pc_alternative_npc_portraits
 
 
 
-
-
-
+/** Installs for player characters the default portraits of absent companions.
+  * The installed files will be renamed according to the CHARNAME portrait naming scheme from the
+  * originals and come from the default pool - that is the one which would be copied without prompting
+  * the user for selecting between the alternatives. It is a slightly higher-level function than
+  * `grant_pc_default_npc_portraits` which is invoked after determining the portrait sets to use
+  * based on the npc's presence in the game.
+  */
 DEFINE_ACTION_FUNCTION grant_pc_absent_npc_defaults
 	STR_VAR
 		npctype = ~~	
 		when = ~always~
+	RET
+		males
+		females
 	BEGIN
 		LOG ~List %npctype% for this game when they %when%~
 		LAF list_npc_portraits STR_VAR npctype = ~%npctype%~ gender = ~male\|female~ when = ~%when%~ 
@@ -176,16 +305,29 @@ DEFINE_ACTION_FUNCTION grant_pc_absent_npc_defaults
 		LAF list_npc_portraits STR_VAR npctype = ~%npctype%~ game = ~%any_game%~ name = ~%present%~ when = ~always~
 			RET exclude = filelist END
 		
-		LAF grant_pc_default_npc_portraits STR_VAR npctype = ~%npctype%~ exclude = ~%exclude%~ END
+		LAF grant_pc_default_npc_portraits STR_VAR npctype = ~%npctype%~ exclude = ~%exclude%~ 
+			RET males females END
 	END
 		
 		
 		
 
+
+
+/** Installs for player characters all non-default versions of portraits for absent npcs.
+  * In cases where there is no alternatives subdirectory in the npcs folder, their portrait set
+  * is ommitted entirely. Otherwise files from all version subdirectories which don't match in name
+  * a file located directly in the npc directory are copied. This in effect includes only renamed 
+  * ref files dedicated to use by CHARNAME, which are not the default portrait (or the selected
+  * personally by the user during the installation).
+  */
 DEFINE_ACTION_FUNCTION grant_pc_absent_npc_alternatives
 	STR_VAR	
 		npctype = ~~
 		when = ~always~
+	RET
+		males
+		females
 	BEGIN
 		LOG ~List %npctype% for this game when they %when%~
 		LAF list_npc_portraits STR_VAR npctype = ~%npctype%~ gender = ~male\|female~ when = ~%when%~
@@ -197,7 +339,7 @@ DEFINE_ACTION_FUNCTION grant_pc_absent_npc_alternatives
 				npctype = ~%npctype%~ game = ~%any_game%~ gender = ~male\|female~ when = ~ąlways~
 			RET exclude = filelist END
 
-		LOG ~List all portraits from all games of %npctype% for this game (including aliases for charname)~
+		LOG ~List portraits from all games of %npctype% for this game (including aliases for charname) which are not on the defaults list~
 		LAF copy_npc_alternatives 
 			INT_VAR list_only = 1
 			STR_VAR 
@@ -206,16 +348,25 @@ DEFINE_ACTION_FUNCTION grant_pc_absent_npc_alternatives
 			RET filelist END
 		OUTER_TEXT_SPRINT exclude ~%exclude%%filelist%~ 
 
-		LAF grant_pc_alternative_npc_portraits STR_VAR npctype = ~canonnpcs~ exclude = ~%exclude%~ END
+		LAF grant_pc_alternative_npc_portraits STR_VAR npctype = ~canonnpcs~ exclude = ~%exclude%~ 
+			RET males females END
 	END
 
 
 
 
+
+/** Installs for the use by CHARNAME portrait sets of NPCs not present in this particular game.
+  * Whenever multiple versions are available for an NPC, all are used. This is equivalent
+  * to calling both `grant_pc_absent_npc_defaults` and `grant_pc_absent_npc_alternatives`.
+  */
 DEFINE_ACTION_FUNCTION grant_pc_absent_npc_portraits
 	STR_VAR
 		npctype = ~~
 		when = ~always~
+	RET
+		males
+		females
 	BEGIN
 		LOG ~List %npctype% for this game when they %when%~
 		LAF copy_npc_portraits STR_VAR npctype = ~%npctype%~ gender = ~male\|female~ when = ~%when%~ 
@@ -225,11 +376,47 @@ DEFINE_ACTION_FUNCTION grant_pc_absent_npc_portraits
 		LAF copy_npc_alternatives STR_VAR npctype = ~%npctype%~ game = ~%any_game%~ name = ~%present%~ when = ~always~
 			RET exclude = filelist END
 			
-		LAF grant_pc_alternative_npc_portraits STR_VAR npctype = ~%npctype%~ exclude = ~%exclude%~
+		LAF grant_pc_alternative_npc_portraits STR_VAR npctype = ~%npctype%~ exclude = ~%exclude%~ 
+			RET males females END
 	
 	END
 	
 	
+	
+	
+
+
+/** List the names of all NPCs whose new potraits appear in the selection screen and all their
+  * default portrait files, including other resolutions and aliases for CHARNAME.
+  */
+DEFINE_ACTION_FUNCTION list_installed_npcs
+	RET
+		names
+		filelist
+	BEGIN
+	//List portraits in the selection screen overriden with appropriate new npc portraits
+	LAF list_pc_portraits 
+		STR_VAR include = ~%npc_portraits_installed%~ exclude = ~%npc_portraits_overriden%~ 
+		RET available = filelist END //present in the selection screen and overriden with new npc portraits
+	LOG ~NPC portraits installed: %npc_portraits_installed%~
+	LOG ~NPC portraits overriden: %npc_portraits_overriden%~
+	LOG ~NPC portraits on screen: %available%~
+	
+	LOG ~List NPCs for which new portraits are already available in the selection screen~
+	LAF list_npc_portraits
+		STR_VAR npctype = ~canonnpcs~ include = ~%available%~ gender = ~male\|female~ when = ~exists~
+		RET names END //names of NPCs with portraits in the 'available' list
+		
+	LOG ~List all portraits (including CHARNAME aliases) of NPCs with new portraits in the selection screen~
+	LAF list_npc_portraits
+		STR_VAR npctype = ~canonnpcs~ gender = ~male\|female~ name = ~%names%~ when = ~always~
+		RET filelist END //'available' portraits plus charname aliases of included NPCs
+	
+	END
+
+
+
+
 	
 
 /** Create a pool of portraits which might be optionally granted to player characters based on
@@ -244,19 +431,8 @@ DEFINE_ACTION_FUNCTION grant_pc_absent_npc_portraits
   */
 DEFINE_ACTION_FUNCTION pool_pc_defaults 
 	BEGIN
-		PRINT ~Creating pool of default override images...~
-		//copy files with pc portraits named after all existing pc and npc portraits
-		LOG ~Copy pc overrides for default portraits for potential future use~
-		LAF copy_npc_portraits 
-			INT_VAR defaults = 1
-			STR_VAR npctype = ~charname~ game = ~override~ target = ~%pc_pool_dir%~ when = ~not exists~
-			RET exclude = filelist END
-
-		//copy completely new files being the portraits of all companions uniquely named according to the PC scheme
-		//LOG ~Copy npc portraits for potential future use by pc~
-		//LAF copy_npc_alternatives
-		//	STR_VAR npctype = ~%any_npc_type%~ game = ~%any_game%~ target = ~%pc_pool_dir%/npcs~ exclude = ~%exclude%~
-		//END
+		PRINT ~Creating pool of CHARNAME portraits named after existing pc and npc portraits...~
+		LAF copy_pc_portraits STR_VAR group = ~override~ target = ~%pc_pool_dir%~ END
 	END
 	
 
@@ -279,23 +455,40 @@ DEFINE_ACTION_FUNCTION override_from_pc_pool
 		/** Do not copy, simply list what would be overriden. Forces depool=0. */
 		list_only = 0
 	STR_VAR
-		game = ~override~
-		portraitset = ~~
-		exclude = ~~
+		name = ~~
+		include = ~*~
+		exclude = ~{}~
 	RET
 		filelist
 	BEGIN
+		ACTION_IF ~%exclude%~ STR_EQ ~{}~ THEN BEGIN
+			OUTER_TEXT_SPRINT exclude ~%npc_portraits_installed%~
+		END
+		LOG ~Using CHARNAME portraits %name% to override in-game files~
 		LAF copy_npc_portraits
 			INT_VAR list_only = list_only defaults = 1
-			STR_VAR npctype = ~charname~ game = ~%game%~ name = ~%portraitset%~ when = ~exists~ exclude = ~%exclude%~
+			STR_VAR npctype = ~charname~ game = ~override~ name = ~%name%~ 
+			        when = ~exists~ exclude = ~%exclude%~ include = ~%include%~
 			RET filelist END
+			
 		ACTION_IF depool AND NOT list_only THEN BEGIN
 			LAF delete_files STR_VAR dir = ~%pc_pool_dir%~ files = ~%filelist%~ END
 		END
 	END
 
 	
-	
+
+
+
+
+
+
+
+
+
+
+
+//Unused stuff below	
 	
 	
 /** Make portraits of the NPCs from the given game(s) available to players on character generation screen.
@@ -361,35 +554,32 @@ DEFINE_ACTION_FUNCTION grant_npc_portraits_to_pc
 
 
 
-//Unused stuff below
-
-
-
 DEFINE_ACTION_FUNCTION list_selected_alternatives
 	STR_VAR
 		/** Directory containing subdirectory 'alternatives'. */
 		npc = ~~
 	RET
-		count = 0
+		count
 	RET_ARRAY
 		/** list of files referenced from any '.ref' files in the 'npc' directory. */
 		used_files
 	BEGIN
+		OUTER_SET count = 0
 		ACTION_DEFINE_ARRAY used_files BEGIN END
 		GET_FILE_ARRAY selections ~%npc%~ ~.*\.\(ref\|refs\)~
-
+		
 		ACTION_PHP_EACH selections AS _ => path BEGIN
 			LAF strip_prefix STR_VAR string = ~%path%~ prefix = ~%npc%/~
 				RET filename = suffix END
 			OUTER_PATCH_SAVE basename ~%filename%~ BEGIN
-				REPLACE_TEXTUALLY EXACT_MATCH CASE_INSENSITIVE ~.ref~ ~~
+				REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~.ref~ ~~
 			END
 			ACTION_IF ~%basename%.ref~ STR_EQ ~%filename%~ THEN BEGIN
 				LAF ref_target STR_VAR reffile = ~%path%~ 
 					RET used_file = target END
 				ACTION_IF NOT ~%target%~ STR_EQ ~~ THEN BEGIN
-					INNER_PATCH_SAVE used_file ~%used_file%~ BEGIN
-						REPLACE_TEXTUALLY EVALUATE_REGEXP CASE_INSENSITIVE ~\.\(bmp\|ref\)$~ ~~
+					OUTER_PATCH_SAVE used_file ~%used_file%~ BEGIN
+						REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~\.\(bmp\|ref\)$~ ~~
 					END
 					OUTER_TEXT_SPRINT $used_files(~%count%~) ~%used_file%~
 					OUTER_SET count += 1
@@ -401,7 +591,7 @@ DEFINE_ACTION_FUNCTION list_selected_alternatives
 				ACTION_IF refcount THEN BEGIN
 					ACTION_PHP_EACH refs AS basename => used_file BEGIN
 						OUTER_PATCH_SAVE used_file ~%used_file%~ BEGIN
-							REPLACE_TEXTUALLY EVALUATE_REGEXP CASE_INSENSITIVE ~\.\(bmp\|ref\)$~ ~~
+							REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~\.\(bmp\|ref\)$~ ~~
 						END
 						OUTER_TEXT_SPRINT $used_files(~%count%~) ~%used_file%~
 						OUTER_SET count += 1
@@ -413,7 +603,7 @@ DEFINE_ACTION_FUNCTION list_selected_alternatives
 		END
 		
 		ACTION_IF count == 0 THEN BEGIN
-			ACTION_DEFINE_ARRAY used_files BEGIN ~~ => ~~ END
+			ACTION_DEFINE_ARRAY used_files BEGIN ~~ END
 		END
 	END
 	
@@ -445,7 +635,7 @@ DEFINE_ACTION_FUNCTION list_unused_npc_alternatives
 		  * Each entry on the list should be surrounded with '/'. */
 		exclude = ~~
 	RET
-		count = 0
+		count 
 	RET_ARRAY
 		unused_files
 	BEGIN
@@ -460,6 +650,7 @@ DEFINE_ACTION_FUNCTION list_unused_npc_alternatives
 			OUTER_SET defaults = use_default_portraits
 		END
 */
+		OUTER_SET count = 0
 		LAF directory_defaults 
 			INT_VAR defaults = defaults
 			STR_VAR game = ~%game%~ gender = ~%gender%~ name = ~%name%~
@@ -499,7 +690,7 @@ DEFINE_ACTION_FUNCTION list_unused_npc_alternatives
 						LAF strip_prefix STR_VAR string = ~%npcdir%~ prefix = ~%genderdir%/~
 							RET npcname = suffix END
 						LOG ~      %npcname%:~
-						OUTER_SET 
+						
 						ACTION_IF DIRECTORY_EXISTS ~%npcdir%/alternatives~ THEN BEGIN
 							LOG ~        used_files:~
 							LAF list_selected_alteratives STR_VAR npc = ~%npcdir%~
@@ -523,7 +714,7 @@ DEFINE_ACTION_FUNCTION list_unused_npc_alternatives
 											RET basename filename END
 											
 										ACTION_PHP_EACH used_files AS _ => used_file BEGIN
-											ACTION_IF used_file STR_EQ ~%versiondir%/%basename%~ THEN BEGIN
+											ACTION_IF ~%used_file%~ STR_EQ ~%versiondir%/%basename%~ THEN BEGIN
 												OUTER_SET eligible = 0
 												LOG ~          ignoring '%filename%' (selected alternative)~
 											END
@@ -571,8 +762,8 @@ DEFINE_ACTION_FUNCTION grant_pc_unused_alternatives
 		when = ~used~
 		target = ~~	
 	RET
-		female_portraits = ~~
-		male_portraits = ~~
+		female_portraits 
+		male_portraits 
 	BEGIN
 		LAF directory_defaults STR_VAR game = ~%game%~ gender = ~%gender%~ name = ~%name%~
 			RET game gender name END
@@ -592,6 +783,9 @@ DEFINE_ACTION_FUNCTION grant_pc_unused_alternatives
 		ACTION_IF NOT exclude STR_EQ ~~ THEN BEGIN
 			LOG ~Exclulde files: %exclude%~
 		END
+		
+		OUTER_TEXT_SPRINT female_portraits ~~
+		OUTER_TEXT_SPRINT male_portraits ~~
 		
 		LAF list_unused_npc_alternatives
 			STR_VAR npctype = ~%npctype%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~
@@ -623,7 +817,7 @@ DEFINE_ACTION_FUNCTION grant_pc_unused_alternatives
 				ACTION_CLEAR_ARRAY refs
 				
 				GET_FILE_ARRAY refs ~%dir%~ ~.*\.refs^~
-				ACTION_PHP_EACH refs AS file BEGIN
+				ACTION_PHP_EACH refs AS _ => file BEGIN
 					LAF refs_targets STR_VAR refsfile = ~%file%~ RET count RET_ARRAY targets = refs END
 					
 					ACTION_PHP_EACH targets AS basename => qname BEGIN
@@ -636,7 +830,7 @@ DEFINE_ACTION_FUNCTION grant_pc_unused_alternatives
 				ACTION_PHP_EACH portraits AS basename => file BEGIN
 					OUTER_SET unused = 0
 					OUTER_PATCH_SAVE qname ~%file%~ BEGIN
-						REPLACE_TEXTUALLY EVALUATE_REGEXP CASE_SENSITIVE ~\.\(ref\|bmp\)^~ ~~
+						REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\.\(ref\|bmp\)^~ ~~
 					END
 					
 					ACTION_PHP_EACH unused_files AS _ => unused_file BEGIN

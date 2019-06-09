@@ -1,6 +1,6 @@
-/*
- * Library containing functions for installing (or removing) portraits for player characters.
- */
+/**********************************************************************************************
+ * Library containing functions for installing (or removing) portraits for player characters. *
+ *********************************************************************************************/
 
 	
 	
@@ -8,17 +8,17 @@
 
 /** This is a very light wrapper over `copy_npc_portraits` providing default arguments for
   * names of directories in the pc portrait tree. The user will not be asked to pick between alternatives.
-  * Sets `npctype = ~charname~`, gender = `male|female` and when = ~always~ by default; all other parameters 
-  * have the same default values as in copy_npc_portraits. All given parameters are passed on verbatim
-  * to copy_npc_portraits; similarly, the values returned by that function are returned without any modification.
-  * See `copy_npc_portraits` documentation.
+  * Sets `npctype = ~charname~`, group (game) = ~unique~, gender = `male|female` and when = ~always~ by default; 
+  * all other parameters have the same default values as in copy_npc_portraits. All given parameters are passed on 
+  * verbatim to copy_npc_portraits; similarly, the values returned by that function are returned without 
+  * any modification. See `copy_npc_portraits` documentation.
   */  
 DEFINE_ACTION_FUNCTION copy_pc_portraits
 	INT_VAR
 		list_only = 0
 	STR_VAR
 		root = ~charname~
-		group = ~~
+		group = ~unique~
 		gender = ~male\|female~
 		name = ~~
 		target = ~override~
@@ -43,7 +43,7 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 				name = ~%name%~ 
 				target = ~%target%~
 				when = ~%when%~
-				include = ~*~
+				include = ~%include%~
 				exclude = ~%exclude%~
 			RET npccount filelist names
 			RET_ARRAY filemap END
@@ -57,8 +57,9 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
   * This will crash the game if no new portraits are installed!
   * Patches BGEE.LUA file to clear the portraits = { ... } list. 
   */
-DEFINE_ACTION_FUNCTION clear_pc_portrait_selection
+DEFINE_ACTION_FUNCTION clear_pc_portrait_entries
 	BEGIN
+		LOG ~Removing all portraits from the list at character generation. The game will crash unless new portraits are installed.~
 		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
 			MKDIR ~override~
 		END
@@ -70,7 +71,36 @@ DEFINE_ACTION_FUNCTION clear_pc_portrait_selection
 	END
 
 	
-
+	
+	
+DEFINE_ACTION_FUNCTION list_pc_portraits
+	STR_VAR
+		gender = ~male\|female~
+		exclude = ~~
+		include = ~*~
+	RET
+		filelist
+	BEGIN
+		OUTER_TEXT_SPRINT sex  ~[12]~
+		ACTION_IF ~%gender%~ STR_EQ ~male~ THEN BEGIN
+			OUTER_TEXT_SPRINT sex ~1~
+		END ELSE ACTION_IF ~%gender%~ STR_EQ ~female~ THEN BEGIN
+			OUTER_TEXT_SPRINT sex ~2~
+		END
+			
+		OUTER_TEXT_SPRINT filelist ~~
+		COPY_EXISTING ~BGEE.LUA~ ~%empty_dir%~
+			REPLACE_EVALUATE CASE_SENSITIVE ~\({[^{}]*'\([^'\\/]+\)'[%WS%]*,[%WS%]*%sex%[^{}]*}\)~ BEGIN
+				PATCH_IF ((~%include%~ STR_EQ ~*~) OR NOT (~%include%~ STRING_CONTAINS_REGEXP ~/%MATCH2%/~))
+				         AND (~%exclude%~ STRING_CONTAINS_REGEXP ~/%MATCH2%/~) THEN BEGIN
+					TEXT_SPRINT filelist ~%filelist%/%MATCH2%/~
+				END
+			END ~%MATCH1%~
+		BUT_ONLY_IF_IT_CHANGES
+	END
+	
+	
+	
 /** Removes entries for given portrait files from the selection list on character generation.
   * The file list must be a concatenated sequence of names without the '.bmp' suffix and each surrounded
   * by an individual pair of '/' - as returned by `copy_npc_portraits` function.
@@ -102,7 +132,7 @@ DEFINE_ACTION_FUNCTION remove_pc_portraits
   */
 DEFINE_ACTION_FUNCTION remove_npc_portraits
 	STR_VAR
-		npctype = ~canonnpcs\|plotnpcs~
+		npctype = ~canonnpcs~
 		game = ~~
 		gender = ~~
 		name = ~~
@@ -125,7 +155,7 @@ DEFINE_ACTION_FUNCTION remove_npc_portraits
 	
 	
 /** Translates the given list of portraits into a string injectable to BGEE.LUA. */
-DEFINE_ACTION_FUNCTION pc_portrait_selection
+DEFINE_ACTION_FUNCTION pc_portrait_entries
 	STR_VAR
 		gender = ~~
 		filelist = ~~
@@ -163,14 +193,17 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 		gender = ~~
 		filelist = ~~
 	BEGIN
-		LAF pc_portrait_selection STR_VAR gender = ~%gender%~ filelist = ~%filelist%~
+		LAF remove_dups_from_list STR_VAR list = ~%filelist%~ 
+			RET filelist = unique END
+		
+		LAF pc_portrait_entries STR_VAR gender = ~%gender%~ filelist = ~%filelist%~
 			RET selection = portraits END
 
-		LOG ~Installing portrait set:~
+		LOG ~Updating portrait selection with portraits:~
 		LOG ~%selection%~
 		
 		ACTION_IF NOT (~%selection%~ STRING_EQUAL ~~) THEN BEGIN
-			LOG ~Patching BGEE.LUA; no files modified here signifies a conflit with another module.~
+			LOG ~Patching BGEE.LUA; no files modified here signifies a conflict with another module.~
 			//Patch portrait selection list if it's not empty
 			COPY_EXISTING ~BGEE.LUA~ ~override~ 
 				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
@@ -206,9 +239,9 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 DEFINE_ACTION_FUNCTION install_pc_portraits 
 	STR_VAR
 		root = ~charname~
-		game = ~~
-		group = ~~
-		when = ~used~
+		group = ~unique~
+		set = ~~
+		when = ~always~
 		exclude = ~~
 	BEGIN
 
@@ -216,9 +249,9 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 			INT_VAR defaults = 1
 			STR_VAR 
 				npctype = ~%root%~ 
-				game = ~%game%~ 
+				game = ~%group%~ 
 				gender = ~male~ 
-				npc = ~%group%~ 
+				npc = ~%set%~ 
 				exclude = ~%exclude%~ 
 				when = ~%when%~
 			RET males = filelist END
@@ -227,9 +260,9 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 			INT_VAR defaults = 1
 			STR_VAR 
 				npctype = ~%root%~ 
-				game = ~%game%~ 
+				game = ~%group%~ 
 				gender = ~female~ 
-				npc = ~%group%~ 
+				npc = ~%set%~ 
 				exclude = ~%exclude%~ 
 				when = ~%when%~
 			RET females = filelist END
@@ -237,10 +270,10 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 		LAF install_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
 		LAF install_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
 /*		
-		LAF pc_portrait_selection STR_VAR gender = ~male~ filelist = ~%males%~
+		LAF pc_portrait_entries STR_VAR gender = ~male~ filelist = ~%males%~
 			RET selection = portraits END
 		
-		LAF pc_portrait_selection STR_VAR gender = ~female~ filelist = ~%females%~
+		LAF pc_portrait_entries STR_VAR gender = ~female~ filelist = ~%females%~
 			RET portraits END
 	
 		ACTION_IF ~%selection%~ STRING_EQUAL ~~ THEN BEGIN

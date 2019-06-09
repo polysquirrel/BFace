@@ -1,14 +1,20 @@
-/*
- *  This is a configuration file containing, above all, names of directories with portraits
- *  and lists of compatible games. This file is likely to differ between branches/versions of the library.
- */
+/*************************************************************************************************
+ *  This is a configuration file containing, above all, names of directories with portraits      *
+ *  and lists of compatible games. Additionally, it declares global variables listing installed  *
+ *  portrait files and components. This file is likely to differ between branches/versions       *
+ *  of the library.                                                                              *
+ ************************************************************************************************/
 
 
-/** Flag requesting prompting the user to hand-pick between altrenative portrait versions. */
-OUTER_SET use_default_portraits = 1
+/****************************** CONSTANTS ****************************************/
 
-/** Flag requesting to display readme files showcasing available alternatives for each NPC where they exist. */
-OUTER_SET show_alternatives = 0
+
+/** Dreaded Carriage Return symbol which fools weidu's regexp engine. */
+OUTER_TEXT_SPRINT CR ~~
+/** Basic whitespace symbols for use in REGEXPs: space and tab only. */
+OUTER_TEXT_SPRINT WS ~ 	~
+
+
 
 /** Directory where custom portraits are normally stored (under user's home directory). */
 OUTER_TEXT_SPRINT portrait_dir ~%USER_DIRECTORY%/portraits~
@@ -37,13 +43,21 @@ OUTER_TEXT_SPRINT portrait_file ~^[^\./\\]+\.\(bmp\|ref\)$~
 OUTER_TEXT_SPRINT supported_file ~^[^\./\\]+\.\(bmp\|ref\|refs)$~
 
 //OUTER_TEXT_SPRINT npc_regex ~%MOD_FOLDER%/%any_npc_type%/%game_dirs%/%any_gender%/\([^/\\]+\)~
-
+/** Temporary directory containing portraits for PC which override some in-game portraits.
+  * They are usually targets of ref files in other charname portrait sets, which makes it possible to:
+  * 1) rename a portrait through a ref according to the standard naming scheme, and/or 
+  * 2) invalidate a ref preventing it from being installed by removing its target from the pool.
+  */
 OUTER_TEXT_SPRINT pc_pool_dir ~%MOD_FOLDER%/charname/pool~
 
+/** Directory with portrait refs and patches for NPCs making them use their first portrait. */
 OUTER_TEXT_SPRINT unified_npc_dir ~%MOD_FOLDER%/unifiednpcs~
 
-/** An empty directory used as a target of COPY IF_EXISTS in ordere to simply read a file. */	
+/** An empty directory used as a target of COPY BUT_ONLY_IF_IT_CHANGES in ordere to simply read a file. */	
 OUTER_TEXT_SPRINT empty_dir ~%MOD_FOLDER%/empty~	
+
+
+
 	
 //sets game_dirs to a regex alternative of included games, i.e. (bgee|sod|bg2ee)
 //sets game_code to a game code: [bgee|sod|bg2ee|eet]
@@ -75,3 +89,56 @@ END ELSE BEGIN
 END
 
 
+
+
+/**************************** Flags for installed components ************************/
+
+
+/** Flag requesting prompting the user to hand-pick between altrenative portrait versions. */
+OUTER_SET use_default_portraits = 1
+
+/** Flag requesting to display readme files showcasing available alternatives for each NPC where they exist. */
+OUTER_SET show_alternatives = 0
+
+
+	
+/** Flag determining if the user will be offered choice of installing individual components with NPC portraits. */
+OUTER_TEXT_SPRINT skip_npc ~yes~
+/** Flag determining if the user will be offered choice of installing individual components with PC portraits. */
+OUTER_TEXT_SPRINT skip_pc ~yes~
+
+
+/** List of all portrait files installed by the NPC components. */
+OUTER_TEXT_SPRINT npc_portraits_installed ~~
+/** Patched all returning NPCs to use the portrait files from BG1, where applicable. */
+OUTER_TEXT_SPRINT unified_portraits ~~ 
+
+/** Flag specifying if portraits for obe have been installed. 2 = all; 1 = arkanis and deder; 0 = none. */
+OUTER_TEXT_SPRINT installed_obe_npcs ~~
+/** Flag specifying if npc portraits unused in the game where replaced with new npc portraits. */
+OUTER_TEXT_SPRINT installed_unused_npcs ~~
+/** Flag specifying if npc portraits for not present companions where replaced with new npc portraits. */
+OUTER_TEXT_SPRINT installed_absent_npcs ~~
+
+/** Set when the user opts to remove all existing portraits from the list presented on character generation. */
+OUTER_TEXT_SPRINT cleared_pc_selection ~~
+/** Set when the user opts to remove all canon NPC portraits from the player selection. */
+OUTER_TEXT_SPRINT cleared_npc_portraits ~~
+/** Set when the user opts to remove default portraits used for Obe's training companions from the player selection. */
+OUTER_TEXT_SPRINT cleared_obe_portraits ~~
+
+/** Flag specifying if portraits of Obe training companions where overriden with PC portraits. */
+OUTER_TEXT_SPRINT overriden_obe_npcs ~~
+/** Flag specifying if npc portraits unused in the game by default where overriden with unique portraits for the PC. */
+OUTER_TEXT_SPRINT overriden_unused_npcs ~~
+/** Flag specifying if portraits of NPCs not present in the game where overriden with unique portraits for the PC. */
+OUTER_TEXT_SPRINT overriden_absent_npcs ~~
+/** List of existing canon npc portraits overriden with charname portraits. */
+OUTER_TEXT_SPRINT npc_portraits_overriden ~~
+
+/** Directory where most of new PC portraits will be intalled. */
+OUTER_TEXT_SPRINT pc_install_target ~~
+/** List of base file names of male portraits which should be installed in the player selection screen */
+OUTER_TEXT_SPRINT male_portrait_list ~~
+/** List of base file names of female portraits which should be installed in the player selection screen */
+OUTER_TEXT_SPRINT female_portrait_list ~~

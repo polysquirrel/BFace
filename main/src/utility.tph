@@ -1,27 +1,74 @@
-/* 
- * Several utility functions which don't concern themselves with details of directory
- * structure or implementation details of module components.
- */
+/****************************************************************************************
+ * Several utility functions which don't concern themselves with details of directory   *
+ * structure or implementation details of module components.                            *
+ ***************************************************************************************/
  
+ 
+ 
+
+/** Accepts a string with valid directory/file names (without any '\' or '/'), separated by
+  * the regexp alternative symbol '\|', and splits it, returning the names in an array.
+  * IF the input string is empty, an array with a single ~~ element will be returned.
+  */
+DEFINE_ACTION_FUNCTION split_regexp_alternative
+	STR_VAR
+		/** A valid regexp alternative of non-empty strings without any '/' or '\', separated by '\|'. */
+		alt = ~~
+	RET
+		/** Number of identifiers in the input string. If empty, returned array is undefined. */
+		length
+	RET_ARRAY
+		/** An array containing the identifiers listed in `alt`. Undefined for empty strings. */
+		options
+	BEGIN
+		ACTION_DEFINE_ARRAY options BEGIN END
+		OUTER_SET length = 0
+		OUTER_PATCH_SAVE remainder ~%alt%~ BEGIN
+			REPLACE_EVALUATE CASE_SENSITIVE ~\([^\\/]+\)\|~ BEGIN
+				SPRINT $options(~%length%~) ~%MATCH1%~
+				SET length += 1
+			END ~~
+		END
+		ACTION_IF NOT ~%alt%~ STR_EQ ~~ THEN BEGIN
+			OUTER_SPRINT $options(~%length%~) ~%alt%~
+			OUTER_SET length += 1
+		END
+		ACTION_IF NOT length THEN BEGIN
+			ACTION_DEFINE_ARRAY options BEGIN ~~ END
+		END
+	END
  
  	
 /** Accepts a string of concatenated portrait names, each surrounded by a pair of '/'
   * (as in values of the array returned by copy_npc_portraits) and returns an array
-  * containing those names.
+  * containing those names. If the string is empty, an array with a single ~~ will
+  * be returned.
   */
 DEFINE_ACTION_FUNCTION split_file_list
 	STR_VAR
-		list
+		/** Input list of identifiers, which must either be empty, or start and and end with '/' with
+		  * any number of non-empty elements separated by '//'. */
+		list = ~~
+	RET
+		/** Number of elements in the input string. The caller must check if it's not zero
+		  * before accessing the returned array. */
+		length 
 	RET_ARRAY
-		names
+		/** An array of strings resulting from splitting the input string around the '/' characters.
+		  * Its contents are undefined for empty input string - the caller must verify returned value 
+		  * 'length' before iterating over the array. */
+		elements
 	BEGIN
 		ACTION_DEFINE_ARRAY names BEGIN END
-		OUTER_SET i = 0
+		OUTER_SET length = 0
 		OUTER_PATCH ~%list%~ BEGIN
-			REPLACE_EVALUATE CASE_SENSITIVE ~/[^/\\]+/~ BEGIN
-				SPRINT $names(~%i%~) ~%MATCH1%~
-				SET i += 1
+			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
+				SPRINT $elements(~%length%~) ~%MATCH1%~
+				SET length += 1
 			END ~~
+		END
+		ACTION_IF length == 0 THEN BEGIN
+			ACTION_DEFINE_ARRAY elements BEGIN ~~ END
 		END
 	END
 
@@ -34,38 +81,38 @@ DEFINE_ACTION_FUNCTION split_file_list
   */
 DEFINE_ACTION_FUNCTION sort_file_list
 	STR_VAR
-		list
+		list = ~~
 	RET
-		length = 0
-		sorted = ~~
+		length 
+		sorted 
 	RET_ARRAY
 		sorted_array
 	BEGIN
-		LAF split_file_list STR_VAR list = ~%files%~ RET_ARRAY sorted_array = names END
-		//Bubble sort. Gods forgive me.
-		//OUTER_SET length = 0
-		ACTION_PHP_EACH sorted_array AS _ => _ BEGIN
-			OUTER_SET length += 1
-		END
+		OUTER_TEXT_SPRINT sorted ~~
+		LAF split_file_list STR_VAR list = ~%list%~ 
+			RET length RET_ARRAY sorted_array = elements END
 		
-		OUTER_SET limit = length
-		OUTER_WHILE limit > 1 BEGIN
-			OUTER_SET i = 0
-			OUTER_WHILE (i < limit - 1) BEGIN
-				OUTER_SET j = (i + 1)
-				OUTER_SPRINT str1 $sorted_array("%i%")
-				OUTER_SPRINT str2 $sorted_array("%j%")
-				ACTION_IF (~%str1%~ STRING_COMPARE ~%str2%~) THEN BEGIN
-					OUTER_SPRINT $sorted_array("%i%") ~%str2%~
-					OUTER_SPRINT $sorted_array("%j%") ~%str1%~
+		ACTION_IF length THEN BEGIN
+			//Bubble sort. Gods forgive me.
+			OUTER_SET limit = length
+			OUTER_WHILE limit > 1 BEGIN
+				OUTER_SET i = 0
+				OUTER_WHILE (i < limit - 1) BEGIN
+					OUTER_SET j = (i + 1)
+					OUTER_SPRINT str1 $sorted_array("%i%")
+					OUTER_SPRINT str2 $sorted_array("%j%")
+					ACTION_IF (~%str1%~ STRING_COMPARE_CASE ~%str2%~) > 0 THEN BEGIN
+						OUTER_SPRINT $sorted_array("%i%") ~%str2%~
+						OUTER_SPRINT $sorted_array("%j%") ~%str1%~
+					END
+					OUTER_SET i += 1
 				END
-				OUTER_SET i += 1
+				OUTER_SET limit -= 1
 			END
-			OUTER_SET limit -= 1
-		END
-		
-		ACTION_PHP_EACH sorted_array AS _ => str BEGIN
-			OUTER_TEXT_SPRINT sorted ~%sorted%/%str%/~
+			
+			ACTION_PHP_EACH sorted_array AS _ => str BEGIN
+				OUTER_TEXT_SPRINT sorted ~%sorted%/%str%/~
+			END
 		END
 	END
 
@@ -77,8 +124,8 @@ DEFINE_ACTION_FUNCTION remove_dups_from_list
 	STR_VAR
 		list = ~~
 	RET
-		length = 0
-		unique = ~~
+		length 
+		unique
 	RET_ARRAY
 		unique_array
 	BEGIN
@@ -86,16 +133,22 @@ DEFINE_ACTION_FUNCTION remove_dups_from_list
 			RET total = length 
 			RET_ARRAY sorted = sorted_array END
 			
-		OUTER_TEXT_SPRINT`last ~~
+		OUTER_TEXT_SPRINT last ~~
 		ACTION_DEFINE_ARRAY unique_array BEGIN END
+		
+		OUTER_SET length = 0
+		OUTER_TEXT_SPRINT unique ~~
 		
 		ACTION_PHP_EACH sorted AS i => name BEGIN
 			ACTION_IF NOT (~%name%~ STR_EQ ~%last%~) THEN BEGIN
 				OUTER_TEXT_SPRINT unique ~%unique%/%name%/~
-				OUTER_TEXT_SPRINT $unique_array(~%length%~) ~%name%~
+				OUTER_SPRINT $unique_array(~%length%~) ~%name%~
 				OUTER_SET length += 1
 				OUTER_TEXT_SPRINT last ~%name%~
 			END
+		END
+		ACTION_IF length == 0 THEN BEGIN
+			ACTION_DEFINE_ARRAY unique_array BEGIN ~~ END
 		END
 	END
 		
@@ -112,7 +165,7 @@ DEFINE_ACTION_FUNCTION remove_from_list
 	BEGIN
 		OUTER_PATCH_SAVE filelist ~%filelist%~ BEGIN
 			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
-				PATCH_IF NOT (exclude STR_CONTAINS_REGEXP ~/%MATCH1%/~) THEN BEGIN //returns 0 on success...
+				PATCH_IF NOT (~%exclude%~ STRING_CONTAINS_REGEXP ~/%MATCH1%/~) THEN BEGIN //returns 0 on success...
 					TEXT_SPRINT replacement ~~ 
 				END ELSE BEGIN
 					TEXT_SPRINT replacement ~/%MATCH1%/~
@@ -163,7 +216,7 @@ DEFINE_ACTION_FUNCTION strip_prefix
 		suffix
 	BEGIN
 		OUTER_INNER_PATCH_SAVE suffix ~%string%~ BEGIN //unqalified directory name
-			REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%prefix%/~ ~~
+			REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%prefix%~ ~~
 		END
 	END
 
@@ -176,20 +229,21 @@ DEFINE_ACTION_FUNCTION base_file_name
 		file = ~~
 		extension = ~[^\./\\]*~
 	RET
-		basename = ~~
-		match = 1
+		basename 
+		match 
 	BEGIN
-		ACTION_IF file STRING_CONTAINS_REGEXP ~\.\(%extension%\)$~ THEN BEGIN
+		OUTER_SET match = 1
+		ACTION_IF ~%file%~ STRING_CONTAINS_REGEXP ~\.\(%extension%\)$~ THEN BEGIN
 			OUTER_SET match = 0
 			WARN ~Unexpected file type: %file% doesn't match extension %extension%!~
 		END 
 		ACTION_IF NOT (~%dir%~ STR_EQ ~~) THEN BEGIN
-			OUTER_INNER_PATCH_SAVE file ~%filename%~ BEGIN
-				REPLACE_TEXTUALLY EXACT_MATCH CASE_SENSITIVE ~%dir%/~ ~~
+			OUTER_INNER_PATCH_SAVE file ~%file%~ BEGIN
+				REPLACE_TEXTUALLY CASE_SENSITIVE EXACT_MATCH ~%dir%/~ ~~
 			END
 		END
 		OUTER_INNER_PATCH_SAVE basename ~%file%~ BEGIN
-			REPLACE_TEXTUALLY EVALUATE_REGEXP CASE_INSENSITIVE ~\.\(%extension%\)$~ ~~
+			REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~\.\(%extension%\)$~ ~~
 		END
 
 	END
@@ -201,19 +255,20 @@ DEFINE_ACTION_FUNCTION decompose_file_path
 	STR_VAR
 		file = ~~
 	RET
-		dir = ~~
-		filename = ~~
-		basename = ~~
-		extension = ~~ 
+		dir 
+		filename 
+		basename 
+		extension  
 	BEGIN
+		OUTER_TEXT_SPRINT filename ~~
 		OUTER_INNER_PATCH_SAVE dir ~%file%~ BEGIN //split file path into prefix dir and suffix without '\' or '/'
-			REPLACE_EVALUATE CASE_SENSITIVE ~\(/\|\\\)[^\\/]+~ BEGIN
-				TEXT_SPRINT filename ~%MATCH1%~				
+			REPLACE_EVALUATE CASE_SENSITIVE ~\(/\|\\\)\([^\\/]+\)$~ BEGIN
+				TEXT_SPRINT filename ~%MATCH2%~				
 			END ~~
 		END
-		ACTION_IF filename STR_EQ ~~ THEN BEGIN //either no '/' and '\' in the filepath or file ends with '/' or '\'
+		ACTION_IF ~%filename%~ STR_EQ ~~ THEN BEGIN //either no '/' and '\' in the filepath or file ends with '/' or '\'
 			OUTER_PATCH_SAVE dir ~%file%~ BEGIN
-				REPLACE_TEXTUALLY EVALUATE_REGEXP CASE_SENSITIVE ~\(\\\|/\)^~ //trim trailing '/' or/and '\'
+				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\\|/\)^~ ~~ //trim trailing '/' or/and '\'
 			END
 			ACTION_IF ~%dir%~ STR_EQ ~%file%~ THEN BEGIN //file doesn't end with '/' or '\'
 				OUTER_TEXT_SPRINT dir ~~
@@ -223,17 +278,15 @@ DEFINE_ACTION_FUNCTION decompose_file_path
 			END
 		END ELSE BEGIN //filename starts with a path separator
 			OUTER_INNER_PATCH_SAVE filename ~%filename%~ BEGIN //trim leading '/' and/or '\'
-				REPLACE_TEXTUALLY EVALUATE_REGEXP CASE_SENSITIVE ~^\(/\|\\\)~ ~~
+				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^\(/\|\\\)~ ~~
 			END
 		END
-		
+
+		OUTER_TEXT_SPRINT extension ~~
 		OUTER_INNER_PATCH_SAVE basename ~%filename%~ BEGIN
-			REPLACE_EVALUATE CASE_SENSITIVE ~\.[^\.]+^~ ~~ //non-empty suffix preceeded by the last '.'
+			REPLACE_EVALUATE CASE_SENSITIVE ~\.\([^\.]+\)$~ BEGIN //non-empty suffix preceeded by the last '.'
 				TEXT_SPRINT extension ~%MATCH1%~
 			END ~~
-		END
-		OUTER_INNER_PATCH_SAVE extension ~%extension%~ BEGIN
-			REPLACE_TEXTUALLY EVALUATE_REGEXP CASE_SENSITIVE ~^\.~ ~~
 		END
 	END
 	
@@ -251,23 +304,32 @@ DEFINE_ACTION_FUNCTION delete_files
 		/** Path to the directory containing the files to be deleted. */
 		dir = ~~
 		/** Names of files to be deleted, as returned by `copy_npc_portraits`'s `filemap` return array.
-		  * It has format of [/<filename>/]* (concatenated file names, each surrounded by a pair of '/'. */
+		  * It has format of [/<filename>/]* (concatenated file names, each surrounded by a pair of '/'. 
+		  * Supplying simply ~*~ here means deleting all portrait files in the directory (including .ref and .refs).
+		  */
 		files = ~~
 	BEGIN
-		ACTION_IF files STR_EQ ~*~ THEN BEGIN
+		ACTION_IF ~%files%~ STR_EQ ~*~ THEN BEGIN
 			OUTER_TEXT_SPRINT files ~~
 			GET_FILE_ARRAY portraits ~%dir%~ ~%supported_file%~
+			
 			ACTION_PHP_EACH portraits AS _ => file BEGIN
 				LAF base_file_name STR_VAR dir = ~%dir%~ file = ~%file%~ extension = ~bmp\|ref\|refs~
 					RET basename END
 				OUTER_TEXT_SPRINT files ~%files%/%basename%/~
 			END
 		END
+		LOG ~DELETE from '%dir%':~
+		LOG ~%files%~
 		OUTER_INNER_PATCH ~%files%~ BEGIN
 			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
 				INNER_ACTION BEGIN
-					DELETE ~%dir%/%MATCH1%.bmp~
-					DELETE ~%dir%/%MATCH1%.ref~
+					ACTION_IF FILE_EXISTS ~%dir%/%MATCH1%.bmp~ THEN BEGIN
+						DELETE ~%dir%/%MATCH1%.bmp~
+					END
+					ACTION_IF FILE_EXISTS ~%dir%/%MATCH1%.ref~ THEN BEGIN
+						DELETE ~%dir%/%MATCH1%.ref~
+					END
 				END
 			END ~~
 		END		
@@ -307,19 +369,29 @@ DEFINE_ACTION_FUNCTION refs_targets
 	STR_VAR
 		refsfile = ~~
 	RET
-		count = 0
+		count 
 	RET_ARRAY
 		refs
 	BEGIN
+		OUTER_SET count = 0
 		ACTION_DEFINE_ASSOCIATIVE_ARRAY refs BEGIN END
+		OUTER_TEXT_SPRINT entry ~^\([^%WS%]*\)[%WS%]*\([^%WS%]\(.*[^%WS%%CR%]\|\)\)[%WS%]*%CR%?$~
 		COPY ~%refsfile%~ ~%empty_dir%~
-			COUNT_2DA_ROWS 2 count
-			FOR (i=0; i < count; i += 1) BEGIN
-				READ_2DA_ENTRY i 0 2 name
-				READ_2DA_ENTRY i 1 2 path
-				TEXT_SPRINT $refs(~%name%~) ~%path%~
-			END
+			REPLACE_EVALUATE CASE_SENSITIVE ~^\(.+\)$~ BEGIN
+				TEXT_SPRINT line ~%MATCH1%~
+				//this double regexp matching gymnastics seem to solve the issue of CR which breaks single REGEXPs
+				INNER_PATCH ~%line%~ BEGIN
+					REPLACE_EVALUATE CASE_SENSITIVE ~%entry%~ BEGIN
+						PATCH_DEFINE_ASSOCIATIVE_ARRAY refs BEGIN ~%MATCH1%~ => ~%MATCH2%~ END
+						SET count += 1
+					END ~~
+				END
+			END ~%line%~
 		BUT_ONLY_IF_IT_CHANGES
+		ACTION_IF NOT count THEN BEGIN
+			ACTION_DEFINE_ASSOCIATIVE_ARRAY refs BEGIN ~~ => ~~ END
+		END
+
 	END
 	
 	
@@ -331,16 +403,28 @@ DEFINE_ACTION_FUNCTION ref_target
 	STR_VAR
 		reffile = ~~
 	RET
-		target = ~~
+		target 
 	BEGIN
+		OUTER_TEXT_SPRINT target ~~
 		COPY ~%reffile%~ ~%empty_dir%~ 
-			COUNT_2DA_ROWS 1 rows
-			PATCH_IF rows THEN BEGIN
-				READ_2DA_ENTRY 0 0 1 target
-			END ELSE BEGIN
-				WARN ~Empty ref file: '%reffile%'~
-			END
+			REPLACE_EVALUATE CASE_SENSITIVE ~^\(.+\)$~ BEGIN
+				TEXT_SPRINT line ~%MATCH1%~
+				//two-step pattern matching to get rid of carriage return characters
+				//don't breath on it or it won't match!
+				INNER_PATCH ~%line%~ BEGIN
+					REPLACE_EVALUATE CASE_SENSITIVE ~^\([^%WS%]\(.*[^%WS%%CR%]\|\)\)[%WS%]*%CR%?$~ BEGIN
+						PATCH_IF ~%target%~ STR_EQ ~~ THEN BEGIN
+							TEXT_SPRINT target ~%MATCH1%~
+						END ELSE BEGIN
+							PATCH_WARN ~Multiline ref file %reffile%; keeping %target% and ignoring %MATCH1%~
+						END
+					END ~~
+				END
+			END ~%line%~
 		BUT_ONLY_IF_IT_CHANGES
+		ACTION_IF ~%target%~ STR_EQ ~~ THEN BEGIN
+			WARN ~Empty or malformed ref file: '%reffile%'~
+		END
 	END
 	
 	
@@ -350,7 +434,7 @@ DEFINE_ACTION_FUNCTION resolve_ref
 	STR_VAR 
 		reffile = ~~
 	RET
-		target = ~~
+		target 
 	BEGIN
 
 		LAF ref_target STR_VAR reffile = ~%reffile%~ RET target END
@@ -360,7 +444,7 @@ DEFINE_ACTION_FUNCTION resolve_ref
 			
 			OUTER_TEXT_SPRINT path ~%MOD_FOLDER%/%target%~
 			OUTER_PATCH_SAVE basename ~%target%~ BEGIN
-				REPLACE_TEXTUALLY EVALUATE_REGEXP CASE_INSENSITIVE ~\.\(ref\|bmp\)$~ ~~
+				REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~\.\(ref\|bmp\)$~ ~~
 			END
 			
 			ACTION_IF ~%basename%.bmp~ STR_EQ ~%target%~ THEN BEGIN

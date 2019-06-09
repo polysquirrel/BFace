@@ -11,11 +11,17 @@ case "$#" in
 		;;
 	1)
 		case "$1" in
+			reftest)
+				./pool -d ./main/src
+				./reftest -d ./main/src
+				;;
 			package)
+				echo "Copying files..."
 				rm -rf ./target
 				mkdir -p ./target/exploded
 				cp -a ./main/src/ "$moddir"
-				
+				rm -rf "$moddir/charname/pool"
+
 				sed -e "s:BACKUP ~bface/backup~:BACKUP ~$modname/backup~:g" \
 				    -e "s:OUTER_TEXT_SPRINT MOD_NAME ~bface~:OUTER_TEXT_SPRINT MOD_NAME ~$modname~:g" \
 				    -e "s:VERSION ~SNAPSHOT~:VERSION ~$MOD_VERSION~:g" \
@@ -25,16 +31,18 @@ case "$#" in
 					rm $moddir/bface.tp2
 				fi
 				cp ./main/bin/weidu.exe "./target/exploded/setup-$modname.exe"
+
+				echo "Packaging..."
 				tar -czf "./target/$targetname.tgz" -C ./target/exploded .
 				;;
 
 			testinstall)
-				if [ ! -d "target/exploded" ]; then
-					./do package
-					if [ ! $? -eq 0 ]; then
-						exit $?
-					fi
-				fi
+			        if [ ! -d "target/exploded" ]; then
+                                        ./do package
+                                        if [ ! $? -eq 0 ]; then
+                                                exit $?
+                                        fi
+                                fi
 				
 				for GAMEDIR in "test/Baldur's Gate" "test/Siege of Dragonspear" "test/Baldur's Gate  2"; do
         				if [ -d "$GAMEDIR" ]; then
@@ -42,17 +50,43 @@ case "$#" in
                         				rm -rf "$GAMEDIR/$MOD_NAME.bak"
                         				mv "$GAMEDIR/$MOD_NAME" "$GAMEDIR/$MOD_NAME.bak"
                 				fi
-                				cp -a target/exploded/$MOD_NAME target/exploded/setup-$MOD_NAME.exe "$GAMEDIR"
-#               				mv "$GAMEDIR/$MOD_NAME/bface.tp2" "$GAMEDIR/$MOD_NAME/$MOD_NAME.tp2"
-#               				cp -a main/src "$GAMEDIR/$MOD_NAME"
-#               				cp main/bin/weidu.exe "$GAMEDIR/setup-$MOD_NAME.exe"
+                				cp -a  "$moddir" target/exploded/setup-$MOD_NAME.exe "$GAMEDIR"
         				fi
 				done
 				;;
-
+			
+			codeinstall)
+				if [ ! -d "target/exploded" ]; then
+                                        ./do package
+                                        if [ ! $? -eq 0 ]; then
+                                                exit $?
+                                        fi
+				else
+					sed -e "s:BACKUP ~bface/backup~:BACKUP ~$modname/backup~:g" \
+                                    	    -e "s:OUTER_TEXT_SPRINT MOD_NAME ~bface~:OUTER_TEXT_SPRINT MOD_NAME ~$modname~:g" \
+                                	    -e "s:VERSION ~SNAPSHOT~:VERSION ~$MOD_VERSION~:g" \
+                                	    -e "s?AUTHOR ~polymorphedsquirrel~?AUTHOR ~$MOD_AUTHORS~?g" \
+                                	./main/src/bface.tp2 > "$moddir"/$modname.tp2
+					cp ./main/src/*tph "$moddir"
+					cp -a ./main/src/tra "$moddir"
+				fi
+                                
+				for GAMEDIR in "test/Baldur's Gate" "test/Siege of Dragonspear" "test/Baldur's Gate  2"; do
+				        if [ -d "$GAMEDIR" ]; then
+                                                if [ -d "$GAMEDIR/$MOD_NAME" ]; then
+                                                	cp "$moddir/"*tph "$GAMEDIR/$MOD_NAME"
+							cp "$moddir/"*tp2 "$GAMEDIR/$MOD_NAME"
+							cp -a "$moddir/tra" "$GAMEDIR/$MOD_NAME"
+						fi
+					fi
+				done
+				
+				;;
+			
 			clean)
 				rm -rf ./target
 				;;
+			
 			*)
 				echo "Usage: $0 [-h|clean|package|testinstall]"
 		esac
