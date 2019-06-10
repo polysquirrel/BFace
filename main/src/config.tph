@@ -11,6 +11,11 @@
 
 /** Dreaded Carriage Return symbol which fools weidu's regexp engine. */
 OUTER_TEXT_SPRINT CR ~~
+
+/** Line terminator, either CRNL or NL. */
+OUTER_TEXT_SPRINT EOL ~
+~
+
 /** Basic whitespace symbols for use in REGEXPs: space and tab only. */
 OUTER_TEXT_SPRINT WS ~ 	~
 
@@ -40,7 +45,7 @@ OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\
 OUTER_TEXT_SPRINT portrait_file ~^[^\./\\]+\.\(bmp\|ref\)$~
 
 /** Regexp matching '.bmp', '.ref' and '.refs' files. */
-OUTER_TEXT_SPRINT supported_file ~^[^\./\\]+\.\(bmp\|ref\|refs)$~
+OUTER_TEXT_SPRINT supported_file ~^[^\./\\]+\.\(bmp\|ref\|refs\)$~
 
 //OUTER_TEXT_SPRINT npc_regex ~%MOD_FOLDER%/%any_npc_type%/%game_dirs%/%any_gender%/\([^/\\]+\)~
 /** Temporary directory containing portraits for PC which override some in-game portraits.
@@ -109,7 +114,7 @@ OUTER_TEXT_SPRINT skip_pc ~yes~
 
 
 /** List of all portrait files installed by the NPC components. */
-OUTER_TEXT_SPRINT npc_portraits_installed ~~
+OUTER_TEXT_SPRINT npc_portrait_overrides ~~
 /** Patched all returning NPCs to use the portrait files from BG1, where applicable. */
 OUTER_TEXT_SPRINT unified_portraits ~~ 
 
@@ -134,7 +139,7 @@ OUTER_TEXT_SPRINT overriden_unused_npcs ~~
 /** Flag specifying if portraits of NPCs not present in the game where overriden with unique portraits for the PC. */
 OUTER_TEXT_SPRINT overriden_absent_npcs ~~
 /** List of existing canon npc portraits overriden with charname portraits. */
-OUTER_TEXT_SPRINT npc_portraits_overriden ~~
+OUTER_TEXT_SPRINT pc_portrait_overrides ~~
 
 /** Directory where most of new PC portraits will be intalled. */
 OUTER_TEXT_SPRINT pc_install_target ~~

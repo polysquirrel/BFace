@@ -74,6 +74,11 @@ DEFINE_ACTION_FUNCTION update_creatures
 					END									
 				END
 			IF_EXISTS BUT_ONLY_IF_IT_CHANGES
+			
+			ACTION_IF creatures_patched THEN BEGIN
+				LOG ~            Patched %creatures_patched% creatures to use '%largesize%' and '%basename%~
+			END
+
 		END
 	END
 	
@@ -192,27 +197,27 @@ DEFINE_ACTION_FUNCTION check_file_eligibility
 		END
 		
 		ACTION_IF NOT ~%extension%~ STRING_EQUAL_CASE ~bmp~ AND NOT ~%extension%~ STRING_EQUAL_CASE ~ref~ THEN BEGIN
-			WARN ~Unsupported portrait file type: '%file%'~
+			WARN ~UNSUPPORTED FILE TYPE: '%file%'~
 		//STRING_CONTAINS_REGEXP returns 0 on match!
 		END ELSE ACTION_IF NOT (~%exclude%~ STRING_CONTAINS_REGEXP ~/%targetname%/~) THEN BEGIN
-			LOG ~          EXCLUDING file '%targetname%' (%file%)~
+			LOG ~            EXCLUDING file '%targetname%' (%file%)~
 		END ELSE ACTION_IF NOT (~%include%~ STR_EQ ~*~) AND (~%include%~ STRING_CONTAINS_REGEXP ~/%targetname%/~) THEN BEGIN
-			LOG ~          IGNORING '%targetname%' (%file%): not included in the white list.~
+			LOG ~            IGNORING '%targetname%' (%file%): not included in the white list.~
 		END ELSE ACTION_IF NOT ~%when%~ STR_EQ ~always~ BEGIN
 			ACTION_IF FILE_EXISTS_IN_GAME ~%targetname%.bmp~ THEN BEGIN
 				ACTION_IF ~%when%~ STR_EQ ~not exists~ THEN BEGIN
-					LOG ~          IGNORING '%targetname%' (%file%): file exists in the game.~
+					LOG ~            IGNORING '%targetname%' (%file%): file exists in the game.~
 				END ELSE BEGIN
 					OUTER_SET eligible = 1
 				END
 			END ELSE BEGIN
 				ACTION_IF ~%when%~ STR_EQ ~exists~ THEN BEGIN
-					LOG ~          IGNORING '%targetname%' (%file%): file does not exist in the game.~
+					LOG ~            IGNORING '%targetname%' (%file%): file does not exist in the game.~
 				END ELSE ACTION_IF ~%when%~ STR_EQ ~used~ THEN BEGIN
 					LAF patched_creatures STR_VAR file = ~%dir%/%targetname%.2da~
 						RET eligible = number END
 					ACTION_IF NOT eligible THEN BEGIN
-						LOG ~          IGNORING '%targetname%' (%file%): file does not exist and no creatures to patch.~
+						LOG ~            IGNORING '%targetname%' (%file%): file does not exist and no creatures to patch.~
 					END
 				END ELSE ACTION_IF ~%when%~ STR_EQ ~not used~ THEN BEGIN
 					OUTER_SET eligible = 1
@@ -220,7 +225,7 @@ DEFINE_ACTION_FUNCTION check_file_eligibility
 						RET patched = number END
 					ACTION_IF patched THEN BEGIN
 						OUTER_SET eligible = 0
-						LOG ~          IGNORING '%targetname%' (%filename%): file used to patch creatures.~
+						LOG ~            IGNORING '%targetname%' (%filename%): file used to patch creatures.~
 					END
 				END ELSE BEGIN
 					OUTER_SET eligible = 1
@@ -286,7 +291,7 @@ DEFINE_ACTION_FUNCTION copy_portrait
 			END ELSE ACTION_IF FILE_EXISTS ~%file%.ref~ THEN BEGIN
 				OUTER_TEXT_SPRINT file ~%file%.ref~
 			END ELSE BEGIN
-				LOG ~          IGNORING '%name%' (%file%): referenced file does not exist.~
+				LOG ~            IGNORING '%name%' (%file%): referenced file does not exist.~
 				OUTER_SET copied = 0
 			END
 		END	
@@ -306,7 +311,7 @@ DEFINE_ACTION_FUNCTION copy_portrait
 			ACTION_IF copied THEN BEGIN
 				ACTION_IF ~%extension%~ STR_EQ ~bmp~ THEN BEGIN //file name ends with '.bmp'
 					ACTION_IF list_only THEN BEGIN
-						LOG ~          '%name%': '%file%'~
+						LOG ~            '%name%': '%file%'~
 					END ELSE BEGIN
 						//PRINT ~'          '%name%': '%file%'~
 						COPY ~%file%~ ~%target%/%name%.bmp~
@@ -316,9 +321,9 @@ DEFINE_ACTION_FUNCTION copy_portrait
 						RET newpath = target END
 					ACTION_IF NOT ~%newpath%~ STR_EQ ~~ THEN BEGIN
 						ACTION_IF NOT chain_call THEN BEGIN
-							LOG ~          '%name%':~
+							LOG ~            '%name%':~
 						END
-						LOG ~            '%file%'	-> '%newpath%'~
+						LOG ~              '%file%'	-> '%newpath%'~
 						LAF copy_portrait 
 							INT_VAR list_only = list_only chain_call = 1
 							STR_VAR 
@@ -334,12 +339,10 @@ DEFINE_ACTION_FUNCTION copy_portrait
 					WARN ~Unsupported portrait file type: %file%~
 					OUTER_SET copied = 0
 				END
+				
 				ACTION_IF copied AND NOT (list_only OR chain_call) THEN BEGIN
 					LAF update_creatures 
 						STR_VAR dir = ~%npcdir%~ basename = ~%basename%~ 
-						RET creatures = creatures_patched END
-					ACTION_IF creatures THEN BEGIN
-						LOG ~        patched %creatures% creatures.~
 					END
 				END
 			END
@@ -387,7 +390,7 @@ DEFINE_ACTION_FUNCTION copy_portrait_refs
 		filelist
 	BEGIN
 		OUTER_TEXT_SPRINT filelist ~~
-		LOG ~        %refsfile%:~
+		LOG ~          %refsfile%:~
 		LAF refs_targets STR_VAR refsfile = ~%refsfile%~
 			RET count RET_ARRAY refs END
 		ACTION_IF count THEN BEGIN
@@ -563,9 +566,14 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 				OUTER_SET idx -= 1
 				OUTER_SPRINT chosen $versions(~%idx%~)
 				ACTION_CLEAR_ARRAY versions
-				LOG ~%npcname% alternative %idx%: %chosen%~ 
+				LOG ~        '%npcname%' alternative %idx%: '%chosen%'~ 
 				
-				LAF delete_files STR_VAR dir = ~%dir%~ files = ~ref\|bmp\|refs~ END
+				//delete current portraits from the npc dir
+				GET_FILE_ARRAY old ~%dir%~ ~%supported_file%~
+				ACTION_PHP_EACH old AS _ => file BEGIN
+					DELETE ~%file%~
+				END
+				
 				GET_FILE_ARRAY files ~%chosen%~ ~%portrait_file%~
 				
 				//copy the files under chosen directory to override and create references in %dir%
@@ -580,13 +588,8 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 						STR_VAR 
 							file = ~%portrait%~ name = ~%basename%~ target = ~%target%~ 
 							include = ~%include%~ exclude = ~%exclude%~ when = ~%when%~
-						RET copied
-					END
-					ACTION_IF NOT copied THEN BEGIN
-						FAIL ~Could not copy alternative portrait for %npcname%: [%portrait%]~
 					END
 					
-					//LAF delete_files STR_VAR dir = ~%dir%~ files = ~/%basename%/~ END
 					LAF create_ref_file STR_VAR dir = ~%dir%~ name = ~%basename%~ path = ~%portrait%~ END
 					
 				END
@@ -610,24 +613,26 @@ DEFINE_ACTION_FUNCTION directory_defaults
 	INT_VAR
 		defaults = 666
 	STR_VAR
-		npctype = ~~
-		game = ~~
+		role = ~*~
+		game = ~?~
 		gender = ~male\|female\|other~
-		name = ~~
+		name = ~*~
 	RET 
 		defaults 
-		npctype 
+		role 
 		game 
 		gender 
 		name 		
 	BEGIN
-		ACTION_IF ~%npctype%~ STR_EQ ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT npctype ~%any_npc_type%~
+		ACTION_IF ~%role%~ STR_EQ ~*~ THEN BEGIN
+			OUTER_TEXT_SPRINT role ~%any_dir%~
 		END
-		ACTION_IF (~%game%~ STRING_EQUAL ~~) THEN BEGIN 
+		ACTION_IF (~%game%~ STRING_EQUAL ~?~) THEN BEGIN 
 			OUTER_TEXT_SPRINT game ~%game_dirs%~
+		END ELSE ACTION_IF (~%game%~ STR_EQ ~*~) THEN BEGIN
+			OUTER_TEXT_SPRINT game ~%any_game%~
 		END
-		ACTION_IF (~%name%~ STRING_EQUAL ~~) THEN BEGIN
+		ACTION_IF (~%name%~ STRING_EQUAL ~*~) THEN BEGIN
 			OUTER_TEXT_SPRINT name ~%any_dir%~
 		END
 		ACTION_IF defaults > 1 THEN BEGIN
@@ -643,7 +648,7 @@ DEFINE_ACTION_FUNCTION directory_defaults
 /** Copy portrait files which path is covered by a sequence of regular expressions for individual directories.
   *	The directories on path serve as role/content/gender filter and thus subtries of the collection can be
   * excluded or included. Only the first argument is mandatory, the rest will match all standard subdirectories.
-  * If you wish to copy portraits of NPCs regardless of their role, choose %any_npc_type% for npctype.
+  * If you wish to copy portraits of NPCs regardless of their role, choose %any_npc_type% for role.
   *  
   * This function concers itself only if the standard '.bmp' files, symlink-like file refs '.ref' containing
   * a path to the actual file (see `copy_portrait` function's documentation) and '.refs' files aggregating
@@ -686,14 +691,27 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 		/** If not zero, the user will be prompted about every portrait set (npc directory). */
 		ask_each = 0
 	STR_VAR 
-		/** Regexp for name of root directory with npc portraits (alternative from npcs|modnpcs|plotnpcs etc.)*/
-		npctype = ~~
+		/** Name of the root directory from which to copy portraits; either ~npcs~ or ~charname~. */
+		root = ~npcs~
+		/** Regexp for name of directory for a given npc kind (alternative from npcs|modnpcs|plotnpcs etc.)*/
+		role = ~*~
 		/** Regexp for game directories to cover: bgee|sod|bg2ee */	
-		game = ~~
+		game = ~?~
 		/** Regexp for gender directory grouping individual npcs. */
 		gender = ~male\|female\|other~ 
 		/** Regexp for npc directory (i.e. name/identifier). */
-		name = ~~ 
+		name = ~*~ 
+		/** Target directory into which all files are (flatly) copied. */
+		target = ~override~
+		/** A whitelist of portraits to copy. When set to the default value ~*~, meaning everything, it is effectively 
+		  * ignored. Any other value is interpreted as a list of base file names of portraits to copy, each surrounded
+		  * by a pair of '/'. When a file would be renamed through a ref or a series of refs, the final name is taken
+		  * into account. When a file is present on both include and exclude lists, the latter takes precedence.
+		  */
+		include = ~*~
+		/** List of file names (without extensions) that should be excluded from copying. 
+		  * Each entry on the list should be surrounded with '/'. */
+		exclude = ~~
 		/** Switch which decides if a file should be copied based on its existance in the game. Can be one of:
 		  * 'exists' - override only; the file must already exist in the game.
 		  * 'not exists' - only new portraits; don't copy if the file already exists
@@ -702,17 +720,6 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 		  * 'not used' - the portrait file must not exist and no creatures would be updated to use it.
 		  */
 		when = ~used~
-		/** Target directory into which all files are (flatly) copied. */
-		target = ~override~
-		/** List of file names (without extensions) that should be excluded from copying. 
-		  * Each entry on the list should be surrounded with '/'. */
-		exclude = ~~
-		/** A whitelist of portraits to copy. When set to the default value ~*~, meaning everything, it is effectively 
-		  * ignored. Any other value is interpreted as a list of base file names of portraits to copy, each surrounded
-		  * by a pair of '/'. When a file would be renamed through a ref or a series of refs, the final name is taken
-		  * into account. When a file is present on both include and exclude lists, the latter takes precedence.
-		  */
-		include = ~*~
 	RET
 		/** Number of portrait sets (bottom level dirs) for which at least one file has been copied/listed.
 		  * Due to weidu limitations returned array filemap is undefined if npccount==0.
@@ -722,26 +729,14 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 		  * unless the list is empty, string starts and ends with '/' and each two files are separated by '//'. */
 		filelist 
 		/** List of directories matching %name% which contained at least one file included in %filelist%. 
-		  * Directories from all %npctype%/%game%/%gender% branches are listed together and separated by the regexp 
+		  * Directories from all %role%/%game%/%gender% branches are listed together and separated by the regexp 
 		  * alternative symbol '\|'.
 		  */		
 		names 
 	RET_ARRAY
 		filemap
 	BEGIN
-		ACTION_IF (~%game%~ STRING_EQUAL ~~) THEN BEGIN 
-			OUTER_TEXT_SPRINT game ~%game_dirs%~
-		END
-		ACTION_IF (~%name%~ STRING_EQUAL ~~) THEN BEGIN
-			OUTER_TEXT_SPRINT name ~%any_dir%~
-			OUTER_TEXT_SPRINT path_msg ~%npctype%/%game%/%gender%/*/~
-		END ELSE BEGIN
-			OUTER_TEXT_SPRINT path_msg ~%npctype%/%game%/%gender%/%name%/~
-		END
-		ACTION_IF defaults > 1 THEN BEGIN
-			OUTER_SET defaults = use_default_portraits
-		END
-
+			
 		ACTION_IF NOT list_only THEN BEGIN
 			ACTION_IF ~%when%~ STR_EQ ~exists~ THEN BEGIN
 				OUTER_SPRINT copy_msg @082
@@ -749,10 +744,11 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 				OUTER_SPRINT copy_msg @081
 			END
 			OUTER_SPRINT when_msg @080
-			PRINT ~%copy_msg% %path_msg%	=> '%target%'  %when_msg%: %when%~
+			PRINT ~%copy_msg% %root%/%role%/%game%/%gender%/%name%/*	=> '%target%'  %when_msg%: %when%~
 		END ELSE BEGIN
-			LOG ~List portraits from %path_msg% when %when%~
+			LOG ~List portraits from %root%/%role%/%game%/%gender%/%name%/* when %when%~
 		END
+
 		ACTION_IF NOT ~%exclude%~ STR_EQ ~~ THEN BEGIN
 			LOG ~Exclude: %exclude%~
 		END
@@ -760,6 +756,10 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 			LOG ~Include: %include%~
 		END
 
+		LAF directory_defaults 
+			INT_VAR defaults = defaults
+			STR_VAR role = ~%role%~ game = ~%game%~ name = ~%name%~ 
+			RET defaults role game name END
 		
 		ACTION_IF NOT (list_only OR DIRECTORY_EXISTS ~%target%~) THEN BEGIN
 			MKDIR ~%target%~
@@ -770,90 +770,98 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 		OUTER_TEXT_SPRINT names ~~
 		ACTION_DEFINE_ASSOCIATIVE_ARRAY filemap BEGIN END
 		
-		GET_DIRECTORY_ARRAY roots ~%MOD_FOLDER%~ ~^\(%npctype%\)$~ 
+		GET_DIRECTORY_ARRAY roots ~%MOD_FOLDER%~ ~^\(%root%\)$~ 
 		
 		ACTION_PHP_EACH roots AS _ => rootdir BEGIN
-			GET_DIRECTORY_ARRAY gamedirs ~%rootdir%~ ~^\(%game%\)$~	
 			LAF strip_prefix STR_VAR string = ~%rootdir%~ prefix = ~%MOD_FOLDER%/~ 
-				RET root = suffix END			
-			LOG ~%root%:~
+				RET rootname = suffix END			
+			LOG ~%rootname%:~			
+			GET_DIRECTORY_ARRAY roledirs ~%rootdir%~ ~^\(%role%\)$~
 			
-			ACTION_PHP_EACH gamedirs AS _ => gamedir BEGIN 
-				GET_DIRECTORY_ARRAY genders ~%gamedir%~ ~^\(%gender%\)$~
-				LAF strip_prefix STR_VAR string = ~%gamedir%~ prefix = ~%rootdir%/~ 
-					RET gamename = suffix END
-				LOG ~  %gamename%:~
-				
-				ACTION_PHP_EACH genders AS _ => genderdir BEGIN
-					GET_DIRECTORY_ARRAY npcs ~%genderdir%~ ~^\(%name%\)$~
-					LAF strip_prefix STR_VAR string = ~%genderdir%~ prefix = ~%gamedir%/~
-						RET sex = suffix END
-					LOG ~    %sex%:~
-				
-					ACTION_PHP_EACH npcs AS _ => npcdir BEGIN
-						LAF strip_prefix STR_VAR string = ~%npcdir%~ prefix = ~%genderdir%/~
-							RET npcname = suffix END
-						LOG ~      %npcname%:~
-						
-						OUTER_TEXT_SPRINT copied_files ~~
-						OUTER_SET proceed = 0
-						ACTION_IF ask_each && NOT list_only THEN BEGIN
-							LOG ~        verifying if there are any files to be copied before asking the user...~
-							LAF copy_portrait_set 
-								INT_VAR list_only = 1 defaults = 1
-								STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ 
-								RET copied_files = filelist END
+			ACTION_PHP_EACH roledirs AS _ => roledir BEGIN
+				LAF strip_prefix STR_VAR string = ~%roledir%~ prefix = ~%rootdir%/~
+					RET rolename = suffix END
+				LOG ~  %rolename%:~
+				GET_DIRECTORY_ARRAY gamedirs ~%roledir%~ ~^\(%game%\)$~	
+			
+				ACTION_PHP_EACH gamedirs AS _ => gamedir BEGIN 
+					LAF strip_prefix STR_VAR string = ~%gamedir%~ prefix = ~%roledir%/~ 
+						RET gamename = suffix END
+					LOG ~    %gamename%:~
+					GET_DIRECTORY_ARRAY genders ~%gamedir%~ ~^\(%gender%\)$~
+					
+					ACTION_PHP_EACH genders AS _ => genderdir BEGIN
+						LAF strip_prefix STR_VAR string = ~%genderdir%~ prefix = ~%gamedir%/~
+							RET sex = suffix END
+						LOG ~      %sex%:~
+						GET_DIRECTORY_ARRAY npcs ~%genderdir%~ ~^\(%name%\)$~
+					
+						ACTION_PHP_EACH npcs AS _ => npcdir BEGIN
+							LAF strip_prefix STR_VAR string = ~%npcdir%~ prefix = ~%genderdir%/~
+								RET npcname = suffix END
+							LOG ~        %npcname%:~
 							
-							ACTION_IF NOT (copied_files STR_EQ ~~) THEN BEGIN
-								OUTER_TEXT_SPRINT copied_files ~~
-								OUTER_SPRINT prompt_prefix @508
-								OUTER_SPRINT prompt_suffix @509
-								OUTER_TEXT_SPRINT decision ~~ 
-								OUTER_WHILE NOT ((decision STRING_EQUAL_CASE ~I~) || (decision STRING_EQUAL_CASE ~N~)) BEGIN
-									PRINT ~  %prompt_prefix% %npcname%%prompt_suffix% ~								
-									ACTION_READLN ~decision~									
-								END
-								ACTION_IF (decision STRING_EQUAL_CASE ~I~) THEN BEGIN
-									LOG ~        installing %npcname%:~
-									OUTER_SET proceed = 1
-								END 
-							END								
-						END ELSE BEGIN
-							OUTER_SET proceed = 1
-						END
-						
-						ACTION_IF proceed THEN BEGIN
-							LAF copy_portrait_set
-								INT_VAR list_only = list_only defaults = defaults
-								STR_VAR dir = ~%npcdir%~ target = ~%target%~
-								        when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ 
-								RET copied_files = filelist END
-						END
-						
-						ACTION_IF NOT (~%copied_files%~ STR_EQ ~~) THEN BEGIN
-							ACTION_IF ~%names%~ STR_EQ ~~ THEN BEGIN
-								OUTER_TEXT_SPRINT names ~%npcname%~
-							END ELSE ACTION_IF ~%npcname%~ STRING_MATCHES_REGEXP ~%names%~ BEGIN
-								OUTER_TEXT_SPRINT names ~%names%\|%npcname%~
+							OUTER_TEXT_SPRINT copied_files ~~
+							OUTER_SET proceed = 0
+							ACTION_IF ask_each && NOT list_only THEN BEGIN
+								LOG ~          verifying if there are any files to be copied before asking the user...~
+								LAF copy_portrait_set 
+									INT_VAR list_only = 1 defaults = 1
+									STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ 
+									RET copied_files = filelist END
+								
+								ACTION_IF NOT (~%copied_files%~ STR_EQ ~~) THEN BEGIN
+									OUTER_TEXT_SPRINT copied_files ~~
+									OUTER_SPRINT prompt_prefix @508
+									OUTER_SPRINT prompt_suffix @509
+									OUTER_TEXT_SPRINT decision ~~ 
+									OUTER_WHILE NOT ((~%decision%~ STRING_EQUAL_CASE ~I~) OR (~%decision%~ STRING_EQUAL_CASE ~N~)) BEGIN
+										PRINT ~%prompt_prefix% %npcname%%prompt_suffix% ~								
+										ACTION_READLN ~decision~									
+									END
+									ACTION_IF (~%decision%~ STRING_EQUAL_CASE ~I~) THEN BEGIN
+										LOG ~          installing %npcname%:~
+										OUTER_SET proceed = 1
+									END 
+								END								
+							END ELSE BEGIN
+								OUTER_SET proceed = 1
 							END
-							ACTION_IF NOT (list_only OR defaults) THEN BEGIN
-								//verify if there is an 'alternatives' subdirectory with alternate files
-								LAF select_alternative_portraits STR_VAR
-									dir = ~%npcdir%~ npcname = ~%npcname%~ target = ~%target%~ 
-									include = ~%include%~ exclude = ~%exclude%~ when = ~%when%~
-								END
+							
+							ACTION_IF proceed THEN BEGIN
+								LAF copy_portrait_set
+									INT_VAR list_only = list_only defaults = defaults
+									STR_VAR dir = ~%npcdir%~ target = ~%target%~
+											when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ 
+									RET copied_files = filelist END
 							END
-													
-							OUTER_SET npccount += 1
-							ACTION_DEFINE_ASSOCIATIVE_ARRAY filemap BEGIN ~%npcdir%~ => ~%copied_files%~ END
-							OUTER_TEXT_SPRINT filelist ~%filelist%%copied_files%~
-						END					
+							
+							ACTION_IF NOT (~%copied_files%~ STR_EQ ~~) THEN BEGIN
+								ACTION_IF ~%names%~ STR_EQ ~~ THEN BEGIN
+									OUTER_TEXT_SPRINT names ~%npcname%~
+								END ELSE ACTION_IF ~%npcname%~ STRING_MATCHES_REGEXP ~%names%~ BEGIN
+									OUTER_TEXT_SPRINT names ~%names%\|%npcname%~
+								END
+								ACTION_IF NOT (list_only OR defaults) THEN BEGIN
+									//verify if there is an 'alternatives' subdirectory with alternate files
+									LAF select_alternative_portraits STR_VAR
+										dir = ~%npcdir%~ npcname = ~%npcname%~ target = ~%target%~ 
+										include = ~%include%~ exclude = ~%exclude%~ when = ~%when%~
+									END
+								END
+														
+								OUTER_SET npccount += 1
+								ACTION_DEFINE_ASSOCIATIVE_ARRAY filemap BEGIN ~%npcdir%~ => ~%copied_files%~ END
+								OUTER_TEXT_SPRINT filelist ~%filelist%%copied_files%~
+							END					
+						END
+						ACTION_CLEAR_ARRAY npcs
 					END
-					ACTION_CLEAR_ARRAY npcs
+					ACTION_CLEAR_ARRAY genders
 				END
-				ACTION_CLEAR_ARRAY genders
+				ACTION_CLEAR_ARRAY gamedirs
 			END
-			ACTION_CLEAR_ARRAY gamedirs
+			ACTION_CLEAR_ARRAY roledirs
 		END
 		ACTION_CLEAR_ARRAY roots
 		
@@ -867,6 +875,7 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 		END ELSE BEGIN
 			LOG ~Copied portraits: %filelist%~
 		END
+		LOG ~~
 		
 	END
 
@@ -880,10 +889,10 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 /** A minimalistic wrapper over copy_npc_portraits which simply sets list_only = 1. */	
 DEFINE_ACTION_FUNCTION list_npc_portraits
 	STR_VAR 
-		npctype = ~~
-		game = ~~
+		role = ~*~
+		game = ~?~
 		gender = ~male\|female\|other~ 
-		name = ~~ 
+		name = ~*~ 
 		when = ~used~
 		exclude = ~~
 		include = ~*~
@@ -896,7 +905,7 @@ DEFINE_ACTION_FUNCTION list_npc_portraits
 	BEGIN
 		LAF copy_npc_portraits 
 			INT_VAR list_only = 1 defaults = 1
-			STR_VAR npctype = ~%npctype%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~
+			STR_VAR role = ~%role%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~
 			        when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ target = ~~
 			RET npccount filelist names
 			RET_ARRAY filemap
@@ -923,14 +932,16 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 //		/** If not zero, the user will be prompted about every portrait set (npc directory). */
 //		ask_each = 0
 	STR_VAR 
-		/** Regexp for name of root directory with npc portraits (alternative from npcs|modnpcs|plotnpcs etc.)*/
-		npctype = ~~
+		/** The root directory for the search, relative to %MOD_FOLDER%. This will be either ~npcs~ or ~charname~. */
+		root = ~npcs~
+		/** Regexp for name of the directory for given npc kind(s) (alternative from npcs|modnpcs|plotnpcs etc.)*/
+		role = ~*~
 		/** Regexp for game directories to cover: bgee|sod|bg2ee */	
-		game = ~~
+		game = ~?~
 		/** Regexp for gender directory grouping individual npcs. */
 		gender = ~male\|female\|other~ 
 		/** Regexp for npc directory (i.e. name/identifier). */
-		name = ~~ 
+		name = ~*~ 
 		/** Switch which decides if a file should be copied based on its existance in the game. Can be one of:
 		  * 'exists' - override only; the file must already exist in the game.
 		  * 'not exists' - only new portraits; don't copy if the file already exists
@@ -944,7 +955,7 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 		/** List of file names (without extensions) that should be excluded from copying. 
 		  * Each entry on the list should be surrounded with '/'. */
 		exclude = ~~
-		include = ~~
+		include = ~*~
 	RET
 		/** Number of portrait sets (bottom level dirs) for which at least one file has been copied/listed.
 		  * Due to weidu limitations returned array filemap is undefined if npccount==0.
@@ -954,40 +965,25 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 		  * unless the list is empty, string starts and ends with '/' and each two files are separated by '//'. */
 		filelist 
 		/** List of directories matching %name% which contained at least one file included in %filelist%. 
-		  * Directories from all %npctype%/%game%/%gender% branches are listed together and separated by the regexp 
+		  * Directories from all %role%/%game%/%gender% branches are listed together and separated by the regexp 
 		  * alternative symbol '\|'.
 		  */		
 		names 
 	RET_ARRAY
 		filemap
 	BEGIN
-		//OUTER_TEXT_SPRINT filelist ~~
-		//OUTER_TEXT_SPRINT names ~~
-/*		
-		ACTION_IF (~%game%~ STRING_EQUAL ~~) THEN BEGIN 
-			OUTER_TEXT_SPRINT game ~%game_dirs%~
-		END
-		ACTION_IF (~%name%~ STRING_EQUAL ~~) THEN BEGIN
-			OUTER_TEXT_SPRINT name ~%any_dir%~
-		END
-		ACTION_IF defaults < 0 THEN BEGIN
-			OUTER_SET defaults = use_default_portraits
-		END
-*/
-		LAF directory_defaults 
-			STR_VAR game = ~%game%~ gender = ~%gender%~ name = ~%name%~
-			RET defaults game gender name END
-		
+
 		ACTION_IF NOT list_only THEN BEGIN
+			
 			ACTION_IF ~%when%~ STR_EQ ~exists~ THEN BEGIN
 				OUTER_SPRINT copy_msg @082
 			END ELSE BEGIN
 				OUTER_SPRINT copy_msg @081
 			END
 			OUTER_SPRINT when_msg @080
-			PRINT ~%copy_msg% %npctype%/%game%/%gender%/%name%/**	=> '%target%'	%when_msg%: %when%~
+			PRINT ~%copy_msg% %root%/%role%/%game%/%gender%/%name%/**	=> '%target%'	%when_msg%: %when%~
 		END ELSE BEGIN
-			LOG ~List portraits from %npctype%/%game%/%gender%/%name%/**	when: %when%~
+			LOG ~List portraits from %root%/%role%/%game%/%gender%/%name%/**	when: %when%~
 		END
 		ACTION_IF NOT ~%exclude%~ STR_EQ ~~ THEN BEGIN
 			LOG ~Exclude: %exclude%~
@@ -996,6 +992,9 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 			LOG ~Include: %include%~
 		END
 
+		LAF directory_defaults 
+			STR_VAR game = ~%game%~ gender = ~%gender%~ name = ~%name%~
+			RET game gender name END
 		
 		ACTION_IF NOT (list_only OR DIRECTORY_EXISTS ~%target%~) THEN BEGIN
 			MKDIR ~%target%~
@@ -1007,117 +1006,126 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 		OUTER_TEXT_SPRINT names ~~
 		OUTER_SET npccount = 0
 		
-		GET_DIRECTORY_ARRAY roots ~%MOD_FOLDER%~ ~^\(%npctype%\)$~ 
+		GET_DIRECTORY_ARRAY roots ~%MOD_FOLDER%~ ~^\(%root%\)$~ 
 		
 		ACTION_PHP_EACH roots AS _ => rootdir BEGIN
-			GET_DIRECTORY_ARRAY gamedirs ~%rootdir%~ ~^\(%game%\)$~	
 			LAF strip_prefix STR_VAR string = ~%rootdir%~ prefix = ~%MOD_FOLDER%/~ 
-				RET root = suffix END			
-			LOG ~%root%:~
+				RET rootname = suffix END			
+			LOG ~%rootname%:~
+			GET_DIRECTORY_ARRAY roledirs ~%rootdir%~ ~^\(%role%\)$~
 			
-			ACTION_PHP_EACH gamedirs AS _ => gamedir BEGIN 
-				GET_DIRECTORY_ARRAY genders ~%gamedir%~ ~^\(%gender%\)$~
-				LAF strip_prefix STR_VAR string = ~%gamedir%~ prefix = ~%rootdir%/~ 
-					RET gamename = suffix END
-				LOG ~  %gamename%:~
+			ACTION_PHP_EACH roledirs AS _ => roledir BEGIN
+				LAF strip_prefix STR_VAR string = ~%roledir%~ prefix = ~%rootdir%/~
+					RET rolename = suffix END
+				LOG ~  %rolename%:~
 				
-				ACTION_PHP_EACH genders AS _ => genderdir BEGIN
-					GET_DIRECTORY_ARRAY npcs ~%genderdir%~ ~^\(%name%\)$~
-					LAF strip_prefix STR_VAR string = ~%genderdir%~ prefix = ~%gamedir%/~
-						RET sex = suffix END
-					LOG ~    %sex%:~
-				
-					ACTION_PHP_EACH npcs AS _ => npcdir BEGIN
-						LAF strip_prefix STR_VAR string = ~%npcdir%~ prefix = ~%genderdir%/~
-							RET npcname = suffix END
-						LOG ~      %npcname%:~
+				GET_DIRECTORY_ARRAY gamedirs ~%roledir%~ ~^\(%game%\)$~	
+			
+				ACTION_PHP_EACH gamedirs AS _ => gamedir BEGIN 
+					LAF strip_prefix STR_VAR string = ~%gamedir%~ prefix = ~%roledir%/~ 
+						RET gamename = suffix END
+					LOG ~    %gamename%:~
+					GET_DIRECTORY_ARRAY genders ~%gamedir%~ ~^\(%gender%\)$~
+					
+					ACTION_PHP_EACH genders AS _ => genderdir BEGIN
+						LAF strip_prefix STR_VAR string = ~%genderdir%~ prefix = ~%gamedir%/~
+							RET sex = suffix END
+						LOG ~      %sex%:~
+						GET_DIRECTORY_ARRAY npcs ~%genderdir%~ ~^\(%name%\)$~
+					
+						ACTION_PHP_EACH npcs AS _ => npcdir BEGIN
+							LAF strip_prefix STR_VAR string = ~%npcdir%~ prefix = ~%genderdir%/~
+								RET npcname = suffix END
+							LOG ~        %npcname%:~
 
-/*						
-						OUTER_TEXT_SPRINT copied_files ~~
-						OUTER_SET proceed = 0
-
-						ACTION_IF ask_each && NOT list_only THEN BEGIN
-							LOG ~        verifying if there are any files to be copied before asking the user...~
-							LAF copy_portrait_set 
-								INT_VAR list_only = 1 defaults = 1
-								STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ target = ~~
-								RET copied_files = filelist END
-							
-							ACTION_IF NOT (copied_files STR_EQ ~~) THEN BEGIN
-								OUTER_TEXT_SPRINT copied_files ~~
-								OUTER_SPRINT prompt_prefix @508
-								OUTER_SPRINT prompt_suffix @509
-								OUTER_TEXT_SPRINT decision ~~ 
-								OUTER_WHILE NOT ((decision STRING_EQUAL_CASE ~I~) || (decision STRING_EQUAL_CASE ~N~)) BEGIN
-									PRINT ~  %prompt_prefix% %npcname%%prompt_suffix% ~								
-									ACTION_READLN ~decision~									
-								END
-								ACTION_IF (decision STRING_EQUAL_CASE ~I~) THEN BEGIN
-									LOG ~        installing %npcname%:~
-									OUTER_SET proceed = 1
-								END 
-							END								
-						END ELSE BEGIN
-							OUTER_SET proceed = 1
-						END
-						
-						ACTION_IF proceed THEN BEGIN
-							LAF copy_portrait_set
-								INT_VAR list_only = list_only defaults = defaults
-								STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ target = ~%target%~
-								RET copied_files = filelist END
-						END
-*/
-						//LAF copy_portrait_set 
-						//	INT_VAR list_only = list_only defaults = 1
-						//	STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ target = ~%target%~
-						//	RET copied_files = filelist END
-	
-						ACTION_IF DIRECTORY_EXISTS ~%npcdir%/alternatives~ THEN BEGIN
-							GET_DIRECTORY_ARRAY versions ~%npcdir%/alternatives~ ~%any_dir%~
+	/*						
 							OUTER_TEXT_SPRINT copied_files ~~
-							
-							ACTION_PHP_EACH versions AS _ => versiondir BEGIN
-								LAF strip_prefix STR_VAR string = ~%versiondir%~ prefix = ~%npcdir%/alternatives/~
-									RET version = suffix END
-								LOG ~        %version%:~
-								
+							OUTER_SET proceed = 0
+
+							ACTION_IF ask_each && NOT list_only THEN BEGIN
+								LOG ~          verifying if there are any files to be copied before asking the user...~
 								LAF copy_portrait_set 
-									INT_VAR list_only = list_only
-									STR_VAR dir = ~%versiondir%~ target = ~%target%~
-									        when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~
-									RET altlist = filelist END
-								OUTER_TEXT_SPRINT copied_files ~%copied_files%%altlist%~
+									INT_VAR list_only = 1 defaults = 1
+									STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ target = ~~
+									RET copied_files = filelist END
+								
+								ACTION_IF NOT (copied_files STR_EQ ~~) THEN BEGIN
+									OUTER_TEXT_SPRINT copied_files ~~
+									OUTER_SPRINT prompt_prefix @508
+									OUTER_SPRINT prompt_suffix @509
+									OUTER_TEXT_SPRINT decision ~~ 
+									OUTER_WHILE NOT ((decision STRING_EQUAL_CASE ~I~) || (decision STRING_EQUAL_CASE ~N~)) BEGIN
+										PRINT ~  %prompt_prefix% %npcname%%prompt_suffix% ~								
+										ACTION_READLN ~decision~									
+									END
+									ACTION_IF (decision STRING_EQUAL_CASE ~I~) THEN BEGIN
+										LOG ~          installing %npcname%:~
+										OUTER_SET proceed = 1
+									END 
+								END								
+							END ELSE BEGIN
+								OUTER_SET proceed = 1
 							END
-							ACTION_CLEAR_ARRAY versions
-						END ELSE BEGIN
-							LAF copy_portrait_set 
-								INT_VAR list_only = list_only 
-								STR_VAR dir = ~%npcdir%~ target = ~%target%~
-								        when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~
-								RET copied_files = filelist END
-						END
-	
-						ACTION_IF NOT (~%copied_files%~ STR_EQ ~~) THEN BEGIN
-							ACTION_IF ~%names%~ STR_EQ ~~ THEN BEGIN
-								OUTER_TEXT_SPRINT names ~%npcname%~
-							END ELSE ACTION_IF ~%npcname%~ STRING_MATCHES_REGEXP ~%names%~ BEGIN
-								OUTER_TEXT_SPRINT names ~%names%\|%npcname%~
-							END
-
-							OUTER_SET npccount += 1
-							ACTION_DEFINE_ASSOCIATIVE_ARRAY filemap BEGIN ~%npcdir%~ => ~%copied_files%~ END
-							OUTER_TEXT_SPRINT filelist ~%filelist%%copied_files%~
-
-						END	
 							
-				
+							ACTION_IF proceed THEN BEGIN
+								LAF copy_portrait_set
+									INT_VAR list_only = list_only defaults = defaults
+									STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ target = ~%target%~
+									RET copied_files = filelist END
+							END
+	*/
+							//LAF copy_portrait_set 
+							//	INT_VAR list_only = list_only defaults = 1
+							//	STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ target = ~%target%~
+							//	RET copied_files = filelist END
+		
+							ACTION_IF DIRECTORY_EXISTS ~%npcdir%/alternatives~ THEN BEGIN
+								GET_DIRECTORY_ARRAY versions ~%npcdir%/alternatives~ ~%any_dir%~
+								OUTER_TEXT_SPRINT copied_files ~~
+								
+								ACTION_PHP_EACH versions AS _ => versiondir BEGIN
+									LAF strip_prefix STR_VAR string = ~%versiondir%~ prefix = ~%npcdir%/alternatives/~
+										RET version = suffix END
+									LOG ~          %version%:~
+									
+									LAF copy_portrait_set 
+										INT_VAR list_only = list_only
+										STR_VAR dir = ~%versiondir%~ target = ~%target%~
+												when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~
+										RET altlist = filelist END
+									OUTER_TEXT_SPRINT copied_files ~%copied_files%%altlist%~
+								END
+								ACTION_CLEAR_ARRAY versions
+							END ELSE BEGIN
+								LAF copy_portrait_set 
+									INT_VAR list_only = list_only 
+									STR_VAR dir = ~%npcdir%~ target = ~%target%~
+											when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~
+									RET copied_files = filelist END
+							END
+		
+							ACTION_IF NOT (~%copied_files%~ STR_EQ ~~) THEN BEGIN
+								ACTION_IF ~%names%~ STR_EQ ~~ THEN BEGIN
+									OUTER_TEXT_SPRINT names ~%npcname%~
+								END ELSE ACTION_IF ~%npcname%~ STRING_MATCHES_REGEXP ~%names%~ BEGIN
+									OUTER_TEXT_SPRINT names ~%names%\|%npcname%~
+								END
+
+								OUTER_SET npccount += 1
+								ACTION_DEFINE_ASSOCIATIVE_ARRAY filemap BEGIN ~%npcdir%~ => ~%copied_files%~ END
+								OUTER_TEXT_SPRINT filelist ~%filelist%%copied_files%~
+
+							END	
+								
+					
+						END
+						ACTION_CLEAR_ARRAY npcs
 					END
-					ACTION_CLEAR_ARRAY npcs
+					ACTION_CLEAR_ARRAY genders
 				END
-				ACTION_CLEAR_ARRAY genders
+				ACTION_CLEAR_ARRAY gamedirs
 			END
-			ACTION_CLEAR_ARRAY gamedirs
+			ACTION_CLEAR_ARRAY roledirs
 		END
 		ACTION_CLEAR_ARRAY roots
 		
@@ -1131,7 +1139,7 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 		END ELSE BEGIN
 			LOG ~Copied portraits: %filelist%~
 		END
-		
+		LOG ~~
 	END
 
 

@@ -319,7 +319,7 @@ DEFINE_ACTION_FUNCTION delete_files
 				OUTER_TEXT_SPRINT files ~%files%/%basename%/~
 			END
 		END
-		LOG ~DELETE from '%dir%':~
+		LOG ~DELETE from '%dir%': ~
 		LOG ~%files%~
 		OUTER_INNER_PATCH ~%files%~ BEGIN
 			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN

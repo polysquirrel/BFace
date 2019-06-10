@@ -16,5 +16,9 @@ else
         name=`echo $path | sed -e "s|\(.*\)/$1\(.*\)\.bmp|\1/$2\2\.bmp|g"`
         mv -v "$path" "$name";
     done
+    for path in `find -name "$1*.ref"`; do
+	name=`echo $path | sed -e "s|\(.*\)/$1\(.*\)\.ref|\1/$2\2\.ref|g"`
+	mv -v "$path" "$name"
+    done
 fi
 

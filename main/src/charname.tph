@@ -8,7 +8,7 @@
 
 /** This is a very light wrapper over `copy_npc_portraits` providing default arguments for
   * names of directories in the pc portrait tree. The user will not be asked to pick between alternatives.
-  * Sets `npctype = ~charname~`, group (game) = ~unique~, gender = `male|female` and when = ~always~ by default; 
+  * Sets `role = ~charname~`, group (game) = ~unique~, gender = `male|female` and when = ~always~ by default; 
   * all other parameters have the same default values as in copy_npc_portraits. All given parameters are passed on 
   * verbatim to copy_npc_portraits; similarly, the values returned by that function are returned without 
   * any modification. See `copy_npc_portraits` documentation.
@@ -17,10 +17,10 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 	INT_VAR
 		list_only = 0
 	STR_VAR
-		root = ~charname~
-		group = ~unique~
+		role = ~unique~
+		bundle = ~*~
 		gender = ~male\|female~
-		name = ~~
+		name = ~*~
 		target = ~override~
 		when = ~always~
 		include = ~*~
@@ -32,13 +32,17 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 	RET_ARRAY
 		filemap
 	BEGIN
+		ACTION_IF ~%bundle%~ STR_EQ ~*~ THEN BEGIN
+			OUTER_TEXT_SPRINT bundle ~%any_dir%~ //default value required to avoid using current game dir instead
+		END	
 		LAF copy_npc_portraits 
 			INT_VAR 
 				list_only = list_only 
 				defaults = 1
 			STR_VAR 
-				npctype = ~%root%~ 
-				game = ~%group%~ 
+				root = ~charname~
+				role = ~%role%~ 
+				game = ~%bundle%~ 
 				gender = ~%gender%~
 				name = ~%name%~ 
 				target = ~%target%~
@@ -53,22 +57,6 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 
 	
 
-/** Removes all portraits from the selection list present on character generation.
-  * This will crash the game if no new portraits are installed!
-  * Patches BGEE.LUA file to clear the portraits = { ... } list. 
-  */
-DEFINE_ACTION_FUNCTION clear_pc_portrait_entries
-	BEGIN
-		LOG ~Removing all portraits from the list at character generation. The game will crash unless new portraits are installed.~
-		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
-			MKDIR ~override~
-		END
-		COPY_EXISTING ~BGEE.LUA~ ~override~
-			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{]*{[^{}]*\({[^}]*}[^{}]*\)*}~ 
-				~portraits = 
-{
-}~		
-	END
 
 	
 	
@@ -87,19 +75,64 @@ DEFINE_ACTION_FUNCTION list_pc_portraits
 		END ELSE ACTION_IF ~%gender%~ STR_EQ ~female~ THEN BEGIN
 			OUTER_TEXT_SPRINT sex ~2~
 		END
-			
+		
 		OUTER_TEXT_SPRINT filelist ~~
+		//let's get rid of commented lines in bgee.lua which fool the regexp matcher
 		COPY_EXISTING ~BGEE.LUA~ ~%empty_dir%~
-			REPLACE_EVALUATE CASE_SENSITIVE ~\({[^{}]*'\([^'\\/]+\)'[%WS%]*,[%WS%]*%sex%[^{}]*}\)~ BEGIN
-				PATCH_IF ((~%include%~ STR_EQ ~*~) OR NOT (~%include%~ STRING_CONTAINS_REGEXP ~/%MATCH2%/~))
-				         AND (~%exclude%~ STRING_CONTAINS_REGEXP ~/%MATCH2%/~) THEN BEGIN
-					TEXT_SPRINT filelist ~%filelist%/%MATCH2%/~
+			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~--.*$~ ~%EOL%~
+		
+		COPY ~%empty_dir%/BGEE.LUA~ ~%empty_dir%~
+			REPLACE_EVALUATE CASE_SENSITIVE ~\({[%WS%]*'\([^'\\/]+\)'[%WS%]*,[%WS%]*%sex%[%WS%]*}\)~ BEGIN
+				TEXT_SPRINT portrait ~%MATCH2%~
+				SET included = INDEX(CASE_INSENSITIVE EVALUATE_REGEXP ~/%portrait%L?/~ ~%include%~)
+				SET excluded = INDEX(CASE_INSENSITIVE EXACT_MATCH ~/%portrait%L?/~ ~%exclude%~)
+				PATCH_IF ((~%include%~ STR_EQ ~*~) OR included >= 0) AND (excluded < 0) THEN BEGIN
+					PATCH_IF included >= 0 THEN BEGIN
+						SET length = STRING_LENGTH ~%portrait%~
+						SET large = INDEX(CASE_INSENSITIVE EXACT_MATCH ~/%portrait%L/~ ~%include%~)
+						PATCH_IF large >= 0 THEN BEGIN 
+							SET included = large
+							SET length += 1
+						END
+						SET included += 1
+						LPF SUBSTRING 
+							INT_VAR start = included length = length
+							STR_VAR string = ~%include%~ 
+							RET portrait = substring END
+					END 
+					TEXT_SPRINT filelist ~%filelist%/%portrait%/~
 				END
 			END ~%MATCH1%~
 		BUT_ONLY_IF_IT_CHANGES
+		
+		DELETE ~%empty_dir%/BGEE.LUA~
 	END
 	
 	
+	
+
+	
+	
+/** Removes all portraits from the selection list present on character generation.
+  * This will crash the game if no new portraits are installed!
+  * Patches BGEE.LUA file to clear the portraits = { ... } list. 
+  */
+DEFINE_ACTION_FUNCTION clear_pc_portrait_entries
+	BEGIN
+		LOG ~Removing all portraits from the list at character generation. The game will crash unless new portraits are installed.~
+		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
+			MKDIR ~override~
+		END
+		COPY_EXISTING ~BGEE.LUA~ ~override~
+			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{]*{[^{}]*\({[^}]*}[^{}]*\)*}~ 
+				~portraits = 
+{
+}~		
+	END
+
+
+
+
 	
 /** Removes entries for given portrait files from the selection list on character generation.
   * The file list must be a concatenated sequence of names without the '.bmp' suffix and each surrounded
@@ -126,31 +159,38 @@ DEFINE_ACTION_FUNCTION remove_pc_portraits
 	
 	
 	
+	
+	
 /** Resolves the names of portrait files to copy based on exact same parameters and rules as
   * `copy_npc_portraits`, but doesn't copy (or delete) anything. Instead, it removes any
   * references to these files from the portrait selection list in the character generation screen.
   */
 DEFINE_ACTION_FUNCTION remove_npc_portraits
 	STR_VAR
-		npctype = ~canonnpcs~
-		game = ~~
-		gender = ~~
-		name = ~~
+		role = ~canonnpcs~
+		game = ~*~
+		gender = ~male\|female~
+		name = ~*~
 		exclude = ~~
 	RET
 		filelist
 	BEGIN
-		ACTION_IF ~%game%~ STR_EQ ~~ THEN BEGIN
+		ACTION_IF ~%game%~ STR_EQ ~*~ THEN BEGIN
 			OUTER_TEXT_SPRINT game ~%any_game%~
 		END
-		LOG ~Listing companion portraits to remove: %npctype%/%game%/%gender%/%name%~
+		LOG ~Listing companion portraits to remove: %role%/%game%/%gender%/%name%~
 		LAF list_npc_portraits 
-			STR_VAR npctype = ~%npctype%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~ 
+			STR_VAR role = ~%role%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~ 
 			        when = ~exists~ exclude = ~%exclude%~
 			RET filelist END
 	
 		LAF remove_pc_portraits STR_VAR files = filelist END
 	END
+	
+	
+	
+	
+	
 	
 	
 	
@@ -190,7 +230,7 @@ DEFINE_ACTION_FUNCTION pc_portrait_entries
 
 DEFINE_ACTION_FUNCTION install_pc_portrait_list
 	STR_VAR
-		gender = ~~
+		gender = ~?~
 		filelist = ~~
 	BEGIN
 		LAF remove_dups_from_list STR_VAR list = ~%filelist%~ 
@@ -233,23 +273,26 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 /** Copies bmp files from the specified branches of a portrait directory tree using copy_npc_portraits
   * and updates BGEE.LUA to add the new portraits to the selection list for both playable sexes.
   * The 'gender' directories in the trie must be named 'male' and 'female', the names of directories 
-  * on all other levels are completely optional. Only the root level argument (corresponding to 'npctype'
+  * on all other levels are completely optional. Only the root level argument (corresponding to 'role'
   * for npc portraits) must be specified; the rest will default to all directories.
   */
 DEFINE_ACTION_FUNCTION install_pc_portraits 
 	STR_VAR
-		root = ~charname~
-		group = ~unique~
-		set = ~~
-		when = ~always~
+		role = ~unique~
+		bundle = ~*~
+		set = ~*~
 		exclude = ~~
+		when = ~always~
 	BEGIN
-
+		ACTION_IF ~%bundle%~ STR_EQ ~*~ THEN BEGIN
+			OUTER_TEXT_SPRINT bundle ~%any_dir%~
+		END
 		LAF copy_npc_portraits 
 			INT_VAR defaults = 1
 			STR_VAR 
-				npctype = ~%root%~ 
-				game = ~%group%~ 
+				root = ~charname~
+				role = ~%role%~ 
+				game = ~%bundle%~ 
 				gender = ~male~ 
 				npc = ~%set%~ 
 				exclude = ~%exclude%~ 
@@ -259,8 +302,9 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 		LAF copy_npc_portraits 
 			INT_VAR defaults = 1
 			STR_VAR 
-				npctype = ~%root%~ 
-				game = ~%group%~ 
+				root = ~charname~
+				role = ~%role%~ 
+				game = ~%bundle%~ 
 				gender = ~female~ 
 				npc = ~%set%~ 
 				exclude = ~%exclude%~ 
@@ -269,45 +313,6 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 			
 		LAF install_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
 		LAF install_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
-/*		
-		LAF pc_portrait_entries STR_VAR gender = ~male~ filelist = ~%males%~
-			RET selection = portraits END
-		
-		LAF pc_portrait_entries STR_VAR gender = ~female~ filelist = ~%females%~
-			RET portraits END
-	
-		ACTION_IF ~%selection%~ STRING_EQUAL ~~ THEN BEGIN
-			OUTER_TEXT_SPRINT selection ~%portraits%~
-		END ELSE ACTION_IF NOT (~%portraits%~ STRING_EQUAL ~~) THEN BEGIN
-			OUTER_TEXT_SPRINT selection ~%selection%,
-%portraits%~
-		END
-	
-		LOG ~Installing portrait set:~
-		LOG ~%selection%~
-	
-	
-		ACTION_IF NOT (~%selection%~ STRING_EQUAL ~~) THEN BEGIN
-			LOG ~Patching BGEE.LUA; no files modified here signifies a conflit with another module.~
-			//Patch portrait selection list if it's not empty
-			COPY_EXISTING ~BGEE.LUA~ ~override~ 
-				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
-					~portraits = 
-{
-%selection%,~
-			IF ~^portraits =[^{}]*{[^{}]*\({[^{}]*}[^{}]*\)+}~
-		
-
-			//Patch portrait selection list if it's empty
-			COPY_EXISTING ~BGEE.LUA~ ~override~ //
-				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{[^{}]*}~ 
-					~portraits =
-{
-%selection%
-}~
-			IF ~^portraits =[^{}]*{[^{}]*}~
-		END		
-*/
 	END
 	
 	

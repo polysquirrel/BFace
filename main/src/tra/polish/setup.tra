@@ -31,9 +31,9 @@
 @502=	~Nie będziesz proszony/a o wybór pomiędzy alternatywnymi portretami postaci.~
 @503=	~Będziesz proszony/a o wybór pomiędzy alternatywnymi portretami postaci.~
 @504=	~Wybież portret dla~
-@505=	~Poddaj numer wybranej opcjii: ~
+@505=	~Poddaj numer wybranej opcji: ~
 //@506=	~Do you want to be shown previews of alternative portraits for every companion? [Y]es
-@508=	~Instalować portrety dla ~
+@508=	~Instalować portrety dla~
 @509=	~? [I]nstaluj/[N]ie:~
 
 @510=	~Portrety dla postaci niezależnych (NPCs)~
@@ -79,7 +79,9 @@
 
 @600=	~Portrety dla postaci gracza (CHARNAME)~
 @601=	~Wybór portretów dla postaci gracza już dokonany~
-@602=	~Brak portretów do zainstalowania~
+@605=	~Zainstalować zestaw '~
+@606=	~'? [I]nstaluj/[N]ie: ~
+@607=	~Brak portretów do zainstalowania~
 @608=	~Instaluję wybrane portrety w ekranie wyboru podczas tworzenia postaci...~
 @609=	~Lista dostępnych portretów nie może być pusta!~
 
@@ -152,5 +154,8 @@
 @690=	~Pozwól wybierać portret gracza spomiędzy odpowiednich portretów pomniejszych postaci z gry~
 
 
-@699=	~Zestaw nowych, unikalnych portretów dla gracza (główny komponent)~
+@690=	~Nowe, unikalne portrety dla gracza (główny komponent)~
+@691=	~Wszystkie załączone zestawy~
+@692=	~Pytaj o każdy zestaw~
+
 

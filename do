@@ -44,10 +44,20 @@ case "$#" in
                                         fi
                                 fi
 				
-				for GAMEDIR in "test/Baldur's Gate" "test/Siege of Dragonspear" "test/Baldur's Gate  2"; do
+				for GAMEDIR in "test/Baldur's Gate" "test/Siege of Dragonspear" "test/Baldur's Gate 2"; do
         				if [ -d "$GAMEDIR" ]; then
+						echo "Install to $GAMEDIR"
                 				if [ -d "$GAMEDIR/$MOD_NAME" ]; then
                         				rm -rf "$GAMEDIR/$MOD_NAME.bak"
+							if [ -f "$GAMEDIR/setup-$MOD_NAME.exe" ]; then
+								cd "$GAMEDIR"
+								"./setup-$MOD_NAME.exe" --uninstall
+								cd -
+							elif [ -f "$GAMEDIR/setup-$MOD_NAME" ]; then
+								cd "$GAMEDIR"
+								"./setup-$MOD_NAME" --uninstall
+								cd -
+							fi
                         				mv "$GAMEDIR/$MOD_NAME" "$GAMEDIR/$MOD_NAME.bak"
                 				fi
                 				cp -a  "$moddir" target/exploded/setup-$MOD_NAME.exe "$GAMEDIR"

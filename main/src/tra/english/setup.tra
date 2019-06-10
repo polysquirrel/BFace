@@ -33,7 +33,7 @@
 @504=	~Pick portrait for~
 @505=	~Enter the number corresponding to the selected option: ~
 //@506=	~Do you want to be shown previews of alternative portraits for every companion? [Y]es
-@508=	~Install portraits for ~
+@508=	~Install portraits for~
 @509=	~? [I]nstall/[N]o:~
 
 @510=	~Portraits for NPCs~
@@ -79,7 +79,9 @@
 
 @600=	~Portraits for player characters~
 @601=	~Choice of installed PC portraits already made~
-@602=	~No portraits to install~
+@605=	~Install bundle '~
+@606=	~'? [I]nstall/[N]o: ~
+@607=	~No portraits to install~
 @608=	~Installing chosen portraits to the selection screen...~
 @609=	~Portrait selection cannot be empty!~
 
@@ -155,5 +157,8 @@
 @690=	~Give player characters access to portraits of some suitable minor NPCs~
 
 
-@699=	~Give player characters a custom set of unique portraits (main component)~
+@690=	~Give player characters new unique portraits (main component)~
+@691=	~All included portrait bundles~
+@692=	~Ask about each portrait bundle~
+
 
