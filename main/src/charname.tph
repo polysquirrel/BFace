@@ -81,7 +81,14 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 			LAF strip_prefix STR_VAR string = ~%bundledir%~ prefix = ~%MOD_FOLDER%/charname/unique/~
 				RET bundle = suffix END
 
-			ACTION_IF show_previews AND FILE_EXISTS ~%bundledir%/preview.html~ THEN BEGIN
+			ACTION_IF show_previews THEN BEGIN
+				ACTION_IF NOT FILE_EXISTS ~%bundledir%/preview.html~ THEN BEGIN
+					LAF create_portraits_preview
+						STR_VAR 
+							root = ~charname~ role = ~unique~ game = ~%any_dir%~ 
+							previewdir = ~%bundledir%~ when = ~always~
+					END
+				END
 				AT_INTERACTIVE_NOW ~VIEW %bundledir%/preview.html~
 			END
 
@@ -192,7 +199,7 @@ DEFINE_ACTION_FUNCTION remove_pc_portraits
 			MKDIR ~override~
 		END
 		LOG ~Removing portraits from the selection screen: %files%~
-		LAF split_file_list STR_VAR list = files RET_ARRAY names END
+		LAF split_file_list STR_VAR list = files RET_ARRAY names = elements END
 		ACTION_PHP_EACH names AS _ => name BEGIN
 			COPY_EXISTING ~BGEE.LUA~ ~override~
 				//three cases, depending on whether the file is the only, first, or in the middle of the list

@@ -38,8 +38,9 @@ OUTER_TEXT_SPRINT playable_gender ~\(male\|female\)~
 /** Matches all default root directories with portraits for NPCs. */
 OUTER_TEXT_SPRINT any_npc_type ~\(canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs\|supportnpcs\|minornpcs\|extranpcs\)~
 
-/** Matches any dir/file name other than symbolic . and .. */
-OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\\/]+\)~
+/** Matches any dir/file name not starting with '.', '/' or '\'. */
+OUTER_TEXT_SPRINT any_dir ~\([^\.\\/].*\)~
+//OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\\/]+\)~
 
 /** Regexp matching '.bmp' and '.ref' files. */
 OUTER_TEXT_SPRINT portrait_file ~^[^\./\\]+\.\(bmp\|ref\)$~

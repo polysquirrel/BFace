@@ -355,6 +355,7 @@ REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
 BEGIN @562 //Overwrite existing main plot NPC portraits only
 SUBCOMPONENT @560 
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @012
+REQUIRE_PREDICATE NOT GAME_IS ~bgee~ OR GAME_INCLUDES ~sod~ @010 //no npcs with existing portraits in bg1
 	LAF copy_npc_portraits STR_VAR role = ~plotnpcs~ RET filelist END
 	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
 
@@ -834,7 +835,7 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 BEGIN @665 //Give PC alternative portraits of official companions from other games
 SUBCOMPONENT @660
 REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF installed_npcs RET exclude = filelist END
+	LAF list_installed_npcs RET exclude = filelist END
 	
 	LOG ~List all alternative portraits of official npcs from this game~
 	LAF copy_npc_alternatives 
@@ -852,7 +853,7 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 BEGIN @666 //Give PC the default portraits of official companions from other games
 SUBCOMPONENT @660 
 REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF installed_npcs RET exclude = filelist END
+	LAF list_installed_npcs RET exclude = filelist END
 	
 	LOG ~List the default portraits from any game of official companions from this game (including aliases for charname)~
 	LAF list_npc_portraits 

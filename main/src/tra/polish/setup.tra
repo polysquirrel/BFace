@@ -137,7 +137,7 @@
 
 
 @630=	~Zastąp standardowe portrety dla gracza nowymi z puli unikalnych obrazów~
-@631=	~Zastąp portrety dostępne wyłącznie dla gracza nowymi (zalecane do klasycznych wersji)~
+@631=	~Zastąp portrety dostępne wyłącznie dla gracza nowymi (zalecane jeśli nie zostały usunięte z listy wyboru)~
 @632=	~Zastąp wszystkie portrety gracza, wliczając iluzorycznych towarzyszy Obe'a~
 @633=	~Zastąp portrety dostępne wyłącznie dla gracza oraz te Arkanisa i Dedera~
 @634=	~Zastąp portrety dostępne wyłącznie dla gracza oraz towarzyszy iluzorycznych z wyjątkiem Arkanisa i Dedera~

@@ -338,6 +338,28 @@ DEFINE_ACTION_FUNCTION delete_files
 
 
 
+
+
+
+DEFINE_ACTION_FUNCTION create_empty_preview_file
+	STR_VAR
+		dir = ~~
+		name = ~preview.html~
+	BEGIN
+	<<<<<<<< .../%MOD_FOLDER%-inlined/%name%
+<html>
+<body style="background: #000000; color: #0xCCCCCC">
+</body>
+</html>
+>>>>>>>>
+		COPY ~.../%MOD_FOLDER%-inlined/%name%~ ~%dir%~
+		DELETE ~.../%MOD_FOLDER%-inlined/%name%~
+	END
+
+
+
+
+
 DEFINE_ACTION_FUNCTION create_ref_file
 	STR_VAR
 		/** Directory in which the file must be created. */
@@ -442,28 +464,28 @@ DEFINE_ACTION_FUNCTION resolve_ref
 		ACTION_IF NOT ~%target%~ STR_EQ ~~ THEN BEGIN
 			LOG ~          '%reffile%'	=> '%target%'~		
 			
-			OUTER_TEXT_SPRINT path ~%MOD_FOLDER%/%target%~
+			OUTER_TEXT_SPRINT target ~%MOD_FOLDER%/%target%~
 			OUTER_PATCH_SAVE basename ~%target%~ BEGIN
 				REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~\.\(ref\|bmp\)$~ ~~
 			END
 			
 			ACTION_IF ~%basename%.bmp~ STR_EQ ~%target%~ THEN BEGIN
-				ACTION_IF NOT FILE_EXISTS ~%path%~ THEN BEGIN
+				ACTION_IF NOT FILE_EXISTS ~%target%~ THEN BEGIN
 					LOG ~        File '%target%' referenced by '%reffile%' does not exist.~
 					OUTER_TEXT_SPRINT target ~~
 				END
 			END ELSE ACTION_IF ~%basename%.ref~ STR_EQ ~%target%~ THEN BEGIN
-				ACTION_IF NOT FILE_EXISTS ~%path%~ THEN BEGIN
+				ACTION_IF NOT FILE_EXISTS ~%target%~ THEN BEGIN
 					LOG ~        File '%target%' referenced by '%reffile%' does not exist.~			
 					OUTER_TEXT_SPRINT target ~~
 				END ELSE BEGIN
-					LAF resolve_ref STR_VAR reffile = ~%path%~ RET target END
+					LAF resolve_ref STR_VAR reffile = ~%target%~ RET target END
 				END
-			END ELSE ACTION_IF FILE_EXISTS ~%path%.bmp~ THEN BEGIN
-				OUTER_TEXT_SPRINT target ~%path%.bmp~
+			END ELSE ACTION_IF FILE_EXISTS ~%target%.bmp~ THEN BEGIN
+				OUTER_TEXT_SPRINT target ~%target%.bmp~
 				LOG ~        '%target%'~
-			END ELSE ACTION_IF FILE_EXISTS ~%path%.ref~ THEN BEGIN
-				LAF resolve_ref STR_VAR reffile = ~%path%.ref~ RET target END
+			END ELSE ACTION_IF FILE_EXISTS ~%target%.ref~ THEN BEGIN
+				LAF resolve_ref STR_VAR reffile = ~%target%.ref~ RET target END
 			END ELSE BEGIN
 				LOG ~        File '%target%' referenced by '%reffile%' does not exist.~		
 				OUTER_TEXT_SPRINT target ~~ 

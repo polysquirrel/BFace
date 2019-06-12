@@ -137,7 +137,7 @@
 
 
 @630=	~Replace default portraits for player characters with unique images from charname's pool~
-@631=	~Replace all player-only portrait files (recommended for non-EE if you installed all NPC portraits)~
+@631=	~Replace all player-only portrait files (recommended when not removed from the selection screen)~
 @632=	~Replace all player portrait files, including those of companions from Obe's training~
 @633=	~Replace player-only portraits and those shared with Arkanis and Deder~
 @634=	~Replace player portraits, including those shared with Obe's training copanions, but not Arkanis and Deder~

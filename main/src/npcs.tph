@@ -487,6 +487,89 @@ DEFINE_ACTION_FUNCTION copy_portrait_set
 
 
 
+
+
+
+DEFINE_ACTION_FUNCTION create_alternative_preview
+	STR_VAR
+		dir = ~~
+	BEGIN
+		LOG ~Generating preview file for %dir%...~
+
+		OUTER_TEXT_SPRINT preview_style ~style="display: inline-block; width: 140px; height: 260px; margin: 5px;"~
+		
+		GET_DIRECTORY_ARRAY alternatives ~%dir%~ ~%any_dir%~
+		OUTER_TEXT_SPRINT previews ~~
+		OUTER_TEXT_SPRINT game_folder ~../../../../../../..~
+		
+		ACTION_PHP_EACH alternatives AS _ => altdir BEGIN
+			LAF strip_prefix STR_VAR string = ~%altdir%~ prefix = ~%dir%/~ RET name = suffix END
+			LOG ~        '%name%':~
+			GET_FILE_ARRAY portraits ~%altdir%~ ~%portrait_file%~
+
+			OUTER_TEXT_SPRINT bestfile ~~
+			OUTER_TEXT_SPRINT bestsize ~~
+			
+			ACTION_PHP_EACH portraits AS _ => file BEGIN
+				OUTER_TEXT_SPRINT letter ~~ 
+				OUTER_PATCH ~%file%~ BEGIN
+					REPLACE_EVALUATE CASE_INSENSITIVE ~\(.\)\.bmp$~ BEGIN
+						TEXT_SPRINT letter ~%MATCH1%~
+						TEXT_SPRINT img ~%file%~
+					END ~~
+					REPLACE_EVALUATE CASE_INSENSITIVE ~\(.\)\.ref$~ BEGIN
+						TEXT_SPRINT letter ~%MATCH1%~
+						INNER_ACTION BEGIN
+							LAF resolve_ref STR_VAR reffile = ~%file%~ RET img = target END
+						END
+					END ~~
+				END
+				ACTION_TO_UPPER letter
+				LOG ~          '%file%' (size %letter%): %img%~
+
+				ACTION_IF NOT ~%img%~ STR_EQ ~~ AND (
+					~%letter%~ STR_EQ ~G~ OR
+					(~%letter%~ STR_EQ ~L~ AND NOT ~%bestsize%~ STR_EQ ~G~) OR
+					(~%letter%~ STR_EQ ~M~ AND NOT ~%bestsize%~ STR_EQ ~G~ AND NOT ~%bestsize%~ STR_EQ ~L~) OR
+					(~%bestsize%~ STR_EQ ~~)
+				) THEN BEGIN
+					OUTER_TEXT_SPRINT bestfile ~%game_folder%/%img%~
+					OUTER_TEXT_SPRINT bestsize ~%letter%~
+				END 				
+			END
+			
+			ACTION_IF ~%bestfile%~ STR_EQ ~~ THEN BEGIN
+				WARN ~No image available for preview of version %altname% of %dir%~
+			END ELSE BEGIN
+				OUTER_TEXT_SPRINT preview ~~
+				OUTER_TEXT_SPRINT preview 
+					~%preview%    <div id="%name%" %preview_style%>%EOL%~
+				OUTER_TEXT_SPRINT preview 
+					~%preview%      <div><img src="%bestfile%" width="140" height="220"/></div>%EOL%~
+				OUTER_TEXT_SPRINT preview
+					~%preview%      <div style="margin-top: 2px;">%name%</div>%EOL%~
+				OUTER_TEXT_SPRINT preview
+					~%preview%    </div>%EOL%~
+				
+				OUTER_TEXT_SPRINT previews ~%previews%%preview%~	
+			END
+
+		END
+		LOG ~%previews%~
+	
+		COPY ~%MOD_FOLDER%/alternative-preview.html~ ~%dir%/preview.html~
+			REPLACE_EVALUATE CASE_INSENSITIVE ~<body\([^>]*\)>\(.*\)</body>~ BEGIN
+			END ~<body%MATCH1%>%MATCH2%%previews%</body>~
+		IF_EXISTS 
+	END
+
+
+
+
+
+
+
+
 	
 /** For a portrait set given as a single directory (specific to an npc), check for
   * the existance of alternative portrait sets and, unless the run is non-interactive
@@ -542,6 +625,15 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 			END
 			
 			ACTION_IF altcount > 1 THEN BEGIN
+				
+				//Launch a viewer to show the user a preview of portraits to pick
+				ACTION_IF show_alternatives THEN BEGIN
+					ACTION_IF NOT FILE_EXISTS ~%dir%/alternatives/preview.html~ THEN BEGIN
+						LAF create_alternative_preview STR_VAR dir = ~%dir%/alternatives~ END
+					END
+					AT_INTERACTIVE_NOW ~VIEW %dir%/alternatives/preview.html~
+				END
+
 				OUTER_SPRINT prompt @504
 				PRINT ~%prompt% %npcname%:~
 			
@@ -551,11 +643,6 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 						RET alt = suffix END				
 					OUTER_SET idx += 1
 					PRINT ~[%idx%] %alt%~
-				END
-				
-				//Launch a viewer to show the user a preview of portraits to pick
-				ACTION_IF show_alternatives AND FILE_EXISTS ~%dir%/preview.html~ THEN BEGIN
-					AT_INTERACTIVE_NOW ~VIEW %dir%/preview.html~
 				END
 				
 				OUTER_SET idx = 0 //read user choice into idx
@@ -918,6 +1005,74 @@ DEFINE_ACTION_FUNCTION list_npc_portraits
 
 
 	
+
+
+
+
+DEFINE_ACTION_FUNCTION create_portraits_preview
+	STR_VAR
+		root = ~~
+		role = ~*~
+		game = ~*~
+		gender = ~male\|female\|other~
+		name = ~*~
+		when = ~always~
+		previewdir = ~~
+	BEGIN
+		LOG ~Generating preview file %previewfile% for '%root%/%role%/%game%/%gender%/%name%/*~
+		//OUTER_TEXT_SPRINT preview_folder ~%MOD_FOLDER%/previews~
+
+
+		LAF copy_npc_portraits 
+			INT_VAR defaults = 1
+			STR_VAR 
+				root = ~%root%~ role = ~%role%~ game=~%game%~ gender = ~%gender%~ name=~%name%~
+				target = ~%previewdir%/.preview~ when = ~%when%~
+			RET filelist END
+
+		LOG ~Listing images for preview...~
+
+		OUTER_TEXT_SPRINT preview_style ~style="display: inline-block; width: 70px; height: 110px; margin: 5px;"~		
+		OUTER_TEXT_SPRINT previews ~~
+		
+		OUTER_PATCH ~%filelist%~ BEGIN
+			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^\\/]+\)/~ BEGIN
+				TEXT_SPRINT basename ~%MATCH1%~
+				TEXT_SPRINT img ~.preview/%MATCH1%.bmp~
+				INNER_PATCH ~%basename%~ BEGIN
+					REPLACE_EVALUATE CASE_INSENSITIVE ~^\(.*\)\(.\)$~ BEGIN
+						TEXT_SPRINT prefix ~%MATCH1%~
+						TEXT_SPRINT letter ~%MATCH2%~
+						TO_UPPER letter
+						
+						PATCH_IF ~%letter%~ STR_EQ ~G~ 
+						      OR ~%letter%~ STR_EQ ~L~ AND ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%[Gg]/~
+							  OR ~%letter%~ STR_EQ ~M~ AND ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%[GgLl]/~
+							  OR ~%letter%~ STR_EQ ~S~ AND ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%[GgLlMm]/~
+							  OR ~%letter%~ STRING_MATCHES_REGEXP ~[GgLlMmSs]~
+						THEN BEGIN
+							TEXT_SPRINT preview ~<div %preview_style%><img src="%img%" width="70" height="110"/></div>~
+							TEXT_SPRINT previews ~%previews%%preview%%EOL%~
+						END
+					END ~~
+				END
+			END ~~
+		END
+
+		LOG ~%previews%~
+	
+		COPY ~%MOD_FOLDER%/bundle-preview.html~ ~%previewdir%/preview.html~
+			REPLACE_EVALUATE CASE_INSENSITIVE ~<body\([^>]*\)>\(.*\)</body>~ BEGIN
+			END ~<body%MATCH1%>%MATCH2%%previews%</body>~
+		IF_EXISTS 
+	END
+
+
+
+
+
+
+
 	
 DEFINE_ACTION_FUNCTION copy_chosen_npc_roles
 	INT_VAR 
@@ -940,9 +1095,16 @@ DEFINE_ACTION_FUNCTION copy_chosen_npc_roles
 		
 		ACTION_PHP_EACH roles AS _ => roledir BEGIN 
 			LAF strip_prefix STR_VAR string = ~%roledir%~ prefix = ~%MOD_FOLDER%/%root%/~
-				RET role = suffix END
+				RET rolename = suffix END
 
-			ACTION_IF show_previews AND FILE_EXISTS ~%roledir%/preview.html~ THEN BEGIN
+			ACTION_IF show_previews THEN BEGIN
+				ACTION_IF NOT FILE_EXISTS ~%roledir%/preview.html~ THEN BEGIN
+					LAF create_portraits_preview
+						STR_VAR 
+							root = ~%root%~ role = ~%rolename%~ game = ~%game_dirs%~ 
+							previewdir = ~%roledir%~ when = ~used~
+					END
+				END
 				AT_INTERACTIVE_NOW ~VIEW %roledir%/preview.html~
 			END
 
@@ -951,18 +1113,24 @@ DEFINE_ACTION_FUNCTION copy_chosen_npc_roles
 			OUTER_TEXT_SPRINT decision ~~
 
 			OUTER_WHILE NOT (~%decision%~ STRING_EQUAL_CASE ~I~ OR ~%decision%~ STRING_EQUAL_CASE ~N~) BEGIN
-				PRINT ~%prompt_prefix%%role%%prompt_suffix%~
+				PRINT ~%prompt_prefix%%rolename%%prompt_suffix%~
 				ACTION_READLN decision
 			END
 			ACTION_IF ~%decision%~ STRING_EQUAL_CASE ~I~ THEN BEGIN
 				LAF copy_npc_portraits 
 					INT_VAR ask_each = ask_each defaults = defaults
-					STR_VAR root = ~%root%~ role = ~%role%~ 
+					STR_VAR root = ~%root%~ role = ~%rolename%~ 
 					RET files = filelist END
 				OUTER_TEXT_SPRINT filelist ~%filelist%%files%~
 			END
 		END
 	END
+
+
+
+
+
+
 
 
 /** Similar to copy_npc_portraits, but copies (or lists) also all files within optional alternatives directories.
