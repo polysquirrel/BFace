@@ -347,8 +347,8 @@ REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
 	LAF copy_chosen_npc_roles
 		INT_VAR show_previews = 1
 		STR_VAR role = ~plotnpcs\|bonusnpcs\|supportnpcs\|minornpcs\|extranpcs~
-		RET males females END
-	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%males%%females%~
+		RET filelist END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~
 
 
 
@@ -414,7 +414,7 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~
 
 
 
-BEGIN @568 //major, minor characters and extras
+BEGIN @568 //support, minor characters and extras
 SUBCOMPONENT @560
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ 
               AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ 
@@ -431,6 +431,7 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~
 
 BEGIN @569 //All NPC portraits included
 SUBCOMPONENT @560
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @012
 	LAF copy_npc_portraits 
 		STR_VAR role = ~plotnpcs\|bonusnpcs\|supportnpcs\|minornpcs\|extranpcs~ 
 		RET filelist END
@@ -744,7 +745,7 @@ REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ OR GAME_INCLUDES ~sod~ @010
 		
 
 
-BEGIN @653 //Give PC portraits of Obe's companions other than Arkanis and Deder
+BEGIN @651 //Give PC portraits of Obe's companions other than Arkanis and Deder
 SUBCOMPONENT @650
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/npcs~ @012
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs/obe~ @012
@@ -759,7 +760,7 @@ REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STRING_MATCHES_REGEXP ~AnD\|~) OR
 
 
 
-BEGIN @651 //Give PC all portraits of Obe's companions
+BEGIN @652 //Give PC all portraits of Obe's companions
 SUBCOMPONENT @650 //Portraits of Obe's companions for PC
 REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STR_EQ ~all~) OR 
 		(~%overriden_obe_npcs%~ STR_EQ ~~ AND ~%installed_obe_npcs%~ STR_EQ ~~) @011

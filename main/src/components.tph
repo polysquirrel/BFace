@@ -120,11 +120,11 @@ DEFINE_ACTION_MACRO unify_npc_portraits
 		LOG ~Listing unused portraits of unified NPCs in this game.~
 		LAF list_npc_portraits
 			STR_VAR role = ~%companions_selected%~ name = ~%unified_npcs%~  exclude = ~%unified_portraits%~ 
-			RET unused_unified_portraits = filelist END
+			RET old_portraits = filelist END
 		
 		//Remove unused files from the installed list var
 		LAF	remove_from_list 
-			STR_VAR list = ~%npc_portrait_overrides%~ exclude = ~%unified_portraits%%unused_unified_portraits%~
+			STR_VAR list = ~%npc_portrait_overrides%~ exclude = ~%unified_portraits%%old_portraits%~
 			RET npc_portrait_overrides = filelist END
 
 		OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%unified_portraits%~
