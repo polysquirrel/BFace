@@ -31,7 +31,7 @@ LANGUAGE ~English~
 //		 ~%MOD_FOLDER%/tra/polish/setup.tra~
 	
 	
-BEGIN @020 //init
+BEGIN @090 //init
 INSTALL_BY_DEFAULT
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee~ @005
 	
@@ -53,7 +53,7 @@ REQUIRE_PREDICATE GAME_IS ~bgee bg2ee~ @005
 		RET canon_game_npcs = names canon_game_portraits = filelist END
 	
 	
-	PRINT @090 //greeting and advice
+	PRINT @091 //greeting and advice
 	
 	
 	
@@ -63,94 +63,140 @@ REQUIRE_PREDICATE GAME_IS ~bgee bg2ee~ @005
 /*****************************************************************************/  
 
 	
-	
-BEGIN @511 //Install portraits for canon companions only
-SUBCOMPONENT @510 //Portraits for NPCS select list
-REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
-	//LAF copy_unused_npc_portraits END
-	LAF copy_npc_portraits STR_VAR role = ~canonnpcs~ game = ~%any_game%~ when = ~exists~
-		RET npc_portrait_overrides = filelist END	
-	//OUTER_TEXT_SPRINT installed_unused_npcs ~yes~
-	
-	
-	
-BEGIN @512 //Install portraits for official companions and plot NPCs (overrides only/mostly)
-SUBCOMPONENT @510
-	LAF copy_npc_portraits STR_VAR role = ~canonnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~ 
-		RET npc_portrait_overrides = filelist END
-	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
 
-	LAF edwina_portrait_change END	
-	//OUTER_TEXT_SPRINT installed_obe_npcs ~all~
-	//OUTER_TEXT_SPRINT installed_unused_npcs ~yes~
-	
-	
-	
-BEGIN @513 //Install portraits for official companions, plot NPCs and minor characters
+BEGIN @511 //manually select NPC components to install
+SUBCOMPONENT @510 //Preconfigured selection of portraits for NPCs
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs~ @012
+	OUTER_TEXT_SPRINT skip_npc ~~
+	OUTER_SET use_default_portraits = 1
+
+
+
+BEGIN @512 //Install portraits for official companions and main plot NPCs (overrides only)
 SUBCOMPONENT @510
-	LAF copy_npc_portraits STR_VAR role = ~canonnpcs\|plotnpcs\|minornpcs~ game = ~%game_dirs%\|obe~
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~ 
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~canonnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~ 
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
 	LAF edwina_portrait_change END	
-	//OUTER_TEXT_SPRINT installed_obe_npcs ~all~
-	//OUTER_TEXT_SPRINT installed_unused_npcs ~yes~
 	
 	
 	
-BEGIN @514 //Install portraits for official and mod companions as well as major plot NPCs
+BEGIN @513 //Install portraits for official companions, plot NPCs plus bonus NPCs
 SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~ @012
 	LAF copy_npc_portraits 
-		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~
+		STR_VAR role = ~canonnpcs\|plotnpcs\|bonusnpcs~ game = ~%game_dirs%\|obe~
+		RET npc_portrait_overrides = filelist END
+	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
+	LAF edwina_portrait_change END	
+	
+	
+	
+BEGIN @514 //Install portraits for official and mod companions as well as plot and bonus NPCs
+SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
 	LAF edwina_portrait_change END
-	//OUTER_TEXT_SPRINT installed_obe_npcs ~all~
-	//OUTER_TEXT_SPRINT installed_unused_npcs ~yes~
 	
 	
 	
-BEGIN @515 //Install portraits for official & mod companions as well as both major and minor plot NPCs
+BEGIN @515 //Install portraits for official & mod companions, plot NPCs
 SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~
+              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @012
 	LAF copy_npc_portraits 
 		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs\|minornpcs~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
 	LAF edwina_portrait_change END
-	//OUTER_TEXT_SPRINT installed_obe_npcs ~all~
-	//OUTER_TEXT_SPRINT installed_unused_npcs ~yes~
 	
 	
 
-BEGIN @516 //Install portraits for official & mod companions, all NPCs, select between alternatives
+BEGIN @526 //supporting characters; alternative wording for pure expansion mods
+SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ @012
+REQUIRE_PREDICATE ~%mod_contents%~ STR_EQ ~expansion~ @013
+	LAF copy_npc_portraits
+		STR_VAR role = ~bonusnpcs\|supportnpcs~ //bonusnpcs just in case
+		RET npc_portrait_overrides = filelist END
+	
+	
+
+BEGIN @516 //Official & mod companions, main, bonus and supporting NPCs
+SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ @012
+REQUIRE_PREDICATE NOT ~%mod_contents%~ STR_EQ ~expansion~ @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs\|supportnpcs~ game = ~%game_dirs%\|obe~
+		RET npc_portrait_overrides = filelist END
+	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
+	LAF edwina_portrait_change END
+		  
+		  
+		  
+BEGIN @527 //Supporting and minor characters; alternative wording for pure expansion mods
+SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ @012
+REQUIRE_PREDICATE ~%mod_contents%~ STR_EQ ~expansion~ @013
+	LAF copy_npc_portraits
+		STR_VAR role = ~bonusnpcs\|supportnpcs\|minornpcs~
+		RET npc_portrait_overrides = filelist END
+		
+		
+
+BEGIN @517 //All companions, main, bonus, supporting and minor NPCs
+SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ @012
+REQUIRE_PREDICATE NOT ~%mod_contents%~ STR_EQ ~expansion~ @013
+	LAF copy_npc_portraits
+		STR_VAR 
+			role = ~canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs\|supportnpcs\|minornpcs~ 
+			game = ~%game_dirs%\|obe~
+		RET npc_portrait_overrides = filelist END
+	LAF copy_unused_portraits RET npc_portrait_overrides = filelist END
+	LAF edwina_portrait_change END
+	
+	
+
+BEGIN @518 //All NPC included portraits
+SUBCOMPONENT @510
+	LAF copy_npc_portraits
+		STR_VAR npctype = ~%any_npc_type%~ game = ~%game_dirs%\|obe~
+		RET npc_portrait_overrides = filelist END
+	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
+	LAF edwina_portrait_change END
+
+
+
+BEGIN @519 //All included NPC portraits, select between alternatives
 SUBCOMPONENT @510
 	LAF copy_npc_portraits 
 		INT_VAR defaults = 0
-		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs\|minornpcs~ game = ~%game_dirs%\|obe~
+		STR_VAR role = ~%any_npc_type%~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
 	LAF edwina_portrait_change END
-	//OUTER_TEXT_SPRINT installed_obe_npcs ~all~
-	//OUTER_TEXT_SPRINT installed_unused_npcs ~yes~
 	
 
 
-BEGIN @517 //Manual selection of NPC components, automatic defaults for alternative portraits
-SUBCOMPONENT @510
-	OUTER_TEXT_SPRINT skip_npc ~~
-	OUTER_SET use_default_portraits = 1
 	
 	
 	
-BEGIN @518 //Manual selection of NPC components, hand-picked portraits between alternatives
-SUBCOMPONENT @510
-	OUTER_TEXT_SPRINT skip_npc ~~
+BEGIN @521 //Manual selection of NPC components, pick between different alternative portraits
+SUBCOMPONENT @520 //Alternative or default portraits
+REQUIRE_PREDICATE ~%skip_npc%~ STR_EQ ~~ @501
 	OUTER_SET use_default_portraits = 0
-
-
-
-BEGIN @519 //Manual selection of NPC components, hand-picked alternatives and show previews
-SUBCOMPONENT @510
-	OUTER_TEXT_SPRINT skip_npc ~~
+	
+	
+	
+BEGIN @522 //Manual selection of NPC components, show previews of alternative portraits and hand-pick one
+SUBCOMPONENT @520
 	OUTER_SET use_default_portraits = 0
 	OUTER_SET show_alternatives = 1
 
@@ -164,18 +210,23 @@ SUBCOMPONENT @510
 /*****************************************************************************/  
 
 
-BEGIN @521 //Portraits for present official and mod companions
-SUBCOMPONENT @520 //Portraits for companions
-REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501 
-	LAF copy_npc_portraits 
-		STR_VAR role = ~canonnpcs\|modnpcs~ //when = ~exists~
+
+BEGIN @541 //Ask about each companion
+SUBCOMPONENT @540 //Portraits for companions	
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
+REQUIRE_PREDICATE ~%skip_npc%~ STR_EQ ~~ @501
+	LAF copy_npc_portraits
+		INT_VAR ask_each = 1
+		STR_VAR role = ~canonnpcs\|modnpcs~
 		RET npc_portrait_overrides = filelist npcs_installed = names END
 	OUTER_TEXT_SPRINT companions_selected ~canonnpcs\|modnpcs~
 	
 
 		
-BEGIN @522 //overwrite portraits of official companions
-SUBCOMPONENT @520
+BEGIN @542 //overwrite portraits of official companions
+SUBCOMPONENT @540
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~ @012
 	LAF copy_npc_portraits 
 		STR_VAR role = ~canonnpcs~ 
 		RET npc_portrait_overrides = filelist npcs_installed = names END	
@@ -183,8 +234,9 @@ SUBCOMPONENT @520
 
 		
 	
-BEGIN @523 //overwrite portraits of mod companions
-SUBCOMPONENT @520
+BEGIN @543 //overwrite portraits of mod companions
+SUBCOMPONENT @540
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
 	LAF copy_npc_portraits 
 		STR_VAR role = ~modnpcs~ //when = ~exists~
 		RET npc_portrait_overrides  = filelist npcs_installed = names END
@@ -192,8 +244,10 @@ SUBCOMPONENT @520
 
 	
 
-BEGIN @524 //Portraits for official companions, ask about each present mod companion.
-SUBCOMPONENT @520 
+BEGIN @544 //Portraits for official companions, ask about each present mod companion.
+SUBCOMPONENT @540 
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~
+              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
 	LAF copy_npc_portraits
 		STR_VAR role = ~canonnpcs~
 		RET npc_portrait_overrides = filelist npcs_installed = names END
@@ -207,13 +261,23 @@ SUBCOMPONENT @520
 
 
 
-		
-	
-	
+BEGIN @545 //Portraits for present official and mod companions
+SUBCOMPONENT @540 
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~
+              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~canonnpcs\|modnpcs~ //when = ~exists~
+		RET npc_portrait_overrides = filelist npcs_installed = names END
+	OUTER_TEXT_SPRINT companions_selected ~canonnpcs\|modnpcs~
 
-BEGIN @529 //Make all returning companions use the same portrait files
-REQUIRE_PREDICATE ~%skip_npc%~ STR_EQ ~~ AND NOT ~%companions_selected%~ STR_EQ ~~ @501
+
+
+
+
+
+BEGIN @549 //Make all returning companions use the same portrait files
 REQUIRE_PREDICATE (GAME_IS ~bg2ee eet~) OR (GAME_INCLUDES ~sod~) @010
+REQUIRE_PREDICATE ~%skip_npc%~ STR_EQ ~~ AND NOT ~%companions_selected%~ STR_EQ ~~ @501
 	LAM unify_npc_portraits 
 	
 	
@@ -221,10 +285,10 @@ REQUIRE_PREDICATE (GAME_IS ~bg2ee eet~) OR (GAME_INCLUDES ~sod~) @010
 	
 	
 
-BEGIN @531 //Overwrite portraits of Obe's training companions
-SUBCOMPONENT @530 //Obe's training companions
-REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
+BEGIN @551 //Overwrite portraits of Obe's training companions
+SUBCOMPONENT @550 //Obe's training companions
 REQUIRE_PREDICATE GAME_IS ~bgee eet~ @001
+REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
 	LAF copy_npc_portraits STR_VAR role = ~canonnpcs~ game = ~obe~ when = ~exists~
 		RET filelist END
 //	LAF overwrite_from_pc_pool STR_VAR name = ~obe~ RET filelist END
@@ -233,8 +297,8 @@ REQUIRE_PREDICATE GAME_IS ~bgee eet~ @001
 
 	
 	
-BEGIN @532 //Overwrite portraits of Arkanis and Deder
-SUBCOMPONENT @530
+BEGIN @552 //Overwrite portraits of Arkanis and Deder
+SUBCOMPONENT @550
 	LAF copy_npc_portraits STR_VAR role = ~canonnpcs~ game = ~obe~ name = ~Arkanis\|Deder~ when = ~exists~
 		RET filelist END
 	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~
@@ -242,22 +306,22 @@ SUBCOMPONENT @530
 
 /*
 //for this to work, charname overrides for these portraits would have to be different. Not enough dwarves.
-BEGIN @533 //Give separate portraits to Obe companions_selected
-SUBCOMPONENT @530 
+BEGIN @553 //Give separate portraits to Obe companions_selected
+SUBCOMPONENT @550 
 	LAF copy_npc_portraits STR_VAR role = ~canonnpcs~ game = ~obe-unique~ 
 		RET filelist END
 	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~
 	
 	
-BEGIN @534 //Give separate portraits to Arkanis and Deder
-SUBCOMPONENT @530//todo
+BEGIN @554 //Give separate portraits to Arkanis and Deder
+SUBCOMPONENT @550//todo
 	LAF copy_npc_portraits STR_VAR role = ~canonnpcs~ game = ~obe-unique~ name = ~Arkanis\|Deder~ 
 		RET filelist END
 	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~
 	
 
-BEGIN @535 //Override obe portraits, give separate portraits to Arkanis and Deder
-SUBCOMPONENT @530
+BEGIN @555 //Override obe portraits, give separate portraits to Arkanis and Deder
+SUBCOMPONENT @550
 	LOG ~List (shared) portraits of Arkanis and Deder~
 	LAF list_npc_portraits 
 		STR_VAR role = ~canonnpcs~ game = ~obe~ name = ~Arkanis\|Deder~ 
@@ -277,32 +341,110 @@ SUBCOMPONENT @530
 
 
 
-
-
-BEGIN @540 //overwrite portraits of plot npcs
+BEGIN @561 //Ask about each npc group
+SUBCOMPONENT @560 //Portraits for non-joinable NPCs
 REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
+	LAF copy_chosen_npc_roles
+		INT_VAR show_previews = 1
+		STR_VAR role = ~plotnpcs\|bonusnpcs\|supportnpcs\|minornpcs\|extranpcs~
+		RET males females END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%males%%females%~
+
+
+
+BEGIN @562 //Overwrite existing main plot NPC portraits only
+SUBCOMPONENT @560 
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @012
 	LAF copy_npc_portraits STR_VAR role = ~plotnpcs~ RET filelist END
 	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
 
 
 
+BEGIN @563 //main plot NPCs and bonus portraits
+SUBCOMPONENT @560
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ 
+              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~ @012
+	LAF copy_npc_portraits STR_VAR role = ~plotnpcs\|bonusnpcs~ RET filelist END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
+
 
 	
-		
-BEGIN @550 //add portraits to some minor characters.
-REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
-	LAF copy_npc_portraits STR_VAR role = ~minornpcs~ RET filelist END
-	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~
-		
-		
+BEGIN @564 //Supporting cast
+SUBCOMPONENT @560
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~supportnpcs~ 
+		RET filelist END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
+	
+	
+	
+BEGIN @565 //main plot and support NPCs + bonus portraits
+SUBCOMPONENT @560
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ 
+              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~plotnpcs\|bonusnpcs\|supportnpcs~ 
+		RET filelist END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
+
 
 		
+BEGIN @566 //supporting and minor characters
+SUBCOMPONENT @560
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ 
+              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~supportnpcs\|minornpcs~ 
+		RET filelist END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
+
+
+	
+BEGIN @567 //main plot, support and minor characters + bonus
+SUBCOMPONENT @560
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ 
+//              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~ 
+			  AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ 
+			  AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~plotnpcs\|bonusnpcs\|supportnpcs\|minornpcs~ 
+		RET filelist END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
+
+
+
+BEGIN @568 //major, minor characters and extras
+SUBCOMPONENT @560
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ 
+              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ 
+			  AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ 
+			  AND ( //don't double the functionality of 'All NPC portraits' component
+			      DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~
+			   OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~) @012
+	LAF copy_npc_portraits 
+		STR_VAR role = ~supportnpcs\|minornpcs\|extranpcs~ 
+		RET filelist END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
+
+
+
+BEGIN @569 //All NPC portraits included
+SUBCOMPONENT @560
+	LAF copy_npc_portraits 
+		STR_VAR role = ~plotnpcs\|bonusnpcs\|supportnpcs\|minornpcs\|extranpcs~ 
+		RET filelist END
+	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~	
+
+
+
+
 
 
 BEGIN @581 //Override all unused portraits of canon companions with their default portraits
-REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
 SUBCOMPONENT @580 //override some unused companion portraits
 REQUIRE_PREDICATE NOT GAME_IS ~bgee~ OR GAME_INCLUDES ~sod~ @010 //no unused portraits
+REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
 	LAF copy_unused_npc_portraits INT_VAR defaults = 1 END
 	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~
 	OUTER_TEXT_SPRINT installed_unused_npcs ~yes~	
@@ -319,7 +461,7 @@ SUBCOMPONENT @580
 
 BEGIN @583 //Override portraits of companions from other games with their default portraits
 SUBCOMPONENT @580 //not for games with no 'other game' companion portraits
-REQUIRE_PREDICATE NOT GAME_IS ~eet~ AND (NOT GAME_IS ~bgee~ OR GAME_INCLUDES ~sod~) @010 
+REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010 
 	LAF copy_absent_npc_portraits INT_VAR defaults = 1 RET filelist END
 	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~			
 	OUTER_TEXT_SPRINT installed_absent_npcs ~yes~	
@@ -328,7 +470,7 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ AND (NOT GAME_IS ~bgee~ OR GAME_INCLUDES ~so
 	
 BEGIN @584 //Override portraits of companions from other games with manually selected alternatives
 SUBCOMPONENT @580	
-REQUIRE_PREDICATE NOT GAME_IS ~eet~ AND (NOT GAME_IS ~bgee~ OR GAME_INCLUDES ~sod~) @010
+REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 	LAF copy_absent_npc_portraits INT_VAR defaults = 0 RET filelist END
 	OUTER_TEXT_SPRINT npc_portrait_overrides ~%npc_portrait_overrides%%filelist%~			
 	OUTER_TEXT_SPRINT installed_absent_npcs ~yes~
@@ -349,57 +491,64 @@ REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ @003
 /*****************************************************************************/
 /*                   PC PORTRAITS QUICK SELECTION                            */
 /*****************************************************************************/  
-	
-/*
-//order of subcomponents forced by weidu requirement of fewest restrictions on the first component
-//todo: these will work only on classic games
-BEGIN @610 //Copy to ./portraits for all users, override default portraits
-SUBCOMPONENT @600  //Quick path for PC portraits
-	//copy overrides for default portraits and remove them from the pool
-	LAF override_from_pc_pool STR_VAR name = ~defaults\|obe~ END
-	
-	//Copy all pc portraits to ./portraits, including referenced not deleted files from the pool
-	LAF copy_pc_portraits STR_VAR target = ~portraits~ END
-	
-
-		
-BEGIN @611 //Copy to ./portraits for all users, don't override default portraits
-SUBCOMPONENT @600
-	LAF copy_pc_portraits STR_VAR target = ~portraits~ END
-*/	
 
 
-BEGIN @612 //Copy to user's folder, overwrite default portraits 
-SUBCOMPONENT @600
-REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000	
-	LAF override_from_pc_pool STR_VAR name = ~defaults\|obe~ END
-	
-	LAF copy_pc_portraits STR_VAR target = ~%portrait_dir%~ END
 
-	
-		
-BEGIN @613 //Copy to user's folder, leave the existing portraits
-SUBCOMPONENT @600
+BEGIN @611 //Default procedure; manually select components to install
+SUBCOMPONENT @610 //Preconfigured selections of CHARNAME portraits
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname~ @012
+	OUTER_TEXT_SPRINT skip_pc ~~
+	ACTION_IF GAME_IS ~bgee bg2ee eet~ THEN BEGIN
+		OUTER_TEXT_SPRINT pc_install_target ~%portrait_dir%~
+	END ELSE BEGIN
+		OUTER_TEXT_SPRINT pc_install_target ~portraits~
+	END
+
+
+
+BEGIN @612 //Default procedure, leave the existing portraits
+SUBCOMPONENT @610
+	ACTION_IF GAME_IS ~bgee bg2ee eet~ THEN BEGIN
+		LAF copy_pc_portraits STR_VAR target = ~%portrait_dir%~ END
+	END ELSE BEGIN
+		LAF copy_pc_portraits STR_VAR target = ~portraits~ END
+	END
+
+
+
+BEGIN @613 //Default procedure, overwrite default portraits 
+SUBCOMPONENT @610
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/override~ @012
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
-	LAF copy_pc_portraits STR_VAR target = ~%portrait_dir%~ END
-
-
-
-BEGIN @614 //Replace existing portrait selection and override replaced defaults with copies of new portraits
-SUBCOMPONENT @600
-REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000 //BGEE.LUA only in EE
 REQUIRE_PREDICATE ~%installed_obe_npcs%~ STR_EQ ~~ OR ~%installed_unused_npcs%~ STR_EQ ~~ @011 
-	LAF clear_pc_portrait_entries END
-	LAF copy_pc_portraits 
-		STR_VAR role = ~override~ name = ~defaults\|obe~ exclude = ~%npc_portrait_overrides%~
+	LAF override_from_pc_pool STR_VAR name = ~defaults\|obe~ END
+
+	ACTION_IF GAME_IS ~bgee bg2ee eet~ THEN BEGIN
+		LAF copy_pc_portraits STR_VAR target = ~%portrait_dir%~ END
+	END ELSE BEGIN
+		LAF copy_pc_portraits STR_VAR target = ~portraits~ END
 	END
 	
+	
+
+BEGIN @614 //Copy to override, patching BGEE.LUA; ask about each component
+SUBCOMPONENT @610
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
+	OUTER_TEXT_SPRINT skip_pc ~~
+	OUTER_TEXT_SPRINT pc_install_target ~override~
+	
+	
+	
+BEGIN @615 //Copy to override, patch BGEE.LUA; add to existing selection
+SUBCOMPONENT @610
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000//BGEE.LUA only in EE
+	//copy all pc portraits, following refs to default portraits in the pool dir
 	LAF install_pc_portraits END
 
 
-	
-BEGIN @615 //Copy to override, replace existing portrait selection
-SUBCOMPONENT @600 //Portraits for PC
+			
+BEGIN @616 //Copy to override, replace existing portrait selection
+SUBCOMPONENT @610 //Portraits for PC
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
 	LAF clear_pc_portrait_entries END
 	//copy all pc portraits, in particular renamed references to default portraits
@@ -407,36 +556,17 @@ REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
 	
 
 		
-BEGIN @616 //Copy to override, add to existing selection
-SUBCOMPONENT @600
+BEGIN @617 //Replace existing portrait selection and override replaced defaults with copies of new portraits
+SUBCOMPONENT @610
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/override~ @012
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
-	//copy all pc portraits, following refs to default portraits in the pool dir
+REQUIRE_PREDICATE ~%installed_obe_npcs%~ STR_EQ ~~ OR ~%installed_unused_npcs%~ STR_EQ ~~ @011 
+	LAF clear_pc_portrait_entries END
+	LAF copy_pc_portraits 
+		STR_VAR role = ~override~ name = ~defaults\|obe~ exclude = ~%npc_portrait_overrides%~
+	END
+	
 	LAF install_pc_portraits END
-
-
-			
-//todo: this will work only for classic games.
-//BEGIN @617 //Manually select portraits for the portraits directory
-//SUBCOMPONENT @600
-//	OUTER_TEXT_SPRINT skip_pc ~~
-//	OUTER_TEXT_SPRINT pc_install_target ~portraits~
-
-
-
-BEGIN @618 //Manually select portrait components for the user's folder
-SUBCOMPONENT @600
-REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
-	OUTER_TEXT_SPRINT skip_pc ~~
-	OUTER_TEXT_SPRINT pc_install_target ~%portrait_dir%~
-
-
-
-BEGIN @619 //Manually select portrait components for PC, install to override
-SUBCOMPONENT @600
-REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
-	OUTER_TEXT_SPRINT skip_pc ~~
-	OUTER_TEXT_SPRINT pc_install_target ~override~
-
 
 	
 	
@@ -450,7 +580,8 @@ REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
 
 /******** Components removing portraits from the selection screen (EE) *******/
 
-BEGIN @621 //Clear portrait selection screen
+BEGIN @621 //Clear the screen
+SUBCOMPONENT @620 //Remove portraits from the selection screen
 REQUIRE_PREDICATE (~%skip_pc%~ STR_EQ ~~)  @601
 REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @011
 	LAF clear_pc_portrait_entries END
@@ -460,29 +591,34 @@ REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @011
 	//OUTER_TEXT_SPRINT cleared_AnD_portraits ~yes~
 
 
+
+BEGIN @622 //Ask about various portrait groups individually
+SUBCOMPONENT @620
+	OUTER_TEXT_SPRINT skip_clear ~~
+
 	
 	
-BEGIN @622 //Remove all portraits of official companions from the player selection screen
-SUBCOMPONENT @620 //Remove portraits of official companions from the selection screen	
-REQUIRE_PREDICATE (~%skip_pc%~ STR_EQ ~~)  @601
-REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) AND ~%cleared_pc_selection%~ STR_EQ ~~ @011
+	
+	
+	
+BEGIN @624 //Remove all portraits of official companions from the player selection screen
+SUBCOMPONENT @623 //Remove portraits of official companions from the selection screen	
+REQUIRE_PREDICATE ~%skip_clear%~ STR_EQ ~~ @011
 	LAF remove_npc_portraits END
 	OUTER_TEXT_SPRINT cleared_npc_portraits ~all~
 
 
 	
-BEGIN @623 //Remove all (old and new) portraits of present official companions from the selection 
-SUBCOMPONENT @620
+BEGIN @625 //Remove all (old and new) portraits of present official companions from the selection 
+SUBCOMPONENT @623
 REQUIRE_PREDICATE NOT GAME_IS ~eet~ @005
-REQUIRE_PREDICATE ~%cleared_pc_selection%~ STR_EQ ~~ @011
 	LAF remove_npc_portraits STR_VAR name = ~%canon_game_npcs%~ END
 	OUTER_TEXT_SPRINT cleared_npc_portraits ~present~
 	
 
-BEGIN @624 //Remove portraits used by this game's official companions from the selection
-SUBCOMPONENT @620
+BEGIN @626 //Remove portraits used by this game's official companions from the selection
+SUBCOMPONENT @623
 REQUIRE_PREDICATE NOT GAME_IS ~eet~ 005
-REQUIRE_PREDICATE ~%cleared_pc_selection%~ STR_EQ ~~ @011
 	LAF remove_npc_portraits STR_VAR role = ~canonnpcs~ game = ~%game_dirs%~ END
 	OUTER_TEXT_SPRINT cleared_npc_portraits ~used~
 
@@ -490,31 +626,19 @@ REQUIRE_PREDICATE ~%cleared_pc_selection%~ STR_EQ ~~ @011
 	
 	
 	
-BEGIN @626 //Remove Obe's training companions from the selection screen
-SUBCOMPONENT @625
-REQUIRE_PREDICATE (~%skip_pc%~ STR_EQ ~~)  @601
-REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) AND ~%cleared_pc_selection%~ STR_EQ ~~ @011 
+	
+BEGIN @628 //Remove Obe's training companions from the selection screen
+SUBCOMPONENT @627
+REQUIRE_PREDICATE ~%skip_clear%~ STR_EQ ~~ @011 
 	LAF remove_npc_portraits STR_VAR game = ~obe~ END
 	OUTER_TEXT_SPRINT cleared_obe_portraits ~all~
-	//OUTER_TEXT_SPRINT cleared_AnD_portraits ~yes~
+	
 	
 
-	
-BEGIN @627 //Remove Obe's training companions with the exception of Arkanis and Deder from the selection screen`	
-SUBCOMPONENT @625
-	LAF list_npc_portraits 
-		STR_VAR role = ~canonnpcs~ game = ~obe~ name = ~Arkanis\|Deder~ 
-		RET AnD = filelist END 
-	LAF remove_npc_portraits STR_VAR game = ~obe~ exclude = ~%AnD%~ END
-	OUTER_TEXT_SPRINT cleared_obe_portraits ~others~ 
-
-	
-	
-BEGIN @628 //Remove Arkanis's and Deder's portraits from the selection screen
-SUBCOMPONENT @625
+BEGIN @629 //Remove Arkanis's and Deder's portraits from the selection screen
+SUBCOMPONENT @627
 	LAF remove_npc_portraits STR_VAR game = ~obe~ name = ~Arkanis\|Deder~ END
 	OUTER_TEXT_SPRINT cleared_obe_portraits ~AnD~
-	//OUTER_TEXT_SPRINT cleared_AnD_portraits ~yes~
 	
 	
 	
@@ -527,7 +651,8 @@ SUBCOMPONENT @625
 
 
 BEGIN @631 //Override default PC-only portraits with unique portraits
-SUBCOMPONENT @630
+SUBCOMPONENT @630 //Replace chosen default CHARNAME portraits
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/override~ @012
 REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~  @601
 REQUIRE_PREDICATE ~%cleared_pc_selection%~ STR_EQ ~~ @011
 	LAF override_from_pc_pool STR_VAR name = ~defaults~ RET overrides = filelist END
@@ -546,22 +671,16 @@ REQUIRE_PREDICATE (NOT ~%installed_obe_npcs%~ STR_EQ ~all~) AND ~%cleared_obe_po
 	
 
 
-	
-
-BEGIN ~Requirements for overriding unused NPC portraits with unique CHARNAME portraits~
-DEPRECATED ~This component exists to allow other components to have disjoint preconditions~
-SUBCOMPONENT @640
-REQUIRE_PREDICATE NOT GAME_IS ~bgee~ OR GAME_INCLUDES ~sod~ @010 //no unused npc portraits for PC
-REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~  @601
-REQUIRE_PREDICATE NOT ~%cleared_npc_portraits%~ STR_EQ ~all~ @011
-REQUIRE_PREDICATE ~%installed_unused_npcs%~ STR_EQ ~~ @011
-
 
 
 BEGIN @641 //override all unused official companion portraits with unique pc portraits
 SUBCOMPONENT @640 //override portraits of canon NPCs with portraits for PC
-//REQUIRE_PREDICATE ~%installed_unused_npcs%~ STR_EQ ~~ @011
-	LAF used_portraits RET used = filelist END
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/override~ @012
+REQUIRE_PREDICATE NOT GAME_IS ~bgee~ OR GAME_INCLUDES ~sod~ @010 //no unused npc portraits for PC
+REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~  @601
+REQUIRE_PREDICATE NOT ~%cleared_npc_portraits%~ STR_EQ ~all~ @011
+REQUIRE_PREDICATE ~%installed_unused_npcs%~ STR_EQ ~~ @011
+	LAF used_npc_portraits RET used = filelist END
 	
 	LOG ~Override all potraits of official NPCs which aren't used by game characters.~	
 	LAF override_from_pc_pool 
@@ -593,7 +712,6 @@ REQUIRE_PREDICATE ~%installed_absent_npcs%~ STR_EQ ~~ @011
 BEGIN @643  //override unused portraits of official companions for this game
 SUBCOMPONENT @640
 REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ OR GAME_INCLUDES ~sod~ @010
-//REQUIRE_PREDICATE ~%installed_unused_npcs%~ STR_EQ ~~ @011
 	LOG ~List all portraits of npcs from this game %canon_game_npcs%.~
 	LAF list_npc_portraits
 		STR_VAR role = ~canonncps~ game = ~%any_game%~ name = ~%canon_game_npcs%~ when = ~always~
@@ -604,7 +722,7 @@ REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ OR GAME_INCLUDES ~sod~ @010
 		STR_VAR role = ~canonnpcs~ game = ~%any_game%~ exclude = ~%allpresent%~ when = ~always~
 		RET allabsent = filelist END
 	
-	LAF used_portraits RET used = filelist END
+	LAF used_npc_portraits RET used = filelist END
 	
 	LOG ~Override NPC portraits which are neither used nor represent absent npcs~
 	LAF override_from_pc_pool
@@ -619,44 +737,33 @@ REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ OR GAME_INCLUDES ~sod~ @010
 /************** Components granting npc portraits to pc ********************/
 
 
-BEGIN ~Obe portraits for PC preconditions~
-SUBCOMPONENT @650
-DEPRECATED ~Synthetic component forced by weidu requirement of imposing requirements of the first subcomponent on all the group~
-REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
+
 //The following components add aliases of portraits of Obe's companions to the player's installation list
 //The requirement for each selection is that either the corresponding portraits where cleared from the selection
 //(which would sort those portraits with the others) or that they haven't been overriden in the first place.
+		
 
 
-
-BEGIN @651 //Give PC all portraits of Obe's companions
-SUBCOMPONENT @650 //Portraits of Obe's companions for PC
-REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STR_EQ ~all~) OR 
-		(~%installed_obe_npcs%~ STR_EQ ~~ AND ~%overriden_obe_npcs%~ STR_EQ ~~) @011
-	LAF grant_pc_default_npc_portraits STR_VAR role = ~canonnpcs~ game = ~obe~ 
+BEGIN @653 //Give PC portraits of Obe's companions other than Arkanis and Deder
+SUBCOMPONENT @650
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/npcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs/obe~ @012
+REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
+REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STRING_MATCHES_REGEXP ~AnD\|~) OR
+		(~%overriden_obe_npcs%~ STR_EQ ~~) AND (~%installed_obe_npcs%~ STRING_MATCHES_REGEXP ~others\|all~) @011
+	LAF grant_pc_default_npc_portraits 
+		STR_VAR role = ~canonnpcs~ game = ~obe~ name = ~Canderous\|Mordaine\|Osprey~
 		RET males females END
 	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
 	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
 
 
 
-BEGIN @652 //Give PC portraits of Arkanis and Deder
-SUBCOMPONENT @650
-REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STRING_MATCHES_REGEXP ~others\|~) OR 
-		(~%overriden_obe_npcs%~ STR_EQ ~~) AND (~%installed_obe_npcs%~ STRING_MATCHES_REGEXP ~all\|AnD~) @011
-	LAF grant_pc_default_npc_portraits 
-		STR_VAR role = ~canonnpcs~ game = ~obe~ name = ~Arkanis\|Deder~
-		RET males END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~		
-		
-
-
-BEGIN @653 //Give PC portraits of Obe's companions other than Arkanis and Deder
-SUBCOMPONENT @650
-REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STRING_MATCHES_REGEXP ~all\|AnD~) OR
-		(~%overriden_obe_npcs%~ STR_EQ ~~) AND (~%installed_obe_npcs%~ STRING_MATCHES_REGEXP ~others\|~) @011
-	LAF grant_pc_default_npc_portraits 
-		STR_VAR role = ~canonnpcs~ game = ~obe~ name = ~Canderous\|Mordaine\|Osprey~
+BEGIN @651 //Give PC all portraits of Obe's companions
+SUBCOMPONENT @650 //Portraits of Obe's companions for PC
+REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STR_EQ ~all~) OR 
+		(~%overriden_obe_npcs%~ STR_EQ ~~ AND ~%installed_obe_npcs%~ STR_EQ ~~) @011
+	LAF grant_pc_default_npc_portraits STR_VAR role = ~canonnpcs~ game = ~obe~ 
 		RET males females END
 	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
 	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
@@ -668,6 +775,8 @@ REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STRING_MATCHES_REGEXP ~all\|AnD~) O
 
 BEGIN @661 //Give PC the alternative portraits of all official companions
 SUBCOMPONENT @660 //Give PC portraits of official companions
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/npcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~ @012
 REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
 	LOG ~List the default portraits (and their aliases for charname) of all official companions~
 	LAF list_npc_portraits STR_VAR role = ~canonnpcs~ game = ~%any_game%~ when = ~always~
@@ -775,6 +884,8 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 	
 BEGIN @671 //Give PC alternative portraits of all mod npcs
 SUBCOMPONENT @670 //Portraits of mod companions for PC
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/npcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
 REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
 	LOG ~List the default portraits of all mod npcs~
 	LAF list_npc_portraits STR_VAR role = ~modnpcs~ game = ~%any_game%~ when = ~always~
@@ -879,7 +990,8 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 	
 	
 /*	
-BEGIN @681 //Give PC alternative portraits of mod companions from non-EE games
+//no alternative portraits for legacy mod companions
+BEGIN @681 //Give PC alternative portraits of legacy mod companions from non-EE games
 SUBCOMPONENT @670
 	LAF list_npc_portraits STR_VAR role = ~modnpcs~ game = ~%non_ee%~ 
 		RET defaults = filelist
@@ -888,7 +1000,7 @@ SUBCOMPONENT @670
 		RET males females END
 	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
 	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-*/	
+	
 	
 	
 BEGIN @682 //Give PC default portraits of legacy mod companions from non-EE games
@@ -897,7 +1009,7 @@ SUBCOMPONENT @670
 		RET males females END
 	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
 	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-	
+*/	
 	
 
 BEGIN @683 //Give PC all portraits of legacy mod companions from non-EE games
@@ -914,6 +1026,8 @@ SUBCOMPONENT @670
 
 BEGIN @691 //Give CHARNAME all unique portrait bundles
 SUBCOMPONENT @690 //Give PC unique portraits
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/unique~ @012
+REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
 	LAF copy_pc_portraits STR_VAR gender = ~male~ RET males = filelist END
 	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
 	
@@ -924,32 +1038,22 @@ SUBCOMPONENT @690 //Give PC unique portraits
 
 BEGIN @692 //Pick which CHARNAME bundles to install
 SUBCOMPONENT @690	
-	GET_DIRECTORY_ARRAY bundles ~%MOD_FOLDER%/charname/unique~ ~%any_dir%~
-	
-	ACTION_PHP_EACH bundles AS _ => bundledir BEGIN 
-		LAF strip_prefix STR_VAR string = ~%bundledir%~ prefix = ~%MOD_FOLDER%/charname/unique/~
-			RET bundle = suffix END
-		OUTER_SPRINT prompt_prefix @605
-		OUTER_SPRINT prompt_suffix @606
-		OUTER_TEXT_SPRINT decision ~~
-	
-		OUTER_WHILE NOT (~%decision%~ STRING_EQUAL_CASE ~I~ OR ~%decision%~ STRING_EQUAL_CASE ~N~) BEGIN
-			PRINT ~%prompt_prefix%%bundle%%prompt_suffix%~
-			ACTION_READLN decision
-		END
-		ACTION_IF ~%decision%~ STRING_EQUAL_CASE ~I~ THEN BEGIN
-			LAF copy_pc_portraits STR_VAR bundle = ~%bundle%~ gender = ~male~ RET males = filelist END
-			OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-			
-			LAF copy_pc_portraits STR_VAR bundle = ~%bundle%~ gender = ~female~ RET females = filelist END
-			OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
-		END
-	END
+	LAF copy_pc_bundles RET males females END
+	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
+	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
 
 
 	
+BEGIN @693 //Pick which CHARNAME bundles to install, show previews.
+SUBCOMPONENT @690	
+	LAF copy_pc_bundles INT_VAR show_previews = 1 RET males females END
+	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
+	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
 	
 	
+
+
+
 
 BEGIN @099 //Round up the installation
 INSTALL_BY_DEFAULT

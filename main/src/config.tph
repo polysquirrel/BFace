@@ -27,7 +27,7 @@ OUTER_TEXT_SPRINT portrait_dir ~%USER_DIRECTORY%/portraits~
 /** Matches directories corresponding to all three parts of the BG saga. */
 OUTER_TEXT_SPRINT any_game ~\(bgee\|sod\|bg2ee\|any\)~
 
-OUTER_TEXT_SPRINT non_ee ~\(bg\|soa)~
+OUTER_TEXT_SPRINT non_ee ~\(bg\|bg2)~
 	
 /** Matches all three default 'gender' directories: male/female/other. The last one is for non-player portraits. */
 OUTER_TEXT_SPRINT any_gender ~\(male\|female\|other\)~
@@ -36,7 +36,7 @@ OUTER_TEXT_SPRINT any_gender ~\(male\|female\|other\)~
 OUTER_TEXT_SPRINT playable_gender ~\(male\|female\)~
 	
 /** Matches all default root directories with portraits for NPCs. */
-OUTER_TEXT_SPRINT any_npc_type ~\(canonnpcs\|modnpcs\|plotnpcs\|\minornpcs\)~
+OUTER_TEXT_SPRINT any_npc_type ~\(canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs\|supportnpcs\|minornpcs\|extranpcs\)~
 
 /** Matches any dir/file name other than symbolic . and .. */
 OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\\/]+\)~
@@ -56,7 +56,7 @@ OUTER_TEXT_SPRINT supported_file ~^[^\./\\]+\.\(bmp\|ref\|refs\)$~
 OUTER_TEXT_SPRINT pc_pool_dir ~%MOD_FOLDER%/charname/pool~
 
 /** Directory with portrait refs and patches for NPCs making them use their first portrait. */
-OUTER_TEXT_SPRINT unified_npc_dir ~%MOD_FOLDER%/unifiednpcs~
+//OUTER_TEXT_SPRINT unified_npc_dir ~%MOD_FOLDER%/npcs/unifiednpcs~
 
 /** An empty directory used as a target of COPY BUT_ONLY_IF_IT_CHANGES in ordere to simply read a file. */	
 OUTER_TEXT_SPRINT empty_dir ~%MOD_FOLDER%/empty~	
@@ -77,23 +77,39 @@ ACTION_IF GAME_IS ~bgee~ THEN BEGIN
 		OUTER_TEXT_SPRINT game_code ~bgee~
 		OUTER_TEXT_SPRINT other_games ~sod\|bg2ee~
 	END
+END ELSE ACTION_IF GAME_IS ~bg2ee~ THEN BEGIN
+	OUTER_TEXT_SPRINT game_dirs ~bg2ee\|any~
+	OUTER_TEXT_SPRINT game_code ~bg2ee~
+	OUTER_TEXT_SPRINT other_games ~bgee\|sod~
+END ELSE ACTION_IF GAME_IS ~eet~ BEGIN //todo: this is most likely wrong, as characters use unified portraits I think
+	OUTER_TEXT_SPRINT game_dirs ~bgee\|sod\|bg2ee\|any~
+	OUTER_TEXT_SPRINT game_code ~eet~
+	OUTER_TEXT_SPRINT other_games ~none~  //can't use empty string as it often denotes a default value
 END ELSE BEGIN
-	ACTION_IF GAME_IS ~bg2ee~ THEN BEGIN
-		OUTER_TEXT_SPRINT game_dirs ~bg2ee\|any~
-		OUTER_TEXT_SPRINT game_code ~bg2ee~
-		OUTER_TEXT_SPRINT other_games ~bgee\|sod~
-	END ELSE BEGIN //EET
-		ACTION_IF GAME_IS ~eet~ BEGIN
-			OUTER_TEXT_SPRINT game_dirs ~bgee\|sod\|bg2ee\|any~
-			OUTER_TEXT_SPRINT game_code ~eet~
-			OUTER_TEXT_SPRINT other_games ~none~  //can't use empty string as it often denotes a default value
-		END ELSE BEGIN
-			FAIL @000
-		END
-	END
+	FAIL @000
 END
 
 
+
+/** Tells which npc type directory groups are present; used to determine component availability. */
+OUTER_TEXT_SPRINT mod_contents ~~
+
+ACTION_IF DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~
+       OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~
+	   OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ THEN BEGIN
+	OUTER_TEXT_SPRINT mod_contents ~base~
+END
+
+ACTION_IF DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~
+       OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~
+	   OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ THEN BEGIN
+	ACTION_IF ~%mod_contents%~ STR_EQ ~base~ THEN BEGIN
+		OUTER_TEXT_SPRINT mod_contents ~mixed~
+	END ELSE BEGIN
+		OUTER_TEXT_SPRINT mod_contents ~expansion~
+	END
+END
+	   
 
 
 /**************************** Flags for installed components ************************/
@@ -112,6 +128,7 @@ OUTER_TEXT_SPRINT skip_npc ~yes~
 /** Flag determining if the user will be offered choice of installing individual components with PC portraits. */
 OUTER_TEXT_SPRINT skip_pc ~yes~
 
+OUTER_TEXT_SPRINT skip_clear ~yes~
 
 /** List of all portrait files installed by the NPC components. */
 OUTER_TEXT_SPRINT npc_portrait_overrides ~~

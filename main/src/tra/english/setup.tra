@@ -10,14 +10,23 @@
 @009=	~Applicable only to BGT~
 @010=	~Not aplicable to this game~
 @011=	~Not relevant to your previous choices~
-@020=	~Setup~
+@012=	~Portrait bundle not included in this mod version~
+@013=	~Not available in this version~
+
+@020=	~Yes~
+@021=	~No~
+
+@030=	~Install bundle '~
+@031=	~'? [I]nstall/[N]o: ~
+
 
 @080=	~when~
 @081=	~COPY PORTRAITS FROM~
 @082=	~OVERWRITE PORTRAITS WITH~
 
 
-@090=	~Hi! I recommended that you install one of the bulk options for NPC and PC portrait bundles.  If you choose to manually select components, consider reading the README file or think carefully, as some of the components may overwrite the choices of previously installed components.~
+@090=	~Setup~
+@091=	~Hi! I recommended that you install one of the preconfigured options for NPC and PC portrait bundles.  If you choose to manually select components (which offer some additional options), consider reading the README file or think carefully, as some of the components may overwrite the choices of previously installed components.~
 
 @099=	~Finalisation~
 
@@ -32,39 +41,57 @@
 @503=	~You will be asked to select a portrait where several alternatives are available.~
 @504=	~Pick portrait for~
 @505=	~Enter the number corresponding to the selected option: ~
-//@506=	~Do you want to be shown previews of alternative portraits for every companion? [Y]es
 @508=	~Install portraits for~
 @509=	~? [I]nstall/[N]o:~
 
 @510=	~Portraits for NPCs~
-@511=	~Official companions only~
-@512=	~Official companions and major plot characters~
-@513=	~Official companions as well as major and some minor plot characters~
-@514=	~Official & mod companions as well as major plot characters~
-@515=	~Official & mod companions, all NPCs (recommended)~
-@516=	~Official & mod companions, all NPCs, select between alternative versions when available~
-@517=	~Decide for each NPC component using default portraits~
-@518=	~Decide for each NPC component and select between alternative portraits~
-@519=	~Decide for each NPC component, preview and select between alternative portraits~
+@511=	~Decide for each component~
+@512=	~Official companions and main plot characters (override only)~
+@513=	~Official companions, main plot characters plus some matching bonus portraits~
+@514=	~All companions as well as main plot characters (override only)~
+@515=	~All companions, main plot characters plus matching bonus portraits~
+@526=	~Supporting characters (without portraits)~
+@516=	~All companions, main and supporting NPCs plus the bonus portraits~
+@527=	~Supporting and minor characters~
+@517=	~All companions, main, supporting and minor NPCs plus the bonus portraits~
+@518=	~All included NPC portraits~
+@519=	~All included NPC portraits, select between alternative versions~
 
 
-@520=	~Portraits of companions~
-@521=	~Portraits of official and mod companions~
-@522=	~Portraits of official companions only~	
-@523=	~Portraits of installed mod companions only~
-@524=	~Portraits of all official companions and ask about each present mod companion~
+@520=	~Alternative portraits~
+@521=	~Select between alternative versions where available~
+@522=	~Select between alternative versions, show previews~
 
-@529=	~Unify all returning companions to refer to the same (BGEE/SoD) portrait file names~
 
-@530=	~Portraits of Obe's training companions (some of default PC portraits)~
-@531=	~Replace all Obe's training companions (shared with PC portraits)~
-@532=	~Replace only Arkanis' and Deder's portraits (from Candlekeep catacombs)~
-@533=	~Separate portraits for all Obe's companions (not shared with PC)~
-@534=	~Separate portraits for Arkanis and Deder (not shared with PC)~
-@535=	~Separate portraits for Arkanis and Deder and shared portraits for the rest~
+@540=	~Portraits of companions~
+@541=	~Ask about each companion~
+@542=	~Portraits of official companions only~	
+@543=	~Portraits of installed mod companions only~
+@544=	~Portraits of all official companions and ask about each present mod companion~
+@545=	~Portraits of official and mod companions~
 
-@540=	~Portraits of major plot NPCs~
-@550=	~Portraits of minor (originally faceless) plot NPCs~ 
+
+@549=	~Unify all returning companions to refer to the same (BGEE/SoD) portrait file names~
+
+@550=	~Portraits of Obe's training companions (some of default PC portraits)~
+@551=	~Replace all Obe's training companions (shared with PC portraits)~
+@552=	~Replace only Arkanis' and Deder's portraits (from Candlekeep catacombs)~
+@553=	~Separate portraits for all Obe's companions (not shared with PC)~
+@554=	~Separate portraits for Arkanis and Deder (not shared with PC)~
+@555=	~Separate portraits for Arkanis and Deder and shared portraits for the rest~
+
+@560=	~Portraits of NPCs~
+@561=	~Ask for each npc group~
+@562=	~For main plot NPCs only (override existing portraits)~
+@563=	~For main plot NPCs plus some bonus matching portraits~
+@564=	~For supporting characters (previously without portraits)~
+@565=	~For main and supporting characters plus bonus matching portraits~
+@566=	~For supporting and minor characters (previously without portraits)~
+@567=	~For main, supporting and minor characters plus bonus matching portraits~
+@568=	~For supporting and minor characters and extras (lower style consistency)~
+@569=	~For all non-joinable NPC types (lower style consistency)~
+
+
 
 
 @580=	~Replace official companion portraits from other games (for any mods reintroducing that companion)~
@@ -77,36 +104,37 @@
 
 
 
-@600=	~Portraits for player characters~
+
 @601=	~Choice of installed PC portraits already made~
-@605=	~Install bundle '~
-@606=	~'? [I]nstall/[N]o: ~
 @607=	~No portraits to install~
 @608=	~Installing chosen portraits to the selection screen...~
 @609=	~Portrait selection cannot be empty!~
 
-@610=	~Install to game portraits directory and override default portraits (if in conflict with GUI mods)~
-@611=	~Install to game portraits directory, leaving existing default portraits~
-@612=	~Install to user's documents folder (standard, shared by both genders) and overwrite the default portraits~
-@613=	~Install to user's documents folder (standard, shared by both genders), leave existing portraits~ 
-@614=	~Install to override, replace the existing gender-specific lists, overwrite the default portraits~
-@615=	~Install to override, replace the existing gender-specific lists (recommended)~
-@616=	~Install to override, add to the existing gender-specific lists~
-@617=	~Manually select which PC portrait bundles to install to the game portraits directory~
-@618=	~Manually select which PC portrait bundles to install to the user's portraits folder~
-@619=	~Manually select which PC portrait bundles to install in the gender-specific selection lists~
+
+@610=	~Portraits for player characters~
+@611=	~Shared by both genders; ask about each component~
+@612=	~Shared by both genders; leave existing default portraits~
+@613=	~Shared by both genders; override default portraits (if in conflict with GUI mods)~
+@614=	~Separate for each gender; ask about each component~
+@615=	~Separate for each gender; add to existing selections, patching game files~
+@616=	~Separate for each gender; replace the existing selections (recommended)~
+@617=	~Separate for each gender; replace the existing gender-specific lists and override default portraits~
 
 
+@620=	~Remove potraits from the current selection on the character generation screen~
+@621=	~Remove all portraits (recommended; add new portraits or the game will crash!)~
+@622=	~Ask about each portrait group individually~
 
-@620=	~Remove portraits of official companions from the character generation selection~
-@621=	~Clear portrait selection screen (recommended; add new portraits or the game will crash!)~
-@622=	~Remove portraits of all official companions~
-@623=	~Remove all portraits (old and new) of official companions from this game~
-@624=	~Remove portraits used by official companions in this game~
-@625=	~Remove portraits of Obe's training companions from the character generation selection~
-@626=	~Remove all Obe's training companion portraits (shared with PCs), including Arkanis' and Deder's~
-@627=	~Remove portraits of Obe's training companions, leaving Arkanis' and Deder's (Candlekeep Catacombs)~
-@628=	~Remove portraits of Arkanis and Deder from the character generation selection~
+@623=	~Remove portraits of official companions from the character generation selection~
+@624=	~Remove portraits of all official companions~
+@625=	~Remove all portraits (old and new) of official companions from this game~
+@626=	~Remove portraits used by official companions in this game~
+
+@627=	~Remove portraits of Obe's training companions from the character generation selection~
+@628=	~Remove all Obe's training companion portraits (shared with PCs), including Arkanis' and Deder's~
+//@627=	~Remove portraits of Obe's training companions, leaving Arkanis' and Deder's (Candlekeep Catacombs)~
+@629=	~Remove portraits of Arkanis and Deder from the character generation selection~
+
 
 @630=	~Replace default portraits for player characters with unique images from charname's pool~
 @631=	~Replace all player-only portrait files (recommended for non-EE if you installed all NPC portraits)~
@@ -114,16 +142,15 @@
 @633=	~Replace player-only portraits and those shared with Arkanis and Deder~
 @634=	~Replace player portraits, including those shared with Obe's training copanions, but not Arkanis and Deder~
 	
-
 @640=	~Replace some unused portraits of official NPCs with portraits for player characters~
 @641=	~Replace all not overriden unused portraits of official companions from the whole series~
 @642=	~Replace not overriden portraits of official companions not appearing in the game~
 @643=	~Replace all not overriden unused portraits of official companions from this game~
 
+
 @650=	~Give player characters access to portraits of Obe's training companions~
-@651=	~Portraits of all companions~
-@652=	~Portraits of Arkanis and Deder~
-@653=	~Portraits of companions other than Arkanis and Deder (Candlekeep catacombs)~
+@651=	~Portraits of companions other than Arkanis and Deder (Candlekeep catacombs)~
+@652=	~Portraits of all ilusory companions~
 
 @660=	~Give player characters access to the portraits of official companions~
 @661=	~Some of alternative portraits of all official companions~
@@ -154,11 +181,9 @@
 @683=	~All suitable portraits of legacy (non-EE) mod companions~
 
 
-@690=	~Give player characters access to portraits of some suitable minor NPCs~
-
 
 @690=	~Give player characters new unique portraits (main component)~
 @691=	~All included portrait bundles~
-@692=	~Ask about each portrait bundle~
-
+@692=	~Decide for each portrait bundle~
+@693=	~Decide for each portrait bundle after previewing the contents~
 

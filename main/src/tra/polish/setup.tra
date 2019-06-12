@@ -10,14 +10,22 @@
 @009=	~Tylko do BGT~
 @010=	~Nie do tej gry~
 @011=	~Niezgodne z poprzednimi wyborami~
-@020=	~Przygotowanie~
+@012=	~Brak tego zestawu portretów w tej wersji modułu~
+@013=	~Niedostępne w tej wersji~
+
+@020=	~Tak~
+@021=	~Nie~
+
+@030=	~Zainstalować zestaw '~
+@031=	~'? [I]nstaluj/[N]ie: ~
 
 @080=	~gdy~
 @081=	~KOPIUJĘ PLIKI Z~
 @082=	~NADPISUJĘ PLIKI Z~
 
 
-@090=	~Hej! Doradzam instalację w jednej z predefiniowanych konfiguracji dla NPC oraz portretów gracza. Jeśli zdecydujesz się na indywidualną instalację komponenetów (które dostarczają dodatkowych opcji), polecam zapoznanie się z README bądź rozważne decyzje, jako że niektóre komponenty mogą nadpisać wybory z poprzednio zainstalowanych.~
+@090=	~Przygotowanie~
+@091=	~Hej! Doradzam instalację w jednej z predefiniowanych konfiguracji dla NPC oraz portretów gracza. Jeśli zdecydujesz się na indywidualną instalację komponenetów (które dostarczają dodatkowych opcji), polecam zapoznanie się z README bądź rozważne decyzje, jako że niektóre komponenty mogą nadpisać wybory z poprzednio zainstalowanych.~
 
 @099=	~Finalizacja~
 
@@ -36,35 +44,53 @@
 @508=	~Instalować portrety dla~
 @509=	~? [I]nstaluj/[N]ie:~
 
+
 @510=	~Portrety dla postaci niezależnych (NPCs)~
-@511=	~Tylko dla oficjalnych towarzyszy~
-@512=	~Oficjalni towarzysze oraz główni niezależni (anty)bohaterowie fabularni~
-@513=	~Oficjalni towarzysze oraz wszyskie dostępne postacie niezależne~
-@514=	~Towarzysze oficjalni oraz z modów, jak również główni niezależni bohaterowie fabularni~
-@515=	~Towarzysze oficjalni oraz z modów, wszystkie dostępne postacie niezależne (zalecane)~
-@516=	~Towarzysze oficjalni oraz z modów, wszystkie dostępne postacie niezelażne, wybieraj pomiędzy alternatywnymi portretami~
-@517=	~Decyduj indywidualnie dla każdego komponentu, użyj domyślnych portretów~
-@518=	~Decyduj indywidualnie dla każdego komponentu, wybieraj pomiędzy alternatywnymi portretami gdy dostępnyc jest kilka wersji~
-@519=	~Decyduj indywidualnie dla każdego komponentu, pokaż podgląd dla alternatywnych wersji i wybieraj między nimi~
+@511=	~Decyduj indywidualnie dla każdego komponentu~
+@512=	~Oficjalnych towarzyszy oraz głównych niezależnych (anty)bohaterów fabularnych (posiadających portrety)~
+@513=	~Oficjalnych towarzyszy, głównych postaci z fabuły oraz niektórych dodatkowych znanych postaci~
+@514=	~Wszystkich towarzyszy, głównych postaci z fabuły (posiadających portrety)~
+@515=	~Wszystkich towarzyszy, głównych postaci z fabuły oraz niektórych dodatkowych znanych postaci~
+@526=	~Postaci drugoplanowych (bez portretów)~
+@516=	~Wszystkich towarzyszy oraz głównych, dodatkowych i drugoplanowych NPC~
+@527=	~Postaci drugo- i trzecioplanowych~
+@517=	~Wszystkich towarzyszy oraz głównych, dodatkowych, drugo- i trzecioplanowych NPC~
+@518=	~Wszystkie załączone portrety dla NPC~
+@519=	~Wszystkie załączone portrety dla NPC, wybór pomiędzy alternatywnymi wersjami~
+
+@520=	~Wybór alternatywnych portretów~
+@521=	~Wybieraj pomiędzy dostępnymi alternatywnymi wersjami portretów~
+@522=	~Pokazuj podgląd dostępnych alternatywnych wersji i decyduj indywidualnie pomiędzy nimi~
 
 
-@520=	~Portrety towarzyszy~
-@521=	~Portrety towarzyszy oficjalnych oraz z modów~
-@522=	~Tylko portrety towarzyszy oficjalnych~	
-@523=	~Tylko portrety zainstalowanych towarzyszy z modów~
-@524=	~Portrety towarzyszy oficjalnych, pytaj o każdego zainstalowanego towarzysza z modów~
 
-@529=	~Zunifikuj wykorzystanie portretów, modyfikując pliki postaci by wykorzystywały zawsze najwcześniejszy portret.~
+@540=	~Portrety towarzyszy~
+@541=	~Pytaj o każdego obecnego towarzysza~
+@542=	~Tylko portrety towarzyszy oficjalnych~	
+@543=	~Tylko portrety zainstalowanych towarzyszy z modów~
+@544=	~Portrety towarzyszy oficjalnych, pytaj o każdego zainstalowanego towarzysza z modów~
+@545=	~Portrety towarzyszy oficjalnych oraz z modów~
 
-@530=	~Portrety iluzorycznych towarzyszy z treningu Obe'a w Candlekeep~
-@531=	~Podmień portrety treningowych towarzyszy (dzielone z portretami dla gracza)~
-@532=	~Podmień tylko portrety Arkanisa i Dedera (z katakumb Candlekeep)~
-@533=	~Oddzielne portrety dla trenignowych towarzyszy (niedostępne dla gracza)~
-@534=	~Oddzielne portrety dla Arkanisa i Dedera (niedostępne dla gracza)~
-@535=	~Oddzielne portrety dla Arkanisa i Dedera oraz współdzielone z graczem portrety dla reszty~
 
-@540=	~Portrety głównych bohaterów fabularnych~
-@550=	~Całkiem nowe portrety dla mniej istotnych dla fabuły postaci ~ 
+@549=	~Zunifikuj wykorzystanie portretów, modyfikując pliki postaci by wykorzystywały zawsze najwcześniejszy portret.~
+
+@550=	~Portrety iluzorycznych towarzyszy z treningu Obe'a w Candlekeep~
+@551=	~Podmień portrety treningowych towarzyszy (dzielone z portretami dla gracza)~
+@552=	~Podmień tylko portrety Arkanisa i Dedera (z katakumb Candlekeep)~
+@553=	~Oddzielne portrety dla trenignowych towarzyszy (niedostępne dla gracza)~
+@554=	~Oddzielne portrety dla Arkanisa i Dedera (niedostępne dla gracza)~
+@555=	~Oddzielne portrety dla Arkanisa i Dedera oraz współdzielone z graczem portrety dla reszty~
+
+@560=	~Portrety dla NPC~
+@561=	~Pytaj o każdy typ NPC~
+@562=	~Postaci pierwszoplanowych z głównego wątku fabuły (z instniejącymi portretami)~
+@563=	~Postaci pierwszoplanowych i pasujące bonusowe portrety~
+@564=	~Postaci drugoplanowych (obecnie bez portretów)~
+@565=	~Postaci pierwszo- i drugoplanowych oraz bonusowe portrety~
+@566=	~Postaci drugo- i trzecioplanowych~
+@567=	~Postaci pierwszo-, drugo- i trzecio- planowych oraz bonusowe portrety~
+@568=	~Postaci drugo- i trzecioplanowych oraz statystów (niższa spójność stylu)~
+@569=	~Wszystkich typów NPC (niższa spójność stylu)~
 
 
 @580=	~Podmień portrety towarzyszy z innych gier (na wypadek modów przenoszących tę postać do tej gry)~
@@ -77,54 +103,54 @@
 
 
 
-@600=	~Portrety dla postaci gracza (CHARNAME)~
+
 @601=	~Wybór portretów dla postaci gracza już dokonany~
-@605=	~Zainstalować zestaw '~
-@606=	~'? [I]nstaluj/[N]ie: ~
+
 @607=	~Brak portretów do zainstalowania~
 @608=	~Instaluję wybrane portrety w ekranie wyboru podczas tworzenia postaci...~
 @609=	~Lista dostępnych portretów nie może być pusta!~
 
-@610=	~Instaluj do podkatalogu 'portraits' w grze i podmień portrety standardowe na nowe~
-@611=	~Instaluj do podkatalogu 'portraits' w grze, pozostaw istniejące portrety gracza bez zmian~
-@612=	~Instaluj do folderu 'Dokumenty' użytkownika (wspólne dla obu płci) i podmień portrety standardowe na nowe~
-@613=	~Instaluj do folderu 'Dokumenty' użytkownika (standardowa procedura, wspólne dla obu płci), pozostaw istniejące portrety bez zmian~ 
-@614=	~Instaluj do podkatalogu 'override' w grze, podmień listę dost=ępną przy tworzeniu bohatera, dodatkowo podmień portrety standardowe~
-@615=	~Instaluj do podkatalogu 'override' w grze, podmień listę dostępną przy tworzeniu bohatera (zalecane)~
-@616=	~Instaluj do podkatalogu 'override' w grze, dodaj do istniejącej listy portretów dla odpowiedniej płci~
-@617=	~Wybierz ręcznie spomiędzy dostępnych zestawów, instaluj do podkatalogu 'portraits' w grze~
-@618=	~Wybierz ręcznie spomiędzy dostępnych zestawów, instaluj do folderu 'Dokumenty' użytkownika~
-@619=	~Wybierz ręcznie spomiędzy dostępnych zestawów, podmień listę dostępną przy tworzeniu bohatera na nowo wybrane~
 
+@610=	~Portrety dla postaci gracza (CHARNAME)~
+@611=	~Standardowo, wspólne dla obu płci; pytaj o każdy komponent~
+@612=	~Standardowo, wspólne dla obu płci; pozostaw istniejące portrety bez zmian~ 
+@613=	~Standardowo, wspólne dla obu płci; podmień portrety standardowe na nowe~
+@614=	~Osobno dla obu płci; pytaj o każdy komponent~
+@615=	~Osobno dla obu płci; dodaj do istniejących listy portretów, modyfikując pliki gry~
+@616=	~Osobno dla obu płci; zastąp istniejące listy dostępne przy tworzeniu bohatera (zalecane)~
+@617=	~Osobno dla obu płci; zastąp istniejące listy dostępne przy tworzeniu bohatera oraz podmień portrety standardowe~
 
 
 @620=	~Usuń wybrane portrety z listy dostepnej podczas tworzenia bohatera~
 @621=	~Usuń wszystkie obecne portrety z listy (jeśli nie dodasz nowych gra przestanie działać!)~
-@622=	~Usuń portrety wszystkich oficjalnych towarzyszy~
-@623=	~Usuń wszystkie (stare i nowe) portrety towarzyszy obecnych w grze~
-@624=	~Usuń portrety towarzyszy wykorzystywane w grze~
-@625=	~Usuń portrety iluzorycznych towarzyszy z treningu Obe'a~
-@626=	~Usuń portrety wszystkich towarzyszy iluzorycznych, wliczając Arkanisa i Dedera~
-@627=	~Usuń portrety towarzyszy iluzorycznych z wyjątkiem Arkanisa i Dedera~
-@628=	~Usuń portrety Arkanisa i Dedera (wykorzystywane w katakumbach Candlekeep)~
+@622=	~Zdecyduj osobno dla poszczególnych grup portretów~
 
-@630=	~Podmień standardowe portrety dla gracza na nowe, z puli unikalnych obrazów~
-@631=	~Podmień portrety dostępne wyłącznie dla gracza na nowe (zalecane do klasycznych wersji)~
-@632=	~Podmień wszystkie portrety gracza, wliczając iluzorycznych towarzyszy Obe'a~
-@633=	~Podmień portrety dostępne wyłącznie dla gracza oraz te Arkanisa i Dedera~
-@634=	~Podmień portrety dostępne wyłącznie dla gracza oraz towarzyszy iluzorycznych z wyjątkiem Arkanisa i Dedera~
-	
+@624=	~Usuń portrety oficjalnych towarzyszy z listy portretów dla gracza~
+@625=	~Usuń portrety wszystkich oficjalnych towarzyszy~
+@626=	~Usuń wszystkie (stare i nowe) portrety towarzyszy obecnych w grze~
+@627=	~Usuń portrety towarzyszy wykorzystywane w grze~
 
-@640=	~Podmień wybrane, niewykorzystywane w grze, portrety towarzyszy na nowe, unikalne portrety dla gracza~
-@641=	~Podmień wszystkie, niepodmienione wcześniej i niewykorzstywane portrety towarzyszy z całej serii~
-@642=	~Podmień, te niepodmienione wcześniej, portrety towarzyszy nieobecnych w grze~
-@643=	~Podmień, te niepodmienione wcześniej, alternatywne portrety towarzyszy obecnych w grze~
+@627=	~Usuń portrety iluzorycznych towarzyszy z treningu Obe'a~
+@628=	~Usuń portrety wszystkich towarzyszy iluzorycznych, wliczając Arkanisa i Dedera~
+//@627=	~Usuń portrety towarzyszy iluzorycznych z wyjątkiem Arkanisa i Dedera~
+@629=	~Usuń portrety Arkanisa i Dedera (wykorzystywane w katakumbach Candlekeep)~
 
 
-@650=	~Pozwól wybierać portret graczaa spomiędzy towarzyszy z treningu Obe'a~
-@651=	~Portrety wszystkich iluzorycznych towarzyszy~
-@652=	~Portrety Arkanisa i Dedera (z katakumb Candlekeep)~
-@653= 	~Portrety wszystkich towarzyszy Obe'a z wyjątkiem Arkanisa i Dedera~
+@630=	~Zastąp standardowe portrety dla gracza nowymi z puli unikalnych obrazów~
+@631=	~Zastąp portrety dostępne wyłącznie dla gracza nowymi (zalecane do klasycznych wersji)~
+@632=	~Zastąp wszystkie portrety gracza, wliczając iluzorycznych towarzyszy Obe'a~
+@633=	~Zastąp portrety dostępne wyłącznie dla gracza oraz te Arkanisa i Dedera~
+@634=	~Zastąp portrety dostępne wyłącznie dla gracza oraz towarzyszy iluzorycznych z wyjątkiem Arkanisa i Dedera~
+
+@640=	~Zastąp wybrane, niewykorzystywane w grze, portrety towarzyszy nowymi, unikalnymi portretami dla gracza~
+@641=	~Zastąp wszystkie, niezastąpione wcześniej i niewykorzstywane portrety towarzyszy z całej serii~
+@642=	~Zastąp, te niezastąpione wcześniej, portrety towarzyszy nieobecnych w grze~
+@643=	~Zastąp, te niezastąpione wcześniej, alternatywne portrety towarzyszy obecnych w grze~
+
+
+@650=	~Pozwól wybierać portret gracza spomiędzy portretów towarzyszy z treningu Obe'a~
+@651= 	~Spośród wszystkich towarzyszy Obe'a z wyjątkiem Arkanisa i Dedera~
+@652=	~Spośród wszystkich iluzorycznych towarzyszy~
 
 @660=	~Pozwól wybierać portret gracza spomiędzy niektórych portretów oficjalnych towarzyszy~
 @661=	~Niektóre alternatywne (niewykorzystywane) wersje portretów towarzyszy~
@@ -151,11 +177,9 @@
 @683=	~Wszystkie możliwe portrety do starych modów (nie do EE)~
 
 
-@690=	~Pozwól wybierać portret gracza spomiędzy odpowiednich portretów pomniejszych postaci z gry~
-
 
 @690=	~Nowe, unikalne portrety dla gracza (główny komponent)~
 @691=	~Wszystkie załączone zestawy~
-@692=	~Pytaj o każdy zestaw~
-
+@692=	~Pytaj o każdy zestaw osobno~
+@693=	~Pokaż podgląd portretów w zestawie i pytaj o każdy osobno~
 

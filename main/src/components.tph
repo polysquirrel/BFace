@@ -6,17 +6,6 @@
 
 
 
-DEFINE_ACTION_FUNCTION copy_portrait_bundles
-	STR_VAR
-		bundle = ~*~
-	RET
-		males
-		females
-	BEGIN
-		LAF copy_pc_portraits STR_VAR gender = ~male~ RET males = filelist END
-		
-		LAF copy_pc_portraits STR_VAR gender = ~female~ RET females = filelist END
-	END
 
 
 
@@ -153,7 +142,7 @@ DEFINE_ACTION_MACRO unify_npc_portraits
   * this is simply ~%canon_game_portraits%~. Otherwise it lists the first portrait set for every
   * official NPC in the game.
   */
-DEFINE_ACTION_FUNCTION used_portraits
+DEFINE_ACTION_FUNCTION used_npc_portraits
 	RET
 		filelist
 	BEGIN
@@ -487,6 +476,8 @@ DEFINE_ACTION_FUNCTION override_from_pc_pool
 	END
 
 	
+
+
 
 
 

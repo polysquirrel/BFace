@@ -59,6 +59,54 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 
 
 	
+DEFINE_ACTION_FUNCTION copy_pc_bundles
+	INT_VAR 
+		show_previews = 0
+	STR_VAR 
+		bundle = ~*~
+	RET
+		males
+		females
+	BEGIN
+		ACTION_IF ~%bundle%~ STR_EQ ~*~ THEN BEGIN
+			OUTER_TEXT_SPRINT bundle ~%any_dir%~
+		END
+		
+		OUTER_TEXT_SPRINT males ~~
+		OUTER_TEXT_SPRINT females ~~
+		
+		GET_DIRECTORY_ARRAY bundles ~%MOD_FOLDER%/charname/unique~ ~%bundle%~
+		
+		ACTION_PHP_EACH bundles AS _ => bundledir BEGIN 
+			LAF strip_prefix STR_VAR string = ~%bundledir%~ prefix = ~%MOD_FOLDER%/charname/unique/~
+				RET bundle = suffix END
+
+			ACTION_IF show_previews AND FILE_EXISTS ~%bundledir%/preview.html~ THEN BEGIN
+				AT_INTERACTIVE_NOW ~VIEW %bundledir%/preview.html~
+			END
+
+			OUTER_SPRINT prompt_prefix @030
+			OUTER_SPRINT prompt_suffix @031
+			OUTER_TEXT_SPRINT decision ~~
+
+			OUTER_WHILE NOT (~%decision%~ STRING_EQUAL_CASE ~I~ OR ~%decision%~ STRING_EQUAL_CASE ~N~) BEGIN
+				PRINT ~%prompt_prefix%%bundle%%prompt_suffix%~
+				ACTION_READLN decision
+			END
+			ACTION_IF ~%decision%~ STRING_EQUAL_CASE ~I~ THEN BEGIN
+				LAF copy_pc_portraits STR_VAR bundle = ~%bundle%~ gender = ~male~ RET filelist END
+				OUTER_TEXT_SPRINT males ~%males%%filelist%~
+				
+				LAF copy_pc_portraits STR_VAR bundle = ~%bundle%~ gender = ~female~ RET filelist END
+				OUTER_TEXT_SPRINT females ~%females%%filelist%~
+			END
+		END
+	END
+
+	
+	
+	
+	
 	
 	
 DEFINE_ACTION_FUNCTION list_pc_portraits
@@ -125,9 +173,7 @@ DEFINE_ACTION_FUNCTION clear_pc_portrait_entries
 		END
 		COPY_EXISTING ~BGEE.LUA~ ~override~
 			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{]*{[^{}]*\({[^}]*}[^{}]*\)*}~ 
-				~portraits = 
-{
-}~		
+				~portraits = %EOL%{%EOL%}~
 	END
 
 
@@ -247,19 +293,14 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 			//Patch portrait selection list if it's not empty
 			COPY_EXISTING ~BGEE.LUA~ ~override~ 
 				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
-					~portraits = 
-{
-%selection%,~
+					~portraits = %EOL%{%EOL%%selection%,~
 			IF ~^portraits =[^{}]*{[^{}]*\({[^{}]*}[^{}]*\)+}~
 		
 
 			//Patch portrait selection list if it's empty
 			COPY_EXISTING ~BGEE.LUA~ ~override~ //
 				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{[^{}]*}~ 
-					~portraits =
-{
-%selection%
-}~
+					~portraits = %EOL%{%EOL%%selection%%EOL%}~
 			IF ~^portraits =[^{}]*{[^{}]*}~
 		END		
 			

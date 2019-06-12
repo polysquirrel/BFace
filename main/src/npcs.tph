@@ -76,7 +76,7 @@ DEFINE_ACTION_FUNCTION update_creatures
 			IF_EXISTS BUT_ONLY_IF_IT_CHANGES
 			
 			ACTION_IF creatures_patched THEN BEGIN
-				LOG ~            Patched %creatures_patched% creatures to use '%largesize%' and '%basename%~
+				LOG ~            Patched %creatures_patched% creatures to use '%largesize%' and '%basename%'~
 			END
 
 		END
@@ -504,7 +504,7 @@ DEFINE_ACTION_FUNCTION copy_portrait_set
   * directory. In particular, it makes sense to have the default portrait be files simply
   * '.ref' file links pointing to actual portraits (or refs) inside of the alternative directory.
   * 
-  * Additionally, if the %show_alternatives% global variable is set and an 'alternatives.html' file is present
+  * Additionally, if the %show_alternatives% global variable is set and an 'preview.html' file is present
   * in the proper npc directory (next to the 'alternatives' directory), a viewer is launched to preview the 
   * portraits, providing the install run is interactive. Any lacking files will result in mismatched portraits.
   *
@@ -554,8 +554,8 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 				END
 				
 				//Launch a viewer to show the user a preview of portraits to pick
-				ACTION_IF show_alternatives AND FILE_EXISTS ~%dir%/alternatives.html~ THEN BEGIN
-					AT_INTERACTIVE_NOW ~VIEW %dir%/alternatives.html~
+				ACTION_IF show_alternatives AND FILE_EXISTS ~%dir%/preview.html~ THEN BEGIN
+					AT_INTERACTIVE_NOW ~VIEW %dir%/preview.html~
 				END
 				
 				OUTER_SET idx = 0 //read user choice into idx
@@ -625,7 +625,7 @@ DEFINE_ACTION_FUNCTION directory_defaults
 		name 		
 	BEGIN
 		ACTION_IF ~%role%~ STR_EQ ~*~ THEN BEGIN
-			OUTER_TEXT_SPRINT role ~%any_dir%~
+			OUTER_TEXT_SPRINT role ~%any_npc_type%~
 		END
 		ACTION_IF (~%game%~ STRING_EQUAL ~?~) THEN BEGIN 
 			OUTER_TEXT_SPRINT game ~%game_dirs%~
@@ -693,7 +693,7 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 	STR_VAR 
 		/** Name of the root directory from which to copy portraits; either ~npcs~ or ~charname~. */
 		root = ~npcs~
-		/** Regexp for name of directory for a given npc kind (alternative from npcs|modnpcs|plotnpcs etc.)*/
+		/** Regexp for name of directory for a given npc kind (alternative from canonnpcs|modnpcs|plotnpcs etc.)*/
 		role = ~*~
 		/** Regexp for game directories to cover: bgee|sod|bg2ee */	
 		game = ~?~
@@ -885,6 +885,8 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 
 	
 
+
+
 	
 /** A minimalistic wrapper over copy_npc_portraits which simply sets list_only = 1. */	
 DEFINE_ACTION_FUNCTION list_npc_portraits
@@ -916,6 +918,51 @@ DEFINE_ACTION_FUNCTION list_npc_portraits
 
 
 	
+	
+DEFINE_ACTION_FUNCTION copy_chosen_npc_roles
+	INT_VAR 
+		show_previews = 0
+		ask_each = 0
+		defaults = 666
+	STR_VAR 
+		root = ~npcs~
+		role = ~*~
+	RET
+		filelist
+	BEGIN
+		ACTION_IF ~%role%~ STR_EQ ~*~ THEN BEGIN
+			OUTER_TEXT_SPRINT role ~%any_npc_type%~
+		END
+		
+		OUTER_TEXT_SPRINT filelist ~~
+		
+		GET_DIRECTORY_ARRAY roles ~%MOD_FOLDER%/%root%~ ~%role%~
+		
+		ACTION_PHP_EACH roles AS _ => roledir BEGIN 
+			LAF strip_prefix STR_VAR string = ~%roledir%~ prefix = ~%MOD_FOLDER%/%root%/~
+				RET role = suffix END
+
+			ACTION_IF show_previews AND FILE_EXISTS ~%roledir%/preview.html~ THEN BEGIN
+				AT_INTERACTIVE_NOW ~VIEW %roledir%/preview.html~
+			END
+
+			OUTER_SPRINT prompt_prefix @030
+			OUTER_SPRINT prompt_suffix @031
+			OUTER_TEXT_SPRINT decision ~~
+
+			OUTER_WHILE NOT (~%decision%~ STRING_EQUAL_CASE ~I~ OR ~%decision%~ STRING_EQUAL_CASE ~N~) BEGIN
+				PRINT ~%prompt_prefix%%role%%prompt_suffix%~
+				ACTION_READLN decision
+			END
+			ACTION_IF ~%decision%~ STRING_EQUAL_CASE ~I~ THEN BEGIN
+				LAF copy_npc_portraits 
+					INT_VAR ask_each = ask_each defaults = defaults
+					STR_VAR root = ~%root%~ role = ~%role%~ 
+					RET files = filelist END
+				OUTER_TEXT_SPRINT filelist ~%filelist%%files%~
+			END
+		END
+	END
 
 
 /** Similar to copy_npc_portraits, but copies (or lists) also all files within optional alternatives directories.
@@ -934,7 +981,7 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 	STR_VAR 
 		/** The root directory for the search, relative to %MOD_FOLDER%. This will be either ~npcs~ or ~charname~. */
 		root = ~npcs~
-		/** Regexp for name of the directory for given npc kind(s) (alternative from npcs|modnpcs|plotnpcs etc.)*/
+		/** Regexp for name of the directory for given npc kind(s) (alternative from canonnpcs|modnpcs|plotnpcs etc.)*/
 		role = ~*~
 		/** Regexp for game directories to cover: bgee|sod|bg2ee */	
 		game = ~?~
