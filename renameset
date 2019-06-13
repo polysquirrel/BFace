@@ -6,19 +6,15 @@
 if [[ "$#" == 0 || "$#" == 1 && ("$1" == "-h" || "$1" == "--help") ]]; then 
     echo "usage: $0 oldprefix newprefix"
     echo ""
-    echo "Searches all subdirectories for all .bmp and .ref files starting with the prefix"
+    echo "Searches all subdirectories for all files starting with the prefix"
     echo "given as the first parameter and renames them, substituting the old prefix with"
     echo "the new one, given as the second parameter. Any characters in the file name"
     echo "between the prefix and the extension are preserved."
 
 else
-    for path in `find -name "$1*.bmp"`; do
-        name=`echo $path | sed -e "s|\(.*\)/$1\(.*\)\.bmp|\1/$2\2\.bmp|g"`
+    for path in `find -name "$1*"`; do
+        name=`echo $path | sed -e "s|\(.*\)/$1\(.*\)|\1/$2\2|g"`
         mv -v "$path" "$name";
-    done
-    for path in `find -name "$1*.ref"`; do
-	name=`echo $path | sed -e "s|\(.*\)/$1\(.*\)\.ref|\1/$2\2\.ref|g"`
-	mv -v "$path" "$name"
     done
 fi
 
