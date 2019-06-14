@@ -1,148 +1,452 @@
-1. Portrait groups and locations.
 
-All portrait files reside in several directory trees based on their purpose:
-  - canonnpcs:	companions from unmodified games (including expansions, EE, etc.). 
+1. Portrait grouping and locations.
+
+All portrait files reside in two directory trees based on their purpose:
+  - charname:	portraits for player characters only
+  - npcs:	portraits for other game characters, including companions.
+
+These trees have a fixed structure and depth, with each level grouping the 
+portraits located beneath it based on a particular criteria. This structure is 
+depended upon by the implementation to provide the user various installation
+options and, unless stated otherwise, the directories must have fixed names, 
+with unrecognized directories being ignored. Any part of the of the tree may
+be missing if the particular mod version does not offer any portraits in that
+category. In that case, the appropriate installation options will be generally
+unavailable.  This is not clear-cut however, as the implementation doesn't 
+actually check if any files are available and would be used by the game unless 
+it has to. The general meaning of each level of the trie is as follows:
+
+	<root>/<role>/<game>/<gender>/<portraitset>/<portrait>
+
+where:
+  
+  - root:	the root directory, either 'npcs' or 'charname', specifying the                 receipient of the portraits, the specific meaning of all 
+                subdirectories and how they are handled.
+  
+  - role:	different meaning for 'npcs' and 'charname', specified in detail
+                below. 
+  
+  - game:	the game to which the portrait belongs; for charname portraits 
+                in most cases it is simply 'any'.
+  
+  - gender:	the gender of the character depicted, used to install the 
+                portraits in the appropriate list at character generation.
+  
+  - portraiset: groups portraits which are always installed in tandem. Under the
+                npc trie, it is always the name of the NPC and contains all 
+		sizes of the particular portrait. For the charname trie, 
+		it is more broad.
+
+  - portrait:	the level where all installed portraits reside. Although there
+                are some exceptions, they require special handling and portraits
+		files lying elsewhere will not be found.
+
+
+
+
+
+
+1.1 The NPC tree		
+
+Contains the portraits dedicated to individual game character and normally 
+available to the player. This includes both companions and other NPCs, in
+particular also those without existing portraits in the game. 
+
+
+
+1.1.1 NPC roles
+
+The 'role' level can contain the following directories (any others will be 
+ignored):
+
+  - canonnpcs:	companions from unmodified games (including expansions, enhanced
+                editions, etc.). 
+  
   - modnpcs:	companions from fan modules.
-  - plotnpcs:	NPCs who are crucial to the plot and already have portraits in the games.
-  - majornpcs:	some of the most prominent non-controllable characters in the games, such as bosses or recurring allies.
-  - minornpcs:	quest givers and other characters from side-quests, usually appearing only once.
+  
+  - plotnpcs:	NPCs who are crucial to the plot and already have portraits 
+                in the games. Although the latter is not strictly required,
+		it provides a logical choice of installation option.
+  
+  - supportnpcs:some of the most prominent non-controllable characters 
+                in the games, such as bosses or recurring allies.
+  
+  - minornpcs:	quest givers and other characters from side-quests, usually 
+                appearing only once.
+  
   - extranpcs:	cast 'extras' who might have only a single line of dialogue.
-  - unifiednpcs:special directory with portraits patching returning npcs to use 
+  
+  - unifiednpcs:a special directory with portraits patching returning npcs to use 
                 the portrait files from the first game.
-  - charname:	portraits for the player character.
-
-The style consistency of portraits will generally decrease together with the prominence of a character: extranpcs will 
-vary considerably more than majornpcs for example. The user has the option of installing selected portrait groups only.
 
 
 
-2. NPC directory structure.
+1.1.2 NPC games
 
-With a few exceptions, the portraits will always reside in directories 3 levels below the root portrait group directory.
-Intermediate directories group them based on their application and are used by the module code to offer installation
-options. The path to a npc portrait file is interpreted as follows:
+Currently supported 'game' directories are: 'bgee', 'bg2ee', 'sod', 'any', where
+the latter contains files used by all supported games (it is always included 
+when copying files for the particular NPC role).
 
-	src/<group>/<game>/<gender>/<npc>/file.bmp
+Ths level consists of directories grouping NPCs by their appearance. When 
+an NPC is present in several games, they will have separate portraits under 
+each corresponding directory. In particular, their portraits may be different
+in different games and their names also usually differ. The exception here 
+are expansions, which receive separate directories, but do not repeat the 
+portraits from the base game. When installing in a game with an expansion (or
+other combined versions such as EET), files from all relevant directories 
+are used. In case several files with the same name are present when copying, 
+they will overwrite each other in an unspecified order. The directories 
+therefore correspond more to the content of a particular game than a 
+installation in the sense of WeiDU 'GAME_IS' function.
+
+
+
+1.1.3 NPC gender
+
+Can be one of 'male', 'female' or 'other'
+
+This groups the files by the gender of the character, so that, when being made
+available to players' characters in addition to the NPC, they can be installed
+to the appropriate list. This depends on installation options chosen, but the 
+intent is that after having chosen the gender of the character, only the 
+appropriate portraits are installed. The 'other' directory groups characters
+whose portraits should be never offered to the players. This is used both in
+the case of the most important NPCs to keep their unique appearance, and for
+portraits which are not suitable for the PC due to other reasons, chief of 
+which are being of a non-playable race (such as the goblin M'Khiin or Varshoon
+the mind flayer), or age - it makes no sense to offer elderly portraits to 
+a character supposed to be around 18 years old.
+
+
+
+1.1.4 NPC portrait set
+
+Sometimes refered to as the 'npc' level or simply as 'name' in the code,
+it contains files which are always copied in tandem.  The names of directories 
+at this level are completely arbitrary, but should be the name of the NPC
+depicted on the portrait, as they will contain all used resolutions of a single 
+image. This is in no means necessary for the mod to opperate, but in some cases
+the directory names are shown to the player with that assumption. Additionally,
+several installation options refer to different appearaances of a character
+(such as offering CHARNAME the portraits of NPCs from other games) and this is 
+based on the repeating directory names, as the file names for portraits of the 
+same character differ between the games due to the portraits being different 
+themselves. Directories of the same name are assumed to contain portraits of 
+the same character, regardless of the 'role','game' and 'gender' directories 
+they are placed under. In consequence, if the mod deviates from this assumption,
+some options might not work as advertised.
+
+
+1.1.5 Alternative potrait sets
+
+A directory with a portrait set can have a special subdirectory 'alternatives'.
+When present, it is should contain multiple (more than one) subdirectories, each
+representing different versions of the potrait for the same (parent) NPC. 
+The portrait in the parent 'portraitset' should always be one of those versions,
+with the best practice here has the main portraits be '.ref' files pointing
+to the default version between the alternatives. If an appropriate option is 
+selected during the installation, the user will be prompted to pick a single 
+version to use. For this reason, each of the 'version' directories must contain
+the files with the same name as the parent portrait set (more accurately, they 
+should override all portraits from the default set which are actually used by 
+the character in question). As the names of the directories are currently used 
+for the names of the portrait set, they should accurately, but concisely, 
+describe the portrait so that the user can recognize which portrait they refer
+to, assuming they have seen them before. 
+
+
+
+
+
+
+1.2 CHARNAME directory structure.
+
+The files for CHARNAME are likewise grouped in a 5-deep directory tree, but the functions of the levels are slightly different
+
+	charname/<role>/<bundle>/<gender>/<portraitset>
+
+
+
+1.2.1 CHARNAME portrait role 
+
+The purpose of directories at this level varies significantly more than simple
+logical grouping as is the case in the 'npcs' tree. Each of the following
+directoories is used in different scenario and for different options:
+
+ - unique:	this is the 'main' directory, containing portraits reserved 
+          	exclusively for CHARNAME and which are installed in the
+		default manner, with no special handling. It is the only
+		directory containing files installed directly.
+ 
+ - override:	Contains portraits overriding existing files. This includes
+           	in particular portraits reserved for CHARNAME but named after
+		existing unused NPC portraits (such as BG1 portraits in BG2).
+		Portraits from this directory are not installed directly;
+		they are instead copied to the pool directory, where they
+		are refered to by '.ref' files from the main 'unique' directory.
+		This serves to purposes: deleting a file from the pool makes
+		it automatically unavailable to the player by invalidating
+		the reference and the reference can be named differently to
+		the overriden portrait, following the CHARNAME scheme in order
+		to attain better file sorting, based on the type of character
+		depicted on the overriding portrait.
+
+ - npcs:	These in turn are portraits actually used by NPCs, which can
+       		be granted to player characters if an appropriate option is
+		selected during installation. Instead of simply using a 
+		portrait as-is (and to pick the appropriate 'large' resolution),
+		the files here are named according to the scheme used by
+		CHARNAME poortraits (and all new portraits introduced by this 
+		mod). They are matched with files of the same name in the NPC
+		tree: when an option would grant PC the portrait of an NPC,
+		this subdirectory is searched for a file with the same name
+		as a file from the portrait set of that NPC. They will likely
+		be the same '.ref' file pointing to the (differently named)
+		main '.bmp' portrait of the NPC.
+
+ - pool:	created during installation, it contains copies of the files
+                from the override directory which are targets of reference
+		files placed under 'unique' directory. Unlike other directories,
+		it has a completely flat structure with all files residing
+		directly under it. These portraits are never installed directly,
+		but controlling which files are present in the pool when the 
+		'unique' portraits are installed controlls which references 
+		cannot be resolved and are not installed in the result. 
+		At the same time, the reference files can be named differently 
+		to the referenced portraits and follow the format for CHARNAME.
+
+
+
+1.2.2 CHARNAME portrait bundles
+
+As there isn't much benefit in offering different portraits to the CHARNAME in
+different games, this directory level serves a completely different purpose.
+Under the 'unique' directory, each directory here represents a group of 
+portraits sharing some common characteristic (generally, the painting style 
+or appearance), installed together. The user can decide to install only selected
+bundles based on their preferences and expectations. The directories should 
+have user-friendly, concise, but informative, names - they are displayed
+to the user in the command prompt when offering the choice of their 
+installation.
+
+Under other directories, this level currently serves no purpose and contains a 
+single 'any' directory to facilitate code reuse with the NPC tree.
+
+
+
+1.2.3 CHARNAME gender
+
+This is the same as under the NPC tree, with the exception that only 'male' and
+'female' directories are used. Each of them contains files which installed 
+to the separate lists for the gender presented on the character generation 
+screen.
+
+
+
+1.2.4 CHARNAME portrait set
+
+As there is no requirement to match the portraits of the same character between games and the files are installed in larger bundles, there is no real need for
+the directories at this level to contain a single portrait - in fact, as 
+enhanced editions resize the portraits themselves and do not require different
+sizes, they group the portraits based on broeader criteria.
+
+For the 'unique' subtree, the names here are completely arbitrary, not used in
+any way by the mod or displayed to the user; the directories can instead group
+the portraits simply for modders convenience.
+
+For the 'override' subtree, the directory names are fixed and reflect which 
+group of portraits they override:
+
+ - defaults:	standard portraits available only to player characters
+
+ - obe:     	portraits of illusory companions from Obe's training, which
+           	straddle the line between the NPC and PC portraits from the
+		players' point of view.
+
+ - npcs:	files named after the portraits of NPCs, both used in the game
+        	and not.
+
+
+
+
+
+
+
+
+
+2. File name format.
+
+Replacements for existing files are named after the replaced files. All 
+new files start with a 'BF' module prefix.
+
+
+
+2.1 CHARNAME portraits
+
+The portraits intended for player characters follow a strict, established naming
+scheme. This is to guarantee uniqueness (which might be a problem with source
+files residing in separate directories) and organisation, but also allows 
+sorting which will place like portraits together on the character generation
+screen, regardless of how are were grouped together in the mod. In particular,
+portrait lists for all installed bundles are not simply concatenated, but
+merged together preserving that order. With that in mind, as assigning a 
+portrait to many of the categories - especially character class - is quite
+arbitrary, the scheme is designed to minimise the distance between the positions
+on the list which would result from categorizing the image in various viable 
+alternatives. For example, dwarves, halflings and gnomes are so similar as to be
+exchangable and are placed together; they are also more similar to elves than 
+humans, so they sort closer to the former than the latter. Currently, only the
+last letter is actually used by the mod implementation to determine the portrait
+size, although it isn't enforced to be one of the predefined choices either.
+
+The file name format is thus defined as follows:
+
+	<prefix><gender><race><class><id><size>.<extension>
 
 where:
-  - group:	one of the listed top-level npc/pc portrait groups
-  - game:	the shortened game name: bg1ee, bg2ee, sod. ToB and TotSC are included in the base games. Used explicitly 
-           	by the module code to select the proper portraits for a given game.
-  - gender:	male/female/other. The last one serves to explicitly exclude a portrait from use by the pc, even if an
-           	appropriate installation option is selected.
-  - npc:	the name of the NPC present on the portraits. Human readable, used for logging purposes and displayed to 
-         	the user in certain cases. Not interpreted by module code.
 
-In addition, next to the portrait files, a special directory 'alternatives' may reside, containing alternate versions
-of the portraits when multiple are available. Each subdirectory should have a descriptive name pointing out the difference
-from other portraits, so that once all are viewed together, it allows to identify the particular version. The directory
-names are used verbatim by module code when providing the user with a list of options to choose from. The default portraits
-(residing next to the 'alternatives' directory) should be present among other subdirectories again. Each alternative 
-directory should contain the exact same set of files (in terms of their name, not contents naturally). The best practice here is having the default portraits be ref files pointing to one of the alternative directories.
+  - prefix: a fixed two character long module prefix to minimise the risk of 
+            accidental overrides; by default 'BF' for 'Baldur's Face'.
 
+  - gender: [F|M] standing for Female/Male;
 
+  - race:   [D|G|H|E|M|R|T|O] for Dwarf/Gnome/Halfling/Elf/huMan/half-Orc.
+            Additionally, some portraits of non-playable races may be made 
+	    available to players on request during installation for role-playing
+	    or visual reasons. In that case they will follow the extended 
+	    format used for NPCs, as described in the next subsection.
 
-3. CHARNAME directory structure.
+  - class:  [A|B|C|F|K|R|S|T|W] being shorthand for class proxies:
+            Any/Bard/Cleric/Fighter/Knight/Ranger/Shaman/Thief/Wizard
+            - Any is used whenever a portrait has no defined features which 
+              would favour one occupation of another;  
+            - Fighters are those with lighter armour, in particular including
+              barbarians;
+            - Knights are fighters in heavy (plate) armour, in particular
+              including most paladins (whose features don't make them evidently
+              Cleric-like)
+            - Ranger fighters in medium armour, usually in green or cloaked;
+            - Shamans include druids and other unwashed weirdos;
+            - Thieves in hood and untrustworthy look;
+            - Wizards displaying magic or just wearing fancy robes
 
-The files for CHARNAME are likewise grouped in a 4-deep directory tree, but the functions of the levels are different:
+  - id:    two characters unique for all the portraits belonging to the same
+           categories (having the same prefix up to this point). It is generally
+	   further divided into first character (which should be a digit if 
+	   possible) being unique to a portrait bundle, and the second 
+	   character, from the [0-9A-Z] range, for different portraints in the
+	   same bundle.
 
-	src/charname/<set>/<gender>/<function>
+	     
+  - size:       A single character defining the resolution and use in game:
+                - L: 210x330
+                - M: 169x266
+	        - S: 54x84
+	        These are given for enhanced editions and the resolutions may 
+                vary for other games. Also, as enhanced editions will resize 
+                the portraits if needed and don't even allow providing 
+                different portrait sizes without a game patch, portraits may 
+                come in a single 'L' size and ommit this letter completely
+		or use an arbitrary character in its place as long as it is not
+		one of [G|L|M|S] which have interpreted meaning.
 
-where:
-  - set:	name of the individual portrait group presented during installation. Each set might be installed
-          	(or ommitted) separately.
-
-  - gender:	male/female. Used by module code to provide the appropriate group during character creation based on
-          	selected gender of the PC.
-
-  - function:	groups files based on their presence in the game and handling by the module code. These are:
-                  - override:	replacements for portrait files already present in the game.
-        	  - unique:	new, additional files not existing in the game.
-         	  - pool:	special directory to which some of the NPC portraits might be copied based on chosen
-         	         	installation options.
-
-
-
-4. File name format.
-
-Replacements for existing files are named after the replaced files. All new files start with a 'BF' module prefix,
-followed by (up to) 5 characters and a letter determining the portrait size (resolution). Reccuring resolutions are:
-
-  - L: 210x330
-  - M: 169x266
-  - N: 140x220
-  - O: 126x198
-  - P: 110x173
-  - Q: 90x140
-  - S: 54x84
-Of these, only 'L', 'M' and 'S' are handled specially: 'L' becomes the 'large' portrait for a character, and 'M' the
-'small' portrait. In case the latter is missing, 'S' is used instead. All other options have no in-game function and
-serve only an informational purpose. Portraits for PC come only in the 'L' size as Enhanced Editions resize 
-the portraits themselves and there is no option to provide separate files in an unmodified game. A set of portraits
-for a joinable NPC should contain a 'L' and 'M' (or 'L' and 'S') files; all other NPCs will generally receive a single
-portrait, which resolution will depend on the resolution of the original image. The size letter is ignored in that case
-(although might be used in the future, if new functionality is implemented).
-
-Portraits for humanoid characters (in particular those for the playable characters) follow the scheme of:
-
-<prefix><gender><race><class><id><size>.<extension>
-
-where:
-  - <prefix>:	module identifier 'BF' serving to limit the chance of name conflicts.
-
-  - <gender>:   [M|F|B|G|O] for Male/Female/Boy/Girl/Other (first two only for CHARNAME portraits).
-
-  - <race>:	[D|E|G|H|M|O|R|T] for Dwarf/Elf(and half-elf)/Gnome/Halfling/huMan/half-Orc/dRow/Tiefling 
-          	(the latter being non-playable).
-
-  - <class>:	[A|B|C|D|F|K|M|N|P|R|T|W] for 
-         	Any/Bard/Cleric/Druid/Fighter(light armour)/Knight(plate)/Monk/Noble/Peasant/Ranger/Thief/Wizard.
-           	Noble and Peasant are special classes reserved for game characters, not available to the player.
-
-  - <id>:	usually a two-digit number identifying the file. Unique only among files with the same prefix
-         	(i.e, gender, race and class). Different portrait sets may have ids from different ranges
-         	and, in case the needs exceed the decimal range, latin letters may be used instead.
-
-  - <size>:	single letter specifying the resolution of the image and, for 'L', 'M' and 'S', its function.
-
-  - <extension>:file format. Must be 'bmp' or one of the special reference files (see the next section).
-
-Apart from the portrait size and the fixed prefix, the file name is not interpreted currently by module code and
-serves primarily to organise and sort the files for humans. The sorting of CHARNAME files determines the order
-in which they are presented in the character generation screen. With this in mind, the scheme was designed so as
-it group most like portraits close to each other (pictured 'class' is more arbitrary than 'race', halflings are
-closer in looks to Humans than Drow, various fighters are grouped close to each other, etc.).
-
-Where the format does not apply - for example for demons and dragons - the middle portion of the file name will
-instead reflect the creature type, if possible. 
+  - extension: [bmp|ref] - the latter begin a referernce to a portrait file,
+               descriptions of which follow.
 
 
 
-5. File types.
+2.2 NPC portraits
+
+Portraits for characters already having portraits, be it from the standard game
+or mods, are obviously named after the files they override. New portraits start
+all with a 'BF' prefix for 'Baldur's Face'. Humanoid characters generally
+follow the scheme for CHARNAME with extensions allowing for more races and
+occupations:
+
+  - gender:  [B|F|G|M] with new Boy/Girl designators;
+
+  - race:    [D|G|H|E|M|O|R|T] with new R and T standing for dRow and Tieflings
+             respectively, the latter including also Cambions (and potentially
+	     humanoid demons/devils), with the gender being the discriminator.
+	     They may be also optionally offered to player characters, depending
+             on installation choices.
+  
+  - class:   [A|B|C|F|K|N|P|R|S], the new characters beging for Noble/Peasant.
+  
+  - id:      does not change from the CHARNAME format and naturally must remain
+             unique between CHARNAME and NPC portraits.
+
+  - size:    The only interpreted letters are the standard three [L|M|S] with an
+             addition of 'G' oft used as to denote the largest portrait by mods.
+	     Additionally, non-joinable characters in enhanced editions can
+	     use one of easily scaled resolutions:
+             - N: 140x220
+             - O: 126x198
+             - P: 110x173
+             - Q: 100x157
+	     - R: 90x140
+	     With smaller resolutions it is generally advisable to resize and 
+             sharpen manually to 54x84, although files can use 'X' to denote
+	     a non-standard, small format. Resolutions larger than 'L' should 
+	     use a letter before 'G'. This information is for the modders 
+	     convenience solely and currently not used in any way (although
+	     it might if new functionality is implemented, such as automatic
+	     resizing and sharpening of images).
+
+
+Other NPCs should try to stick to the established format by expanding one of the
+categories if possible. If not - or for easier identification of portraits of
+prominent characters - the file name is allowed to differ on the whole middle
+section between the module prefix and the size letter, but differ from a file 
+name legal in the established scheme at least on the 'gender' letter.
+
+
+
+
+
+
+
+
+
+3. File types.
 
 Apart from module code residing outside the listed top-level directories, all files must have one of the following
 extension, depending on their contents and format:
 
- - .bmp:	self explanatory, image files to be used by the game.
+ - .bmp:        self explanatory, image files to be used by the game.
 
- - .2da:	list of game creatures receiving a given portrait file. The file must reside next to portrait files in
-        	in a directory on the 'npc' level, and its base name must be the same as that of one of one of the adjacent
-        	portrait files. Each line should contain a creature code (creature file name to patch). If the portrait
-       		file name (and base name of this file) ends with 'S', it is used as the small portrait for the creature
-        	and, if either a matching 'M' or 'L' (in that search order) file is also found, it is used for the large
-          	portrait. Similarly, if the file name ends with 'M', and an 'L' file exists in the same directory, 
-       		the former is used for the small portrait and the latter for the large portrait. Otherwise the matching
-     		portrait file is used as both the large and small portraits.
+ - .2da:        list of game creatures receiving a given portrait file. 
+                The file must reside next to portrait files in
+        	in a directory on the 'npc' level, and its base name must be 
+                the same as that of one of one of the adjacent portrait files. 
+                Each line should contain a creature code (creature file name 
+                to patch). If the portrait file name (and base name of this 
+                file) ends with 'S', it is used as the small portrait for the 
+                creature and, if either a matching 'M' or 'L' (in that search 
+                order) file is also found, it is used for the large portrait. 
+                Similarly, if the file name ends with 'M', and an 'L' file 
+                exists in the same directory, the former is used for the small 
+                portrait and the latter for the large portrait. Otherwise 
+                the matching portrait file is used as both the large and small 
+                portraits.
 
- - .ref:	a 'symbolic link' to a single portrait file and recognised by the module. It must contain a single line
-        	containing a path to a portrait file, relative to the top-level module directory (src in the repository). 
-        	It might or might not contain the file extension, but must point to either a 'bmp' or another 'ref' file.
-       		When encountered, the target file is copied instead of the reference, but the name of the reference is 
-        	used as the final portrait name rather than that of the copied file. This feature is used to avoid having
-        	several copies of a single file, or to rename a file, depending on the context of use.
+ - .ref:        a 'symbolic link' to a single portrait file and recognised by 
+                the module. It must contain a single line
+        	containing a path to a portrait file, relative to the top-level
+                module directory (src in the repository). It might or might not
+                contain the file extension, but must point to either a 'bmp' or
+                another 'ref' file. When encountered, the target file is copied
+                instead of the reference, but the name of the reference is
+        	used as the final portrait name rather than that of the copied 
+                file. This feature is used to avoid having several copies of 
+                a single file, or to rename a file, depending on the context of
+                use.
 
- - .refs:	similar to '.ref', it contains a list of portraits to be copied in place of the 'refs' file. Each line
-        	denotes a single file and should contain two columns, separated by a 'tab' character. The first is the
-         	final name of the file after copying, without an extension. The second must be the path to the copied file, 
-         	as in a '.ref' file.
+ - .refs:       similar to '.ref', it contains a list of portraits to be copied
+                in place of the 'refs' file. Each line denotes a single file 
+                and should contain two columns, separated by a 'tab' character.
+                The first is the final name of the file after copying, without 
+                an extension. The second must be the path to the copied file, 
+                as in a '.ref' file.
+
 
