@@ -1064,21 +1064,24 @@ INSTALL_BY_DEFAULT
 		
 		ACTION_IF ~%pc_install_target%~ STR_EQ ~override~ THEN BEGIN
 			PRINT @608
-			LAF remove_dups_from_list STR_VAR list = ~%male_portrait_list%~
+			LAF remove_duplicates STR_VAR list = ~%male_portrait_list%~
 				RET males = unique END
-			LAF remove_dups_from_list STR_VAR list = ~%female_portrait_list%~
+			LAF remove_duplicates STR_VAR list = ~%female_portrait_list%~
 				RET females = unique END
-			
-			ACTION_IF (~%males%~ STR_EQ ~~) AND (~%females%~ STR_EQ ~~) THEN BEGIN
+
+			LOG ~male portraits:   %males%~
+			LOG ~female portraits: %females%~			
+			ACTION_IF (~%males%~ STR_EQ ~~) OR (~%females%~ STR_EQ ~~) THEN BEGIN
+				
 				PRINT @607
 				ACTION_IF NOT ~%cleared_pc_selection%~ STR_EQ ~~ THEN BEGIN
 					FAIL @609
 				END
-			END ELSE BEGIN
-				LAF install_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
-				LAF install_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
 			END
-			
+
+			LAF install_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
+			LAF install_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
+		
 		END
 	END
 	

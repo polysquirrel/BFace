@@ -116,11 +116,15 @@ DEFINE_ACTION_FUNCTION sort_file_list
 		END
 	END
 
+
+
 		
 		
 
-	
-DEFINE_ACTION_FUNCTION remove_dups_from_list	
+/** Given a list of identifiers, each surrounded by a pair of '/', remove all occurences
+  * of each identifier above one.
+  */  
+DEFINE_ACTION_FUNCTION remove_duplicates	
 	STR_VAR
 		list = ~~
 	RET
@@ -154,6 +158,8 @@ DEFINE_ACTION_FUNCTION remove_dups_from_list
 		
 		
 		
+
+
 		
 	
 DEFINE_ACTION_FUNCTION remove_from_list
@@ -177,8 +183,41 @@ DEFINE_ACTION_FUNCTION remove_from_list
 		
 		
 		
-		
-		
+
+
+/** Removes all names from the list which end with one of [SML] if a larger portrait
+  * (a name with the same prefix and length but ending with the 'larger' letter) is present in the list.
+  */
+DEFINE_ACTION_FUNCTION remove_smaller_sizes
+	STR_VAR
+		list = ~~
+	RET
+		list
+	BEGIN
+		OUTER_PATCH_SAVE list ~%list%~ BEGIN
+			REPLACE_EVALUATE CASE_SENSITIVE ~/\(\([^/\\]*\)\([^/\\]\)\)/~ BEGIN
+				TEXT_SPRINT prefix ~%MATCH2%~
+				TEXT_SPRINT size ~%MATCH3%~
+				TEXT_SPRINT replacement ~/%MATCH1%/~ 
+				
+				PATCH_IF NOT ~%size%~ STRING_MATCHES_REGEXP ~[SsMmLl]~
+				     AND NOT ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%%[Gg]/~ OR
+					     NOT ~%size%~ STRING_MATCHES_REGEXP ~[SsMm]~
+					 AND NOT ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%%[Ll]/~ OR
+					     NOT ~%size%~ STRING_MATCHES_REGEXP ~[Ss]~
+				     AND NOT ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%[Mm]/~
+				THEN BEGIN
+					TEXT_SPRINT replacement ~~
+				END
+			END ~%replacement%~
+		END
+	END
+	
+
+
+
+
+	
 /** Updates the creature file 'creature' with the given medium and large portraits.
   * Returns non-zero value IFF the file existed in the game.
   */	

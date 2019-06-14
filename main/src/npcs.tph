@@ -1029,7 +1029,8 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 				root = ~%root%~ role = ~%role%~ game=~%game%~ gender = ~%gender%~ name=~%name%~
 				target = ~%previewdir%/.preview~ when = ~%when%~
 			RET filelist END
-
+		LAF remove_smaller_sizes STR_VAR list = ~%filelist%~ RET filelist = list END
+		
 		LOG ~Listing images for preview...~
 
 		OUTER_TEXT_SPRINT preview_style ~style="display: inline-block; width: 70px; height: 110px; margin: 5px;"~		
@@ -1037,25 +1038,9 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 		
 		OUTER_PATCH ~%filelist%~ BEGIN
 			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^\\/]+\)/~ BEGIN
-				TEXT_SPRINT basename ~%MATCH1%~
 				TEXT_SPRINT img ~.preview/%MATCH1%.bmp~
-				INNER_PATCH ~%basename%~ BEGIN
-					REPLACE_EVALUATE CASE_INSENSITIVE ~^\(.*\)\(.\)$~ BEGIN
-						TEXT_SPRINT prefix ~%MATCH1%~
-						TEXT_SPRINT letter ~%MATCH2%~
-						TO_UPPER letter
-						
-						PATCH_IF ~%letter%~ STR_EQ ~G~ 
-						      OR ~%letter%~ STR_EQ ~L~ AND ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%[Gg]/~
-							  OR ~%letter%~ STR_EQ ~M~ AND ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%[GgLl]/~
-							  OR ~%letter%~ STR_EQ ~S~ AND ~%filelist%~ STRING_CONTAINS_REGEXP ~/%prefix%[GgLlMm]/~
-							  OR ~%letter%~ STRING_MATCHES_REGEXP ~[GgLlMmSs]~
-						THEN BEGIN
-							TEXT_SPRINT preview ~<div %preview_style%><img src="%img%" width="70" height="110"/></div>~
-							TEXT_SPRINT previews ~%previews%%preview%%EOL%~
-						END
-					END ~~
-				END
+				TEXT_SPRINT preview ~<div %preview_style%><img src="%img%" width="70" height="110"/></div>~
+				TEXT_SPRINT previews ~%previews%%preview%%EOL%~
 			END ~~
 		END
 

@@ -85,7 +85,7 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 				ACTION_IF NOT FILE_EXISTS ~%bundledir%/preview.html~ THEN BEGIN
 					LAF create_portraits_preview
 						STR_VAR 
-							root = ~charname~ role = ~unique~ game = ~%any_dir%~ 
+							root = ~charname~ role = ~unique~ game = ~%bundle%~ 
 							previewdir = ~%bundledir%~ when = ~always~
 					END
 				END
@@ -282,12 +282,18 @@ DEFINE_ACTION_FUNCTION pc_portrait_entries
 
 
 DEFINE_ACTION_FUNCTION install_pc_portrait_list
+	INT_VAR
+		single_size = 1
 	STR_VAR
 		gender = ~?~
 		filelist = ~~
 	BEGIN
-		LAF remove_dups_from_list STR_VAR list = ~%filelist%~ 
+		LAF remove_duplicates STR_VAR list = ~%filelist%~ 
 			RET filelist = unique END
+		ACTION_IF single_size THEN BEGIN
+			LAF remove_smaller_sizes STR_VAR list = ~%filelist%~ 
+				RET filelist = list END
+		END
 		
 		LAF pc_portrait_entries STR_VAR gender = ~%gender%~ filelist = ~%filelist%~
 			RET selection = portraits END
