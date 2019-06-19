@@ -1,7 +1,7 @@
-MOD_NAME=BaldurFace
+MOD_NAME=ExtraFaces
 MOD_VERSION=beta
 MOD_BUILDER=polymorphedsquirrel
-MOD_ARTISTS=artastrophe
+#MOD_ARTISTS=artastrophe
 
 if [ "$MOD_ARTISTS" ]; then 
     MOD_AUTHORS="art: $MOD_ARTISTS; bugs: $MOD_BUILDER"
