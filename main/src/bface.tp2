@@ -511,9 +511,9 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname~ @012
 BEGIN @612 //Default procedure, leave the existing portraits
 SUBCOMPONENT @610
 	ACTION_IF GAME_IS ~bgee bg2ee eet~ THEN BEGIN
-		LAF copy_pc_portraits STR_VAR target = ~%portrait_dir%~ END
+		LAF copy_pc_portraits STR_VAR name = ~default~ target = ~%portrait_dir%~ END
 	END ELSE BEGIN
-		LAF copy_pc_portraits STR_VAR target = ~portraits~ END
+		LAF copy_pc_portraits STR_VAR name = ~default~ target = ~portraits~ END
 	END
 
 
@@ -526,9 +526,9 @@ REQUIRE_PREDICATE ~%installed_obe_npcs%~ STR_EQ ~~ OR ~%installed_unused_npcs%~ 
 	LAF override_from_pc_pool STR_VAR name = ~defaults\|obe~ END
 
 	ACTION_IF GAME_IS ~bgee bg2ee eet~ THEN BEGIN
-		LAF copy_pc_portraits STR_VAR target = ~%portrait_dir%~ END
+		LAF copy_pc_portraits STR_VAR name = ~default~ target = ~%portrait_dir%~ END
 	END ELSE BEGIN
-		LAF copy_pc_portraits STR_VAR target = ~portraits~ END
+		LAF copy_pc_portraits STR_VAR name = ~default~ target = ~portraits~ END
 	END
 	
 	
@@ -545,7 +545,7 @@ BEGIN @615 //Copy to override, patch BGEE.LUA; add to existing selection
 SUBCOMPONENT @610
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000//BGEE.LUA only in EE
 	//copy all pc portraits, following refs to default portraits in the pool dir
-	LAF install_pc_portraits END
+	LAF install_pc_portraits STR_VAR set = ~default~ END
 
 
 			
@@ -554,7 +554,7 @@ SUBCOMPONENT @610 //Portraits for PC
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
 	LAF clear_pc_portrait_entries END
 	//copy all pc portraits, in particular renamed references to default portraits
-	LAF install_pc_portraits END
+	LAF install_pc_portraits STR_VAR set = ~default~ END
 	
 
 		
@@ -568,7 +568,7 @@ REQUIRE_PREDICATE ~%installed_obe_npcs%~ STR_EQ ~~ OR ~%installed_unused_npcs%~ 
 		STR_VAR role = ~override~ name = ~defaults\|obe~ exclude = ~%npc_portrait_overrides%~
 	END
 	
-	LAF install_pc_portraits END
+	LAF install_pc_portraits STR_VAR set = ~default~ END
 
 	
 	
@@ -1038,7 +1038,17 @@ REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
 
 
 
-BEGIN @692 //Pick which CHARNAME bundles to install
+BEGIN @692 //Give CHARNAME the default portrait set from all bundles
+SUBCOMPONENT @690
+	LAF copy_pc_portraits STR_VAR gender = ~male~ name = ~default~ RET filelist END
+	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%filelist%~
+	
+	LAF copy_pc_portraits STR_VAR gender = ~female~ name = ~default~ RET filelist END
+	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%filelist%~
+	
+	
+
+BEGIN @693 //Pick which CHARNAME bundles to install
 SUBCOMPONENT @690	
 	LAF copy_pc_bundles RET males females END
 	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
@@ -1046,7 +1056,7 @@ SUBCOMPONENT @690
 
 
 	
-BEGIN @693 //Pick which CHARNAME bundles to install, show previews.
+BEGIN @694 //Pick which CHARNAME bundles to install, show previews.
 SUBCOMPONENT @690	
 	LAF copy_pc_bundles INT_VAR show_previews = 1 RET males females END
 	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~

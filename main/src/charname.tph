@@ -326,7 +326,7 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 	
 /** Copies bmp files from the specified branches of a portrait directory tree using copy_npc_portraits
   * and updates BGEE.LUA to add the new portraits to the selection list for both playable sexes.
-  * The 'gender' directories in the trie must be named 'male' and 'female', the names of directories 
+  * The 'gender' directories in the tree must be named 'male' and 'female', the names of directories 
   * on all other levels are completely optional. Only the root level argument (corresponding to 'role'
   * for npc portraits) must be specified; the rest will default to all directories.
   */
