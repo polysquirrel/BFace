@@ -76,6 +76,10 @@ BEGIN @512 //Install portraits for official companions and main plot NPCs (overr
 SUBCOMPONENT @510
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~ 
                OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'			   
 	LAF copy_npc_portraits 
 		STR_VAR role = ~canonnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~ 
 		RET npc_portrait_overrides = filelist END
@@ -87,6 +91,9 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/canonnpcs~
 BEGIN @513 //Install portraits for official companions, plot NPCs plus bonus NPCs
 SUBCOMPONENT @510
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'			   
 	LAF copy_npc_portraits 
 		STR_VAR role = ~canonnpcs\|plotnpcs\|bonusnpcs~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
@@ -95,9 +102,46 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~ @012
 	
 	
 	
-BEGIN @514 //Install portraits for official and mod companions as well as plot and bonus NPCs
+BEGIN @514 //Install portraits for official and mod companions as well as plot NPCs (override only)
 SUBCOMPONENT @510
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnps~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~
+			   OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~
+			   OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'
+	LAF copy_npc_portraits 
+		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~
+		RET npc_portrait_overrides = filelist END
+	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
+	LAF edwina_portrait_change END
+	
+	
+
+BEGIN @524 //Mod companions and plot NPCs
+SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
+REQUIRE_PREDICATE NOT DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @013 //Alternate wording only
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnps~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~
+			   OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~
+			   OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'
+	LAF copy_npc_portraits
+		STR_VAR role = ~canonnpcs\|modnpcs~ game = ~%game_dirs%\|obe~
+		RET npc_portrait_overrides = filelist END
+	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
+	LAF edwina_portrait_change END
+	
+	
+	
+BEGIN @515 //Install portraits for official & mod companions, plot and bonus NPCs
+SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~
+              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ 
+			  AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'			   
 	LAF copy_npc_portraits 
 		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
@@ -105,13 +149,15 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
 	LAF edwina_portrait_change END
 	
 	
-	
-BEGIN @515 //Install portraits for official & mod companions, plot NPCs
+
+BEGIN @516 //Official & mod companions, main, bonus and supporting NPCs
 SUBCOMPONENT @510
-REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~
-              AND DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ 
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'
+REQUIRE_PREDICATE NOT ~%mod_contents%~ STR_EQ ~expansion~ @012
 	LAF copy_npc_portraits 
-		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs\|minornpcs~ game = ~%game_dirs%\|obe~
+		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs\|supportnpcs~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
 	LAF edwina_portrait_change END
@@ -121,31 +167,11 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~
 BEGIN @526 //supporting characters; alternative wording for pure expansion mods
 SUBCOMPONENT @510
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ 
+               OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'
 REQUIRE_PREDICATE ~%mod_contents%~ STR_EQ ~expansion~ @013
 	LAF copy_npc_portraits
 		STR_VAR role = ~bonusnpcs\|supportnpcs~ //bonusnpcs just in case
-		RET npc_portrait_overrides = filelist END
-	
-	
-
-BEGIN @516 //Official & mod companions, main, bonus and supporting NPCs
-SUBCOMPONENT @510
-REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/supportnpcs~ @012
-REQUIRE_PREDICATE NOT ~%mod_contents%~ STR_EQ ~expansion~ @012
-	LAF copy_npc_portraits 
-		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs\|supportnpcs~ game = ~%game_dirs%\|obe~
-		RET npc_portrait_overrides = filelist END
-	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
-	LAF edwina_portrait_change END
-		  
-		  
-		  
-BEGIN @527 //Supporting and minor characters; alternative wording for pure expansion mods
-SUBCOMPONENT @510
-REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ @012
-REQUIRE_PREDICATE ~%mod_contents%~ STR_EQ ~expansion~ @013
-	LAF copy_npc_portraits
-		STR_VAR role = ~bonusnpcs\|supportnpcs\|minornpcs~
 		RET npc_portrait_overrides = filelist END
 		
 		
@@ -153,6 +179,7 @@ REQUIRE_PREDICATE ~%mod_contents%~ STR_EQ ~expansion~ @013
 BEGIN @517 //All companions, main, bonus, supporting and minor NPCs
 SUBCOMPONENT @510
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'
 REQUIRE_PREDICATE NOT ~%mod_contents%~ STR_EQ ~expansion~ @013
 	LAF copy_npc_portraits
 		STR_VAR 
@@ -161,10 +188,21 @@ REQUIRE_PREDICATE NOT ~%mod_contents%~ STR_EQ ~expansion~ @013
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_portraits RET npc_portrait_overrides = filelist END
 	LAF edwina_portrait_change END
+		  
+		  
+		  
+BEGIN @527 //Supporting and minor characters; alternative wording for pure expansion mods
+SUBCOMPONENT @510
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/minornpcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'
+REQUIRE_PREDICATE ~%mod_contents%~ STR_EQ ~expansion~ @013
+	LAF copy_npc_portraits
+		STR_VAR role = ~bonusnpcs\|supportnpcs\|minornpcs~
+		RET npc_portrait_overrides = filelist END
 	
 	
 
-BEGIN @518 //All NPC included portraits
+BEGIN @518 //All included NPC portraits
 SUBCOMPONENT @510
 	LAF copy_npc_portraits
 		STR_VAR npctype = ~%any_npc_type%~ game = ~%game_dirs%\|obe~
