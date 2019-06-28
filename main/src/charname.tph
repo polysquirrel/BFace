@@ -348,7 +348,7 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 				role = ~%role%~ 
 				game = ~%bundle%~ 
 				gender = ~male~ 
-				npc = ~%set%~ 
+				name = ~%set%~ 
 				exclude = ~%exclude%~ 
 				when = ~%when%~
 			RET males = filelist END
@@ -360,7 +360,7 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 				role = ~%role%~ 
 				game = ~%bundle%~ 
 				gender = ~female~ 
-				npc = ~%set%~ 
+				name = ~%set%~ 
 				exclude = ~%exclude%~ 
 				when = ~%when%~
 			RET females = filelist END
