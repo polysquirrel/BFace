@@ -82,7 +82,7 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~
                OR DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/extranpcs~ @013 //otherwise the same as 'All NPCs'			   
 	LAF copy_npc_portraits 
 		STR_VAR role = ~canonnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~ 
-		RET npc_portrait_overrides = filelist END
+		RET npc_portrait_overrides = filelist END //npc_portrait_overrides is used by copy_unused_npc_portraits
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
 	LAF edwina_portrait_change END	
 	
