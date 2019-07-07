@@ -64,7 +64,7 @@ case "$#" in
 								rm -f ./target/exploded/setup-*
 								case $arch in
 									all)
-										find ./main/bin -name "weidu-*" -exec basename {} \; | sed -e "s/weidu-\([^.]*\)\(\..*\|\)/\1/g" | xargs ./do package
+										find ./main/bin -name "weidu-*" -exec basename {} \; | sed -e "s/weidu-\([^.]*\)\(\|\..*\)$/\1/g" | xargs ./do package
 										exit $?
 										;;
 									win*)
