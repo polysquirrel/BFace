@@ -44,7 +44,7 @@ case "$#" in
                                         fi
                                 fi
 				
-				for GAMEDIR in "test/Baldur's Gate" "test/Siege of Dragonspear" "test/Baldur's Gate 2"; do
+				for GAMEDIR in "test/Baldur's Gate" "test/Baldur's Gate EE" "test/Siege of Dragonspear" "test/Baldur's Gate 2" "test/Baldur's Gate 2 EE" "test/Icewind Dale" "test/Icewind Dale EE"; do
         				if [ -d "$GAMEDIR" ]; then
 						echo "Install to $GAMEDIR"
                 				if [ -d "$GAMEDIR/$MOD_NAME" ]; then
@@ -81,7 +81,7 @@ case "$#" in
 					cp -a ./main/src/tra "$moddir"
 				fi
                                 
-				for GAMEDIR in "test/Baldur's Gate" "test/Siege of Dragonspear" "test/Baldur's Gate  2"; do
+				for GAMEDIR in "test/Baldur's Gate" "test/Baldur's Gate EE" "test/Siege of Dragonspear" "test/Baldur's Gate 2" "test/Baldur's Gate 2 EE" "test/Icewind Dale" "test/Icewind Dale EE" "test/Icewind Dale 2"; do
 				        if [ -d "$GAMEDIR" ]; then
                                                 if [ -d "$GAMEDIR/$MOD_NAME" ]; then
                                                 	cp "$moddir/"*tph "$GAMEDIR/$MOD_NAME"
