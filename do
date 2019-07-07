@@ -1,20 +1,39 @@
 #!/bin/bash
 
 . release
-modname="$MOD_NAME"
+name=bface
 targetname="$MOD_NAME-$MOD_VERSION"
-moddir=./target/exploded/$modname
+moddir=./target/exploded/$MOD_NAME
+extension=""
+case "$OSTYPE" in
+	linux*)	system="lin"
+		;;
+	darwin*)
+		system="mac"
+		;;
+	*)	system="win"
+		extension=".exe"
+		;;
+esac
+if [[ "$PROCESSOR_ARCHITECTURE" == "AMD64" && -f "./main/bin/weidu-$system-amd64$extnesion" ]]; then
+	system="$system-amd64"
+else
+	system="$system-x86"
+fi	
+
+
 case "$#" in
 	0)
 		eval "$0 package"
 		exit $?
 		;;
-	1)
+	*)
 		case "$1" in
 			reftest)
 				./pool -d ./main/src
 				./reftest -d ./main/src
 				;;
+
 			package)
 				echo "Copying files..."
 				rm -rf ./target
@@ -22,18 +41,45 @@ case "$#" in
 				cp -a ./main/src/ "$moddir"
 				rm -rf "$moddir/charname/pool"
 
-				sed -e "s:BACKUP ~bface/backup~:BACKUP ~$modname/backup~:g" \
-				    -e "s:OUTER_TEXT_SPRINT MOD_NAME ~bface~:OUTER_TEXT_SPRINT MOD_NAME ~$modname~:g" \
+				sed -e "s:BACKUP ~$name/backup~:BACKUP ~$MOD_NAME/backup~:g" \
 				    -e "s:VERSION ~SNAPSHOT~:VERSION ~$MOD_VERSION~:g" \
 				    -e "s?AUTHOR ~polymorphedsquirrel~?AUTHOR ~$MOD_AUTHORS~?g" \
-				    ./main/src/bface.tp2 > $moddir/$modname.tp2
-				if [ ! "$modname" == "bface" ]; then
-					rm $moddir/bface.tp2
+				    ./main/src/$name.tp2 > $moddir/$MOD_NAME.tp2
+				if [ ! "$MOD_NAME" == "$name" ]; then
+					rm $moddir/$name.tp2
 				fi
-				cp ./main/bin/weidu.exe "./target/exploded/setup-$modname.exe"
-
-				echo "Packaging..."
-				tar -czf "./target/$targetname.tgz" -C ./target/exploded .
+				
+				
+				case "$#" in
+					1)	
+						echo "Packaging $system..."
+						cp "./main/bin/weidu-$system$extension" "./target/exploded/setup-$MOD_NAME$extension"
+						
+						tar -czf "./target/$targetname-$system.tgz" -C "./target/exploded" * 
+						;;
+					*)
+						skip=1
+						for arch in $@; do
+							if [[ $skip == 0 ]]; then
+								rm -f ./target/exploded/setup-*
+								case $arch in
+									all)
+										find ./main/bin -name "weidu-*" -exec basename {} \; | sed -e "s/weidu-\([^.]*\)\(\..*\|\)/\1/g" | xargs ./do package
+										exit $?
+										;;
+									win*)
+																				cp ./main/bin/weidu-$arch.exe "./target/exploded/setup-$MOD_NAME.exe"
+																				;;
+																			*)
+																				cp ./main/bin/weidu-$arch "./target/exploded/setup-$MOD_NAME"
+																				;;
+																																						esac
+																																						echo "Packaging $arch..."
+																																						tar -czf "./target/$targetname-$arch.tgz" -C ./target/exploded .
+							fi
+							skip=0
+						done
+				esac
 				;;
 
 			testinstall)
@@ -46,21 +92,18 @@ case "$#" in
 				
 				for GAMEDIR in "test/Baldur's Gate" "test/Baldur's Gate EE" "test/Siege of Dragonspear" "test/Baldur's Gate 2" "test/Baldur's Gate 2 EE" "test/Icewind Dale" "test/Icewind Dale EE"; do
         				if [ -d "$GAMEDIR" ]; then
-						echo "Install to $GAMEDIR"
+						echo "Installing in $GAMEDIR"
                 				if [ -d "$GAMEDIR/$MOD_NAME" ]; then
                         				rm -rf "$GAMEDIR/$MOD_NAME.bak"
-							if [ -f "$GAMEDIR/setup-$MOD_NAME.exe" ]; then
+							if [ -f "$GAMEDIR/setup-$MOD_NAME$extension" ]; then
 								cd "$GAMEDIR"
-								"./setup-$MOD_NAME.exe" --uninstall
-								cd -
-							elif [ -f "$GAMEDIR/setup-$MOD_NAME" ]; then
-								cd "$GAMEDIR"
-								"./setup-$MOD_NAME" --uninstall
+								"./setup-$MOD_NAME$extension" --uninstall
 								cd -
 							fi
                         				mv "$GAMEDIR/$MOD_NAME" "$GAMEDIR/$MOD_NAME.bak"
                 				fi
-                				cp -a  "$moddir" target/exploded/setup-$MOD_NAME.exe "$GAMEDIR"
+                				cp -a  "$moddir" "$GAMEDIR"
+						cp -a "./main/bin/weidu-$system$extension" "$GAMEDIR/setup-$MOD_NAME$xtension"
         				fi
 				done
 				;;
@@ -72,12 +115,12 @@ case "$#" in
                                                 exit $?
                                         fi
 				else
-					sed -e "s:BACKUP ~bface/backup~:BACKUP ~$modname/backup~:g" \
-                                    	    -e "s:OUTER_TEXT_SPRINT MOD_NAME ~bface~:OUTER_TEXT_SPRINT MOD_NAME ~$modname~:g" \
+					sed -e "s:BACKUP ~$name/backup~:BACKUP ~$MOD_NAME/backup~:g" \
                                 	    -e "s:VERSION ~SNAPSHOT~:VERSION ~$MOD_VERSION~:g" \
                                 	    -e "s?AUTHOR ~polymorphedsquirrel~?AUTHOR ~$MOD_AUTHORS~?g" \
-                                	./main/src/bface.tp2 > "$moddir"/$modname.tp2
+                                	./main/src/$name.tp2 > "$moddir/$MOD_NAME.tp2"
 					cp ./main/src/*tph "$moddir"
+					cp ./main/src/*tpa "$moddir"
 					cp -a ./main/src/tra "$moddir"
 				fi
                                 
@@ -85,6 +128,7 @@ case "$#" in
 				        if [ -d "$GAMEDIR" ]; then
                                                 if [ -d "$GAMEDIR/$MOD_NAME" ]; then
                                                 	cp "$moddir/"*tph "$GAMEDIR/$MOD_NAME"
+							cp "$moddir/"*tpa "$GAMEDIR/$MOD_NAME"
 							cp "$moddir/"*tp2 "$GAMEDIR/$MOD_NAME"
 							cp -a "$moddir/tra" "$GAMEDIR/$MOD_NAME"
 						fi
@@ -101,9 +145,6 @@ case "$#" in
 				echo "Usage: $0 [-h|clean|package|testinstall]"
 		esac
 		;;
-	*)
-		eval "$0 -h"
-		exit $?
 esac
 
 
