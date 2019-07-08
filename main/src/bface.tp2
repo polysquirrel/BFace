@@ -26,9 +26,9 @@ LANGUAGE ~English~
          ~english~		 
          ~%MOD_FOLDER%/tra/english/setup.tra~
 
-//LANGUAGE ~Polski~
-//		 ~polish~
-//		 ~%MOD_FOLDER%/tra/polish/setup.tra~
+LANGUAGE ~Polski~
+		 ~polish~
+		 ~%MOD_FOLDER%/tra/polish/setup.tra~
 	
 	
 BEGIN @090 //init

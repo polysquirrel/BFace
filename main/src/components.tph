@@ -392,7 +392,7 @@ DEFINE_ACTION_FUNCTION list_installed_npcs
 	//List portraits in the selection screen overriden with appropriate new npc portraits
 	LOG ~NPC portraits: %npc_portrait_overrides%~
 	LOG ~PC  portraits: %pc_portrait_overrides%~ 
-	LAF list_pc_portraits 
+	LAF list_pc_selection 
 		STR_VAR include = ~%npc_portrait_overrides%~ exclude = ~%pc_portrait_overrides%~ 
 		RET available = filelist END //present in the selection screen and overriden with new npc portraits
 	LOG ~NPC portraits on screen: %available%~

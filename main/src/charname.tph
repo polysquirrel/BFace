@@ -116,7 +116,7 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 	
 	
 	
-DEFINE_ACTION_FUNCTION list_pc_portraits
+DEFINE_ACTION_FUNCTION list_pc_selection
 	STR_VAR
 		gender = ~male\|female~
 		exclude = ~~
@@ -172,7 +172,7 @@ DEFINE_ACTION_FUNCTION list_pc_portraits
   * This will crash the game if no new portraits are installed!
   * Patches BGEE.LUA file to clear the portraits = { ... } list. 
   */
-DEFINE_ACTION_FUNCTION clear_pc_portrait_entries
+DEFINE_ACTION_FUNCTION clear_pc_selection
 	BEGIN
 		LOG ~Removing all portraits from the list at character generation. The game will crash unless new portraits are installed.~
 		ACTION_IF NOT DIRECTORY_EXISTS ~override~ THEN BEGIN
@@ -280,20 +280,34 @@ DEFINE_ACTION_FUNCTION pc_portrait_entries
 
 
 
-
+/** Installs the given portrait list in the player selection screen for EE games.
+  */
 DEFINE_ACTION_FUNCTION install_pc_portrait_list
 	INT_VAR
-		single_size = 1
+		/** If non-zero, portrait pairs 'L' and 'M' on the list are replaced with their common name prefix. */
+		multi_size = 1
+		/** If non-zero, instead of simply prepending the list to the existing selection, the latter is read,
+		  * sorted together with the new portraits, duplicate entries removed and the current list is replaced
+		  * the result of the merge. */
+		merge = 0
 	STR_VAR
+		/** Gender of the portrayed characters determining the list into which portraits are installed.
+		    Must be either 'M' or 'F'. */
 		gender = ~?~
+		/** The list of portrait files to installed, each without an extension and surrounded by a pair of '/' chars. */	
 		filelist = ~~
 	BEGIN
-		LAF remove_duplicates STR_VAR list = ~%filelist%~ 
-			RET filelist = unique END
-		ACTION_IF single_size THEN BEGIN
+		ACTION_IF merge THEN BEGIN
+			LAF list_pc_selection STR_VAR gender = ~%gender%~ RET current = filelist END
+			OUTER_TEXT_SPRINT filelist ~%filelist%%current%~
+			LAF clear_pc_selection END
+		END
+		ACTION_IF multi_size THEN BEGIN
 			LAF remove_smaller_sizes STR_VAR list = ~%filelist%~ 
 				RET filelist = list END
 		END
+		LAF remove_duplicates STR_VAR list = ~%filelist%~ 
+			RET filelist = unique END
 		
 		LAF pc_portrait_entries STR_VAR gender = ~%gender%~ filelist = ~%filelist%~
 			RET selection = portraits END
