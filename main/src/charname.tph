@@ -303,7 +303,7 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 			LAF clear_pc_selection END
 		END
 		ACTION_IF multi_size THEN BEGIN
-			LAF remove_smaller_sizes STR_VAR list = ~%filelist%~ 
+			LAF multi_size_list STR_VAR list = ~%filelist%~ 
 				RET filelist = list END
 		END
 		LAF remove_duplicates STR_VAR list = ~%filelist%~ 

@@ -590,7 +590,7 @@ REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000//BGEE.LUA only in EE
 BEGIN @616 //Copy to override, replace existing portrait selection
 SUBCOMPONENT @610 //Portraits for PC
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
-	LAF clear_pc_portrait_entries END
+	LAF clear_pc_selection END
 	//copy all pc portraits, in particular renamed references to default portraits
 	LAF install_pc_portraits STR_VAR set = ~default~ END
 	
@@ -601,7 +601,7 @@ SUBCOMPONENT @610
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/override~ @012
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @000
 REQUIRE_PREDICATE ~%installed_obe_npcs%~ STR_EQ ~~ OR ~%installed_unused_npcs%~ STR_EQ ~~ @011 
-	LAF clear_pc_portrait_entries END
+	LAF clear_pc_selection END
 	LAF copy_pc_portraits 
 		STR_VAR role = ~override~ name = ~defaults\|obe~ exclude = ~%npc_portrait_overrides%~
 	END
@@ -624,7 +624,7 @@ BEGIN @621 //Clear the screen
 SUBCOMPONENT @620 //Remove portraits from the selection screen
 REQUIRE_PREDICATE (~%skip_pc%~ STR_EQ ~~)  @601
 REQUIRE_PREDICATE (~%pc_install_target%~ STR_EQ ~override~) @011
-	LAF clear_pc_portrait_entries END
+	LAF clear_pc_selection END
 	OUTER_TEXT_SPRINT cleared_pc_selection ~yes~
 	OUTER_TEXT_SPRINT cleared_npc_portraits ~all~
 	OUTER_TEXT_SPRINT cleared_obe_portraits ~all~

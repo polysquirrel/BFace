@@ -242,8 +242,11 @@ DEFINE_ACTION_FUNCTION multi_size_list
 			END ~%replacement%~
 		END
 	END
+
+
 	
 	
+
 	
 /** Updates the creature file 'creature' with the given medium and large portraits.
   * Returns non-zero value IFF the file existed in the game.
