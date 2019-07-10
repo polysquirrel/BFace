@@ -54,16 +54,35 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 	END
 
 
-
 	
 
 
+
+DEFINE_ACTION_MACRO copy_chosen_pc_portrait_sets BEGIN
+	LAF copy_pc_portraits STR_VAR gender = ~male~ name = ~%chosen_pc_portrait_sets%~ RET filelist END
+	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%filelist%~
 	
+	LAF copy_pc_portraits STR_VAR gender = ~female~ name = ~%chosen_pc_portrait_sets%~ RET filelist END
+	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%filelist%~
+END	
+	
+	
+	
+	
+	
+
+/** Iterates over all bundles under the 'charname/unique' directory which mach the %bundle% regexp
+  * and asks the user if it should be installed. Additionally, if %show_previews% is true, a browser
+  * window with a preview gallery for each bundle will be opened. Only portraits from the given gender
+  * and portrait sets are installed, regardless of positive decision.
+  */
 DEFINE_ACTION_FUNCTION copy_pc_bundles
 	INT_VAR 
 		show_previews = 0
 	STR_VAR 
 		bundle = ~*~
+		gender = ~male\|female~
+		name = ~*~
 	RET
 		males
 		females
@@ -82,30 +101,48 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 				RET bundle = suffix END
 
 			ACTION_IF show_previews THEN BEGIN
-				ACTION_IF NOT FILE_EXISTS ~%bundledir%/preview.html~ THEN BEGIN
-					LAF create_portraits_preview
-						STR_VAR 
-							root = ~charname~ role = ~unique~ game = ~%bundle%~ 
-							previewdir = ~%bundledir%~ when = ~always~
+				LAF create_portraits_preview
+					STR_VAR 
+						root = ~charname~ role = ~unique~ game = ~%bundle%~ gender = ~%gender%~ name = ~%name%~
+						previewdir = ~%bundledir%~ when = ~always~
+					RET empty = empty END
+				
+				ACTION_IF NOT empty THEN BEGIN
+					AT_INTERACTIVE_NOW ~VIEW %bundledir%/preview.html~
+				END
+			END ELSE BEGIN
+				LAF list_npc_portraits
+					STR_VAR 
+						root = ~charname~ role = ~unique~ game = ~%bundle%~ gender = ~%gender%~ name = ~%name%~
+						when = ~always~
+					RET empty = npccount END
+					OUTER_SET empty = NOT empty
+			END
+
+			ACTION_IF NOT empty THEN BEGIN
+				OUTER_SPRINT prompt_prefix @030
+				OUTER_SPRINT prompt_suffix @031
+				OUTER_TEXT_SPRINT decision ~~
+
+				OUTER_WHILE NOT (~%decision%~ STRING_EQUAL_CASE ~I~ OR ~%decision%~ STRING_EQUAL_CASE ~N~) BEGIN
+					PRINT ~%prompt_prefix%%bundle%%prompt_suffix%~
+					ACTION_READLN decision
+				END
+				
+				ACTION_IF ~%decision%~ STRING_EQUAL_CASE ~I~ THEN BEGIN
+					ACTION_IF NOT ~%gender%~ STRING_CONTAINS_REGEXP ~male~ THEN BEGIN
+						LAF copy_pc_portraits 
+							STR_VAR bundle = ~%bundle%~ gender = ~male~ name = ~%name%~
+							RET filelist END
+						OUTER_TEXT_SPRINT males ~%males%%filelist%~
+					END
+					ACTION_IF NOT ~%gender%~ STRING_CONTAINS_REGEXP ~female~ THEN BEGIN
+						LAF copy_pc_portraits 
+							STR_VAR bundle = ~%bundle%~ gender = ~female~ name = ~%name%~
+							RET filelist END
+						OUTER_TEXT_SPRINT females ~%females%%filelist%~
 					END
 				END
-				AT_INTERACTIVE_NOW ~VIEW %bundledir%/preview.html~
-			END
-
-			OUTER_SPRINT prompt_prefix @030
-			OUTER_SPRINT prompt_suffix @031
-			OUTER_TEXT_SPRINT decision ~~
-
-			OUTER_WHILE NOT (~%decision%~ STRING_EQUAL_CASE ~I~ OR ~%decision%~ STRING_EQUAL_CASE ~N~) BEGIN
-				PRINT ~%prompt_prefix%%bundle%%prompt_suffix%~
-				ACTION_READLN decision
-			END
-			ACTION_IF ~%decision%~ STRING_EQUAL_CASE ~I~ THEN BEGIN
-				LAF copy_pc_portraits STR_VAR bundle = ~%bundle%~ gender = ~male~ RET filelist END
-				OUTER_TEXT_SPRINT males ~%males%%filelist%~
-				
-				LAF copy_pc_portraits STR_VAR bundle = ~%bundle%~ gender = ~female~ RET filelist END
-				OUTER_TEXT_SPRINT females ~%females%%filelist%~
 			END
 		END
 	END
@@ -115,7 +152,11 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 	
 	
 	
-	
+
+/** Parses BGEE.LUA to read the names of portraits currently available during character generation.
+  * Note that the names returned may not match portrait files directly, but instead be a common prefix
+  * of a matching portrait set (that is, `/Anomen/` instead of `/AnomenL//AnomenM/`).
+  */
 DEFINE_ACTION_FUNCTION list_pc_selection
 	STR_VAR
 		gender = ~male\|female~

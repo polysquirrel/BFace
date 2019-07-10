@@ -128,8 +128,11 @@ OUTER_SET show_alternatives = 0
 OUTER_TEXT_SPRINT skip_npc ~yes~
 /** Flag determining if the user will be offered choice of installing individual components with PC portraits. */
 OUTER_TEXT_SPRINT skip_pc ~yes~
-
+/** Flag determining if components for clearing portrait lists will be shown */
 OUTER_TEXT_SPRINT skip_clear ~yes~
+
+/** Flag which, when cleared, will offer a component with options for excluding some character types from installing. */
+OUTER_TEXT_SPRINT skip_excluding_pc_portraits  ~yes~
 
 /** List of all portrait files installed by the NPC components. */
 OUTER_TEXT_SPRINT npc_portrait_overrides ~~
@@ -165,3 +168,15 @@ OUTER_TEXT_SPRINT pc_install_target ~~
 OUTER_TEXT_SPRINT male_portrait_list ~~
 /** List of base file names of female portraits which should be installed in the player selection screen */
 OUTER_TEXT_SPRINT female_portrait_list ~~
+
+/** Flag determining if the user will be shown preview galleries of installed bundles. */
+OUTER_SET show_previews = 0
+
+/** Flag determining if the user will be asked about each installation of each unique CHARNAME bundle. */
+OUTER_SET install_all_pc_bundles = 1
+
+/** Regexp alternative of portrait sets to install from each unique CHARNAME bundle (may be '*'). */
+OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~~
+
+/** Regexp for genders of installed portraits. */
+OUTER_TEXT_SPRINT chosen_pc_genders ~male\|female~

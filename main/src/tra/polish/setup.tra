@@ -25,7 +25,7 @@
 
 
 @090=	~Przygotowanie~
-@091=	~Hej! Doradzam instalację w jednej z predefiniowanych konfiguracji dla NPC oraz portretów gracza. Jeśli zdecydujesz się na indywidualną instalację komponenetów (które dostarczają dodatkowych opcji), polecam zapoznanie się z README bądź rozważne decyzje, jako że niektóre komponenty mogą nadpisać wybory z poprzednio zainstalowanych.~
+@091=	~Hej! Doradzam instalację w jednej z predefiniowanych konfiguracji dla NPC oraz portretów gracza. Indwidualny wybór komponentów oferuje więcej opcji oraz dodatkowe portrety dla PC, ale niektóre kombinacje się wykluczają bądź mają nieoczywiste interakcje. Zalecane jest zapoznanie się z readme i uważne decyzje.~ 
 
 @099=	~Finalizacja~
 
@@ -38,9 +38,9 @@
 @501=	~Wybór portretów NPC już dokonany~
 @502=	~Nie będziesz proszony/a o wybór pomiędzy alternatywnymi portretami postaci.~
 @503=	~Będziesz proszony/a o wybór pomiędzy alternatywnymi portretami postaci.~
-@504=	~Wybież portret dla~
-@505=	~Poddaj numer wybranej opcji: ~
-//@506=	~Do you want to be shown previews of alternative portraits for every companion? [Y]es
+@504=	~Pokazywać galerie z podglądem?~
+@506=	~Wybież portret dla~
+@507=	~Poddaj numer wybranej opcji: ~
 @508=	~Instalować portrety dla~
 @509=	~? [I]nstaluj/[N]ie:~
 
@@ -109,7 +109,7 @@
 
 @607=	~Brak portretów do zainstalowania~
 @608=	~Instaluję wybrane portrety w ekranie wyboru podczas tworzenia postaci...~
-@609=	~Lista dostępnych portretów nie może być pusta!~
+@609=	~Lista dostępnych portretów nie może być pusta! Konieczna reinstalacja, gra kaput!~
 
 
 @610=	~Portrety dla postaci gracza (CHARNAME)~
@@ -149,11 +149,11 @@
 @643=	~Zastąp, te niezastąpione wcześniej, alternatywne portrety towarzyszy obecnych w grze~
 
 
-@650=	~Pozwól wybierać portret gracza spomiędzy portretów towarzyszy z treningu Obe'a~
-@651= 	~Spośród wszystkich towarzyszy Obe'a z wyjątkiem Arkanisa i Dedera~
-@652=	~Spośród wszystkich iluzorycznych towarzyszy~
+@650=	~Oferuj graczom portrety towarzyszy z treningu Obe'a~
+@651= 	~Wszystkich towarzyszy Obe'a z wyjątkiem Arkanisa i Dedera~
+@652=	~Wszystkich iluzorycznych towarzyszy~
 
-@660=	~Pozwól wybierać portret gracza spomiędzy niektórych portretów oficjalnych towarzyszy~
+@660=	~Oferuj graczom niektóre portrety oficjalnych towarzyszy~
 @661=	~Niektóre alternatywne (niewykorzystywane) wersje portretów towarzyszy~
 @662=	~Domyślne portrety wszystkich towarzyszy z całej sagi~
 @663=	~Domyślne i alternatywne portrety wszystkich towarzyszy z sagi~
@@ -162,7 +162,7 @@
 @666=	~Domyślne portrety nieobecnych towarzyszy~
 @667=	~Domyślne i alternatywne portrety nieobecnych towarzyszy~
 
-@670=	~Pozwól wybierać portret gracza spomiędzy niektórych (fanowskich) towarzyszy z modów~
+@670=	~Oferuj graczom niektóre portrety (fanowskich) towarzyszy z modów~
 @671=	~Niektóre alternatywne (niewykorzystywane) portrety postaci z modów~
 @672=	~Domyślne portrety wszystkich znanych fanowskich towarzyszy~
 @673=	~Domyślne i alternatywne portrety wszystkich znanych fanowskich towarzyszy~
@@ -179,9 +179,24 @@
 
 
 
-@690=	~Nowe, unikalne portrety dla gracza (główny komponent)~
-@691=	~Wszystkie załączone zestawy~
-@692=	~Domyślny wybór portretów będący kompromisem między spójnością a różnorodnością~
-@693=	~Pytaj o każdy zestaw osobno~
-@694=	~Pokaż podgląd portretów w zestawie i pytaj o każdy osobno~
+@700=	~Nie instalować portretów dla niektórych typów postaci?~
+@701=	~Nie instaluj portretów kobiet~
+@702=	~Nie instaluj portretów mężczyzn~
+@703=	~Nie instaluj portretów starszych postaci~
+@704=	~Nie instaluj portretów oficjalnie niegrywalnych ras jak Drow~
+@705=	~Nie instaluj portretów rozpoznawalnych postaci~
+//@704=	~Exclude non-playable races and older characters~
+//@705=	~Exclude non-playable races and cameos~
+//@706=	~Exclude older characters and cameos~
+//@707=	~Exclude non-playable races, older characters and cameos~
+
+
+@710=	~Oferuj graczom nowe, unikalne portrety (główny komponent)~
+@711=	~Domyślny wybór portretów, kompromis między spójnością a rożnorodnością~
+@712=	~Wszystkie zestawy portretów, zdecyduj czy wyłączać pewne typy postaci jak Drow lub starsi ludzie~
+@713=	~Wszystkie załączone portrety~
+@714=	~Decyduj dla każdego zestawu, wybierz nie instalowane typy postaci~
+@715=	~Decyduj dla każdego zestawu, instaluj wszystkie portrety z zestawu~
+@716=	~Pokazuj galerie z podglądem każdego zestawu, decyduj indywidalnie; wybierz nie instalowane typy postaci~
+@717=	~Pokazuj galerie z podglądem zestawów, decyduj indywidualnie~
 

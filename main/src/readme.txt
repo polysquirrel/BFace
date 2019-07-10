@@ -142,6 +142,11 @@ the same character, regardless of the 'role','game' and 'gender' directories
 they are placed under. In consequence, if the mod deviates from this assumption,
 some options might not work as advertised.
 
+The portrait sets for non-joinable NPCs (supportnpcs, minornpcs, extranpcs) can
+deviate from this restriction as they would contain a single portrait anyway. 
+Those that should be offered to player characters (providing the appropriate
+decision is made during the installation) should be named the same as standard
+portrait sets in the charname/unque tree (see 1.2.4).
 
 
 1.1.5 Alternative potrait sets
@@ -235,7 +240,7 @@ or appearance), installed together. The user can decide to install only selected
 bundles based on their preferences and expectations. The directories should 
 have user-friendly, concise, but informative, names - they are displayed
 to the user in the command prompt when offering the choice of their 
-installation.
+installation. Due to a weidu limitation, they can not currently contain spaces.
 
 Under other directories, directories at this level are all treated equally
 without any options to select between them. Usually, it contains a single 'any'
@@ -260,9 +265,24 @@ the directories at this level to contain a single portrait - in fact, as
 enhanced editions resize the portraits themselves and do not require different
 sizes, they group the portraits based on broader criteria.
 
-For the 'unique' subtree, the names here are completely arbitrary, not used in
-any way by the mod or displayed to the user; the directories can instead group
-the portraits simply for modders convenience.
+For the 'unique' subtree, they should group featured characters by a distinctive
+trait. It is arbitrary to an extent, although certain names are treated
+specially:
+
+ -default:	These portraits are always installed when the parent bundle is
+           	chosen.
+ 
+ -non-playable:	Portraits of races which cannot be picked during character 
+         	generation, such as Drow and Tieflings. 
+ 
+ -old:          Portraits of characters much older than the backstory suggests.
+
+ -cameos:	Portraits of recognisable characters - from films, other games,
+         	or alternative depictions of game characters by other artists.
+
+By convention, to make coding somewhat easier, all other portraits reside in a
+directory named simply 'portraits'.
+
 
 For the 'override' subtree, the directory names are fixed and reflect which 
 group of portraits they override:
@@ -322,7 +342,7 @@ where:
 
   - gender: [F|M] standing for Female/Male;
 
-  - race:   [D|G|H|E|M|O] for Dwarf/Gnome/Halfling/Elf/huMan/half-Orc.
+  - race:   [D|G|H|E|M|O|W] for Dwarf/Gnome/Halfling/Elf/huMan/half-Orc/droW.
             Additionally, some portraits of non-playable races may be made 
 	    available to players on request during installation for role-playing
 	    or visual reasons. In that case they will follow the extended 
@@ -388,11 +408,11 @@ occupations:
 
   - gender:  [B|F|G|M] with new Boy/Girl designators;
 
-  - race:    [D|G|H|E|M|O|R|T|W] with new R, T, W standing for ogRe, Tiefling
-             and droW respectively, the tieflings including also Cambions 
-             (and potentially humanoid demons/devils), with the gender being 
-	     the discriminator. They may be also optionally offered to player 
-             characters, depending on installation choices.
+  - race:    [D|G|H|E|M|O|R|T|W] with new R, T standing for ogRe and Tiefling,
+             the latter including also Cambions (and potentially humanoid demons
+             and devils), with the gender being the discriminator. They may be 
+             also optionally offered to players, depending on installation 
+             choices.
   
   - class:   [A|B|C|F|G|K|M|N|P|R|S], the new characters standing for 
              Guard/Merchant/Noble/Peasant.

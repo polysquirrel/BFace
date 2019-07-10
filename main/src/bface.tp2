@@ -52,7 +52,11 @@ REQUIRE_PREDICATE GAME_IS ~bgee bg2ee~ @005
 	LAF list_npc_portraits STR_VAR role = ~canonnpcs~ when = ~exists~
 		RET canon_game_npcs = names canon_game_portraits = filelist END
 	
-	
+
+	LOG ~Listing CHARNAME portrait sets~
+	LAF list_npc_portraits STR_VAR root = ~charname~ role = ~unique~ game = ~%any_dir%~ when = ~always~
+		RET unique_pc_portrait_sets = names END
+		
 	PRINT @091 //greeting and advice
 	
 	
@@ -1064,73 +1068,154 @@ SUBCOMPONENT @670
 	
 
 
-BEGIN @691 //Give CHARNAME all unique portrait bundles
-SUBCOMPONENT @690 //Give PC unique portraits
+BEGIN @711 //Give CHARNAME the default portrait set from all bundles
+SUBCOMPONENT @710 //Unique portrait bundles for CHARNAME
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/unique~ @012
 REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
-	LAF copy_pc_portraits STR_VAR gender = ~male~ RET males = filelist END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	
-	LAF copy_pc_portraits STR_VAR gender = ~female~ RET females = filelist END
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
-
-
-
-BEGIN @692 //Give CHARNAME the default portrait set from all bundles
-SUBCOMPONENT @690
-	LAF copy_pc_portraits STR_VAR gender = ~male~ name = ~default~ RET filelist END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%filelist%~
-	
-	LAF copy_pc_portraits STR_VAR gender = ~female~ name = ~default~ RET filelist END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%filelist%~
-	
-	
-
-BEGIN @693 //Pick which CHARNAME bundles to install
-SUBCOMPONENT @690	
-	LAF copy_pc_bundles RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
-
-
-	
-BEGIN @694 //Pick which CHARNAME bundles to install, show previews.
-SUBCOMPONENT @690	
-	LAF copy_pc_bundles INT_VAR show_previews = 1 RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
-	
+	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~default~ 
 	
 
 
+BEGIN @712 //All CHARNAME bundles, but ask about excluding some character types
+SUBCOMPONENT @710
+	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_TEXT_SPRINT skip_excluding_pc_portraits ~~
 
 
-BEGIN @099 //Round up the installation
+
+BEGIN @713 //All CHARNAME bundles, all portraits in the bundle
+SUBCOMPONENT @710
+	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+//	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~*~
+	
+
+ 
+BEGIN @714 //Ask about each portrait bundle, ask which characters to exclude
+SUBCOMPONENT @710 
+	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_TEXT_SPRINT skip_excluding_pc_portraits ~~
+	OUTER_SET install_all_pc_bundles = 0
+	
+
+
+BEGIN @715 //Ask about each portrait bundle, install all portraits from the bundle
+SUBCOMPONENT @710
+	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_SET install_all_pc_bundles = 0
+	
+	
+	
+BEGIN @716 //Ask which character types to exclude, show bundle previews and ask about each one
+SUBCOMPONENT @710
+	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_TEXT_SPRINT skip_excluding_pc_portraits ~~
+	OUTER_SET show_previews = 1
+	OUTER_SET install_all_pc_bundles = 0
+
+
+
+BEGIN @717 //Show bundle previews and ask about each one
+SUBCOMPONENT @710
+	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_SET show_previews = 1
+	OUTER_SET install_all_pc_bundles = 0
+
+
+
+
+
+
+BEGIN @701 //Exclude female portraits
+REQUIRE_PREDICATE NOT ~%pc_install_target%~ STR_EQ ~override~ @011 //EE install by modifying portrait lists in game files
+REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
+	OUTER_TEXT_SPRINT chosen_pc_genders ~male~
+	
+	
+	
+BEGIN @702 //Exclude male portraits
+REQUIRE_PREDICATE NOT ~%pc_install_target%~ STR_EQ ~override~ @011 //EE install by modifying portrait lists in game files
+REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ AND NOT ~%chosen_pc_genders%~ STR_EQ ~male~ @011
+	OUTER_TEXT_SPRINT chosen_pc_genders ~female~
+
+
+
+BEGIN @703 //Exclude older characters
+REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
+REQUIRE_PREDICATE ~%unique_pc_portrait_sets%~ STRING_CONTAINS_REGEXP ~old~ @012
+	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
+		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?old~ ~~
+	END
+
+
+
+BEGIN @704 //Exclude non-playable (officially) races
+REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
+REQUIRE_PREDICATE ~%unique_pc_portrait_sets%~ STRING_CONTAINS_REGEXP ~non-playable~ @012
+	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
+		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?non-playable~ ~~
+	END
+
+
+
+BEGIN @705 //Exclude cameos of recognizable charactes
+REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
+REQUIRE_PREDICATE ~%unique_pc_portrait_sets%~ STRING_CONTAINS_REGEXP ~cameos~ @012
+	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
+		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?cameos~ ~~
+	END
+	
+	
+
+
+
+
+BEGIN @099 //Round up the installation, copying chosen CHARNAME portraits
 INSTALL_BY_DEFAULT
-	ACTION_IF ~%skip_pc%~ STR_EQ ~~ THEN BEGIN
-		PRINT @099
+REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
+	ACTION_IF NOT ~%chosen_pc_portrait_sets%~ STR_EQ ~~ THEN BEGIN
+		LOG ~Copying unique CHARNAME portraits from sets %chosen_pc_portrait_sets%~
 		
-		ACTION_IF ~%pc_install_target%~ STR_EQ ~override~ THEN BEGIN
-			PRINT @608
-			LAF remove_duplicates STR_VAR list = ~%male_portrait_list%~
-				RET males = unique END
-			LAF remove_duplicates STR_VAR list = ~%female_portrait_list%~
-				RET females = unique END
-
-			LOG ~male portraits:   %males%~
-			LOG ~female portraits: %females%~			
-			ACTION_IF (~%males%~ STR_EQ ~~) OR (~%females%~ STR_EQ ~~) THEN BEGIN
-				
-				PRINT @607
-				ACTION_IF NOT ~%cleared_pc_selection%~ STR_EQ ~~ THEN BEGIN
-					FAIL @609
-				END
+		ACTION_IF install_all_pc_bundles THEN BEGIN
+			ACTION_IF NOT ~%chosen_pc_genders%~ STRING_CONTAINS_REGEXP ~male~ THEN BEGIN
+				LAF copy_pc_portraits STR_VAR gender = ~male~ name = ~%chosen_pc_portrait_sets%~ RET filelist END
+				OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%filelist%~		
 			END
-
-			LAF install_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
-			LAF install_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
+			
+			ACTION_IF NOT ~%chosen_pc_genders%~ STRING_CONTAINS_REGEXP ~female~ THEN BEGIN
+				LAF copy_pc_portraits STR_VAR gender = ~female~ name = ~%chosen_pc_portrait_sets%~ RET filelist END
+				OUTER_TEXT_SPRINT female_portrait_list ~%male_portrait_list%%filelist%~
+			END
 		
+		END ELSE BEGIN
+			LAF copy_pc_bundles 
+				INT_VAR show_previews = show_previews
+				STR_VAR gender = ~%chosen_pc_genders%~ name = ~%chosen_pc_portrait_sets%~
+				RET males = males females = females END
+			OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
+			OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
 		END
+	END
+		
+	ACTION_IF ~%pc_install_target%~ STR_EQ ~override~ THEN BEGIN
+		PRINT @608
+		LAF remove_duplicates STR_VAR list = ~%male_portrait_list%~
+			RET males = unique END
+		LAF remove_duplicates STR_VAR list = ~%female_portrait_list%~
+			RET females = unique END
+
+		LOG ~male portraits:   %males%~
+		LOG ~female portraits: %females%~			
+		ACTION_IF (~%males%~ STR_EQ ~~) OR (~%females%~ STR_EQ ~~) THEN BEGIN
+			
+			PRINT @607
+			ACTION_IF NOT ~%cleared_pc_selection%~ STR_EQ ~~ THEN BEGIN
+				FAIL @609
+			END
+		END
+
+		LAF install_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
+		LAF install_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
+	
 	END
 	
 	

@@ -634,7 +634,7 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 					AT_INTERACTIVE_NOW ~VIEW %dir%/alternatives/preview.html~
 				END
 
-				OUTER_SPRINT prompt @504
+				OUTER_SPRINT prompt @506
 				PRINT ~%prompt% %npcname%:~
 			
 				OUTER_SET idx = 0 //print alternative portrait dirs
@@ -647,7 +647,7 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 				
 				OUTER_SET idx = 0 //read user choice into idx
 				OUTER_WHILE (NOT IS_AN_INT %idx%) OR idx <= 0 OR idx > altcount BEGIN
-					PRINT @505
+					PRINT @507
 					ACTION_READLN ~idx~
 				END
 				OUTER_SET idx -= 1
@@ -978,6 +978,7 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 /** A minimalistic wrapper over copy_npc_portraits which simply sets list_only = 1. */	
 DEFINE_ACTION_FUNCTION list_npc_portraits
 	STR_VAR 
+		root = ~npcs~
 		role = ~*~
 		game = ~?~
 		gender = ~male\|female\|other~ 
@@ -994,7 +995,7 @@ DEFINE_ACTION_FUNCTION list_npc_portraits
 	BEGIN
 		LAF copy_npc_portraits 
 			INT_VAR list_only = 1 defaults = 1
-			STR_VAR role = ~%role%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~
+			STR_VAR root = ~%root%~ role = ~%role%~ game = ~%game%~ gender = ~%gender%~ name = ~%name%~
 			        when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ target = ~~
 			RET npccount filelist names
 			RET_ARRAY filemap
@@ -1018,38 +1019,43 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 		name = ~*~
 		when = ~always~
 		previewdir = ~~
+	RET
+		empty
 	BEGIN
 		LOG ~Generating preview file %previewfile% for '%root%/%role%/%game%/%gender%/%name%/*~
-		//OUTER_TEXT_SPRINT preview_folder ~%MOD_FOLDER%/previews~
-
+		OUTER_SET empty = 1
 
 		LAF copy_npc_portraits 
 			INT_VAR defaults = 1
 			STR_VAR 
 				root = ~%root%~ role = ~%role%~ game=~%game%~ gender = ~%gender%~ name=~%name%~
 				target = ~%previewdir%/.preview~ when = ~%when%~
-			RET filelist END
-		LAF remove_smaller_sizes STR_VAR list = ~%filelist%~ RET filelist = list END
+			RET npccount filelist END
 		
-		LOG ~Listing images for preview...~
+		ACTION_IF npccount THEN BEGIN
+			OUTER_SET empty = 0
+			LAF remove_smaller_sizes STR_VAR list = ~%filelist%~ RET filelist = list END
+			
+			LOG ~Listing images for preview...~
 
-		OUTER_TEXT_SPRINT preview_style ~style="display: inline-block; width: 70px; height: 110px; margin: 5px;"~		
-		OUTER_TEXT_SPRINT previews ~~
+			OUTER_TEXT_SPRINT preview_style ~style="display: inline-block; width: 70px; height: 110px; margin: 5px;"~		
+			OUTER_TEXT_SPRINT previews ~~
+			
+			OUTER_PATCH ~%filelist%~ BEGIN
+				REPLACE_EVALUATE CASE_SENSITIVE ~/\([^\\/]+\)/~ BEGIN
+					TEXT_SPRINT img ~.preview/%MATCH1%.bmp~
+					TEXT_SPRINT preview ~<div %preview_style%><img src="%img%" width="70" height="110"/></div>~
+					TEXT_SPRINT previews ~%previews%%preview%%EOL%~
+				END ~~
+			END
+
+			LOG ~%previews%~
 		
-		OUTER_PATCH ~%filelist%~ BEGIN
-			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^\\/]+\)/~ BEGIN
-				TEXT_SPRINT img ~.preview/%MATCH1%.bmp~
-				TEXT_SPRINT preview ~<div %preview_style%><img src="%img%" width="70" height="110"/></div>~
-				TEXT_SPRINT previews ~%previews%%preview%%EOL%~
-			END ~~
+			COPY ~%MOD_FOLDER%/bundle-preview.html~ ~%previewdir%/preview.html~
+				REPLACE_EVALUATE CASE_INSENSITIVE ~<body\([^>]*\)>\(.*\)</body>~ BEGIN
+				END ~<body%MATCH1%>%MATCH2%%previews%</body>~
+			IF_EXISTS 
 		END
-
-		LOG ~%previews%~
-	
-		COPY ~%MOD_FOLDER%/bundle-preview.html~ ~%previewdir%/preview.html~
-			REPLACE_EVALUATE CASE_INSENSITIVE ~<body\([^>]*\)>\(.*\)</body>~ BEGIN
-			END ~<body%MATCH1%>%MATCH2%%previews%</body>~
-		IF_EXISTS 
 	END
 
 

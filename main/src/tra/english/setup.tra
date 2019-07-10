@@ -26,7 +26,7 @@
 
 
 @090=	~Setup~
-@091=	~Hi! I recommended that you install one of the preconfigured options for NPC and PC portrait bundles.  If you choose to manually select components (which offer some additional options), consider reading the README file or think carefully, as some of the components may overwrite the choices of previously installed components.~
+@091=	~Hi! I recommended that you install one of the preconfigured options of NPC and PC portrait bundles.  Choosing manually installed components will offer more options and more portraits for PC, but some combinations are mutually exclusive or may have non-trivial interactions. Reading readme and some thought is advisable.~
 
 @099=	~Finalisation~
 
@@ -39,8 +39,9 @@
 @501=	~Choice of NPC portraits already made~
 @502=	~No user prompt will be presented for NPCs with alternative portraits.~
 @503=	~You will be asked to select a portrait where several alternatives are available.~
-@504=	~Pick portrait for~
-@505=	~Enter the number corresponding to the selected option: ~
+@504=	~Show preview galleries?~
+@506=	~Pick portrait for~
+@507=	~Enter the number corresponding to the selected option: ~
 @508=	~Install portraits for~
 @509=	~? [I]nstall/[N]o:~
 
@@ -109,7 +110,7 @@
 @601=	~Choice of installed PC portraits already made~
 @607=	~No portraits to install~
 @608=	~Installing chosen portraits to the selection screen...~
-@609=	~Portrait selection cannot be empty!~
+@609=	~Portrait selection cannot be empty! Reinstall the mod or the game will crash.~
 
 
 @610=	~Portraits for player characters~
@@ -162,9 +163,6 @@
 @666=	~Default portraits of official companions not from this game~
 @667=	~Default and alternative portraits of official companions not from this game~
 
-//@657=	~Give player characters access to portraits of all official NPCs from BG(EE)~
-//@658=	~Give player characters access to portraits of all official NPCs from SoD (non-BGEE)~
-//@659=	~Give player characters access to portraits of all official NPCs from BG2(EE)~
 
 @670=	~Give player characters access to the portraits of mod companions~
 @671=	~Some of alternative portraits of all mod companions~
@@ -183,9 +181,24 @@
 
 
 
-@690=	~Give player characters new unique portraits (main component)~
-@691=	~All included portrait bundles~
-@692=	~Default selection of portraits, balanced between consistency and variaton~
-@693=	~Decide for each portrait bundle~
-@694=	~Decide for each portrait bundle after previewing the contents~
+@700=	~Exclude some character types?~
+@701=	~Exclude female portraits~
+@702=	~Exclude male portraits~
+@703=	~Exclude older characters~
+@704=	~Exclude officially non-playable races like Drow and Tieflings~
+@705=	~Exclude recognisable cameos (like characters from other games)~
+//@704=	~Exclude non-playable races and older characters~
+//@705=	~Exclude non-playable races and cameos~
+//@706=	~Exclude older characters and cameos~
+//@707=	~Exclude non-playable races, older characters and cameos~
+
+
+@710=	~Give player characters new, unique portraits (main component)~
+@711=	~Default selection of portraits, balanced between consistency and variaton~
+@712=	~All bundles, decide about installing portraits for non-playable races, older characters and cameos~
+@713=	~All included portraits~
+@714=	~Decide for each bundle and which character types to exclude~
+@715=	~Decide for each bundle, include all portraits in the bundle~
+@716=	~Show preview galleries, decide for each bundle and which character types to exclude~
+@717=	~Show preview galleries, decide for each bundle~
 

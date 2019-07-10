@@ -16,7 +16,7 @@ BEGIN
 			READ_ASCII 0x3C large_edwin
 		BUT_ONLY_IF_IT_CHANGES
 		
-		PRINT ~%Installing Edwina portrait change from %small_edwin%/%large_edwin%~
+		PRINT ~%Installing Edwina portrait change from %small_edwin%/%large_edwin% (original code by clifette)~
 		
 		// add portrait change opcodes to edwin transform spells
 		COPY_EXISTING ~spin662.spl~ ~override~ // return to edwin
