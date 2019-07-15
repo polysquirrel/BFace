@@ -348,8 +348,8 @@ where:
 	    or visual reasons. In that case they will follow the extended 
 	    format used for NPCs, as described in the next subsection.
 
-  - class:  [A|B|C|F|K|R|S|T|W] being shorthand for class proxies:
-            Any/Bard/Cleric/Fighter/Knight/Ranger/Shaman/Thief/Wizard
+  - class:  [A|B|C|F|K|M|R|S|T|W] being shorthand for class proxies:
+            Any/Bard/Cleric/Fighter/Knight/Monk/Ranger/Shaman/Thief/Wizard
             - Any is used whenever a portrait has no defined features which 
               would favour one occupation over another;  
             - Fighters are those with lighter armour, in particular including
@@ -415,7 +415,7 @@ occupations:
              choices.
   
   - class:   [A|B|C|F|G|K|M|N|P|R|S], the new characters standing for 
-             Guard/Merchant/Noble/Peasant.
+             Guard/Noble/Peasant.
   
   - id:      does not change from the CHARNAME format and naturally must remain
              unique between CHARNAME and NPC portraits. NPC portraits will 
