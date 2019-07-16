@@ -14,13 +14,13 @@ if [[ "$#" == 0 || "$#" == 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
 elif [[ "$#" == 2 ]]; then
     find -name "$1*" -print0 | while IFS= read -r -d '' path; do
         name=`echo $path | sed -e "s|^\(.*\)/$1\([^/]*\)$|\1/$2\2|"`
-        mv -v "$path" "$name";
+        mv -i -v "$path" "$name";
     done
 else
     for i in `seq 3 $#`; do
         find -name "$1*" -print0 | while IFS= read -r -d '' path; do
 	    name=`echo $path | sed -e "s|^\(.*\)/$1\([^/]*\)$|\1/$2\2|"`
-	    mv -v "$path" "$name"
+	    mv -i -v "$path" "$name"
 	done
     done	    
 fi
