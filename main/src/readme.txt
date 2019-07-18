@@ -393,8 +393,10 @@ where:
                 altogether). Currently however the game will only use the 'L' 
                 portrait for the BG2 epilogue unless modded.
 
-  - extension: [bmp|ref] - the latter begin a referernce to a portrait file,
-               descriptions of which follow.
+  - extension:  [bmp|jpg|png|ref] - images of type other than bmp are converted
+                to the bitmap format during installation. The last file 
+                extension signifies a reference to a portrait file,
+                description of which follows.
 
 
 
@@ -408,11 +410,11 @@ occupations:
 
   - gender:  [B|F|G|M] with new Boy/Girl designators;
 
-  - race:    [D|G|H|E|M|O|R|T|W] with new R, T standing for ogRe and Tiefling,
-             the latter including also Cambions (and potentially humanoid demons
-             and devils), with the gender being the discriminator. They may be 
-             also optionally offered to players, depending on installation 
-             choices.
+  - race:    [D|G|H|E|M|O|R|T|V|W] with new V, R, T standing for Vampire, ogRe 
+             and Tiefling. The latter includes also Cambions (and potentially 
+             humanoid demons and devils), with the gender being the 
+             discriminator. They may be also optionally offered to players, 
+             depending on installation choices.
   
   - class:   [A|B|C|F|G|K|M|N|P|R|S], the new characters standing for 
              Guard/Noble/Peasant.
@@ -467,6 +469,9 @@ extension, depending on their contents and format:
 
  - .bmp:        self explanatory, image files to be used by the game.
 
+ - .jpg/.png    compressed image formats which will be converted to and replaced
+                by bmp files during installation.
+
  - .2da:        list of game creatures receiving a given portrait file. 
                 The file must reside next to portrait files in
         	in a directory on the 'npc' level, and its base name must be 
@@ -486,13 +491,16 @@ extension, depending on their contents and format:
                 the module. It must contain a single line
         	containing a path to a portrait file, relative to the top-level
                 module directory (src in the repository). It might or might not
-                contain the file extension, but must point to either a 'bmp' or
-                another 'ref' file. When encountered, the target file is copied
-                instead of the reference, but the name of the reference is
-        	used as the final portrait name rather than that of the copied 
-                file. This feature is used to avoid having several copies of 
-                a single file, or to rename a file, depending on the context of
-                use.
+                contain the file extension, but must point to one of supported
+                image types (including another ref). When encountered, 
+                the target file is copied instead of the reference, but the name
+                of the reference is used as the final portrait name rather than
+                that of the copied file. If any creatures require modification
+                to use the portrait, the '.2da' file with their ids should be
+                placed along the main reference; any .2da files residing with
+                the target image are ignored. This feature is used to avoid 
+                having several copies of a single file, or to rename a file, 
+                depending on the context of use.
 
  - .refs:       similar to '.ref', it contains a list of portraits to be copied
                 in place of the 'refs' file. Each line denotes a single file 
