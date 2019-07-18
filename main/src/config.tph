@@ -43,10 +43,10 @@ OUTER_TEXT_SPRINT any_dir ~\([^\.\\/].*\)~
 //OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\\/]+\)~
 
 /** Regexp matching '.bmp' and '.ref' files. */
-OUTER_TEXT_SPRINT portrait_file ~^[^\./\\]+\.\(bmp\|ref\)$~
+OUTER_TEXT_SPRINT portrait_file ~^[^\./\\]+\.\(bmp\|jpg\|jpeg\|png\|ref\)$~
 
 /** Regexp matching '.bmp', '.ref' and '.refs' files. */
-OUTER_TEXT_SPRINT supported_file ~^[^\./\\]+\.\(bmp\|ref\|refs\)$~
+OUTER_TEXT_SPRINT supported_file ~^[^\./\\]+\.\(bmp\|jpg\|jpeg\|png\|ref\|refs\)$~
 
 //OUTER_TEXT_SPRINT npc_regex ~%MOD_FOLDER%/%any_npc_type%/%game_dirs%/%any_gender%/\([^/\\]+\)~
 /** Temporary directory containing portraits for PC which override some in-game portraits.

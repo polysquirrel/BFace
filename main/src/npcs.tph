@@ -196,13 +196,14 @@ DEFINE_ACTION_FUNCTION check_file_eligibility
 			OUTER_TEXT_SPRINT targetname ~%basename%~
 		END
 		
-		ACTION_IF NOT ~%extension%~ STRING_EQUAL_CASE ~bmp~ AND NOT ~%extension%~ STRING_EQUAL_CASE ~ref~ THEN BEGIN
+		ACTION_IF ~%extension%~ STRING_CONTAINS_REGEXP ~bmp\|jpg\|jpeg\|png\|ref~ THEN BEGIN
 			WARN ~UNSUPPORTED FILE TYPE: '%file%'~
 		//STRING_CONTAINS_REGEXP returns 0 on match!
 		END ELSE ACTION_IF NOT (~%exclude%~ STRING_CONTAINS_REGEXP ~/%targetname%/~) THEN BEGIN
 			LOG ~            EXCLUDING file '%targetname%' (%file%)~
 		END ELSE ACTION_IF NOT (~%include%~ STR_EQ ~*~) AND (~%include%~ STRING_CONTAINS_REGEXP ~/%targetname%/~) THEN BEGIN
 			LOG ~            IGNORING '%targetname%' (%file%): not included in the white list.~
+
 		END ELSE ACTION_IF NOT ~%when%~ STR_EQ ~always~ BEGIN
 			ACTION_IF FILE_EXISTS_IN_GAME ~%targetname%.bmp~ THEN BEGIN
 				ACTION_IF ~%when%~ STR_EQ ~not exists~ THEN BEGIN
@@ -242,6 +243,29 @@ DEFINE_ACTION_FUNCTION check_file_eligibility
 	
 
 
+	
+DEFINE_ACTION_FUNCTION convert_portrait
+	STR_VAR
+		file = ~~
+	RET
+		error
+	BEGIN
+		LAF decompose_file_path 
+			STR_VAR file = ~%file%~ 
+			RET dir basename extension END
+		OUTER_TEXT_SPRINT bmp ~%dir%/%basename%.bmp~
+		
+		ACTION_IF ~%WEIDU_OS%~ STRING_CONTAINS_REGEXP ~$win.*~ THEN BEGIN
+			OUTER_TEXT_SPRINT converter ~gm.exe~
+		END ELSE BEGIN
+			OUTER_TEXT_SPRINT converter ~gm~
+		END
+		LOG ~CONVERTING %file% -> %bmp%~
+		AT_NOW error ~%MOD_FOLDER%/bin/%converter% convert "%file%" "%bmp%"~
+		ACTION_IF error THEN BEGIN
+			WARN ~Failed to convert %file% to '.bmp'~
+		END
+	END
 	
 /** Copy a single portrait file, possibly following a chain of file references (quasi symbolic links).
   * First verifies that the file should be copied at all, based on whether the target portrait already
@@ -288,6 +312,12 @@ DEFINE_ACTION_FUNCTION copy_portrait
 		ACTION_IF NOT FILE_EXISTS ~%file%~ THEN BEGIN
 			ACTION_IF FILE_EXISTS ~%file%.bmp~ THEN BEGIN
 				OUTER_TEXT_SPRINT file ~%file%.bmp~
+			END ELSE ACTION_IF FILE_EXISTS ~%file%.png~ THEN BEGIN
+				OUTER_TEXT_SPRINT file ~%file%.png~
+			END ELSE ACTION_IF FILE_EXISTS ~%file%.jpg~ THEN BEGIN
+				OUTER_TEXT_SPRINT file ~%file%.jpg~
+			END ELSE ACTION_IF FILE_EXISTS ~%file%.jpeg~ THEN BEGIN
+				OUTER_TEXT_SPRINT file ~%file%.jpeg~
 			END ELSE ACTION_IF FILE_EXISTS ~%file%.ref~ THEN BEGIN
 				OUTER_TEXT_SPRINT file ~%file%.ref~
 			END ELSE BEGIN
@@ -296,7 +326,7 @@ DEFINE_ACTION_FUNCTION copy_portrait
 			END
 		END	
 		LAF decompose_file_path STR_VAR file = ~%file%~
-			RET basename extension END
+			RET dir basename extension END
 			
 		ACTION_IF name STR_EQ ~~ THEN BEGIN
 			OUTER_TEXT_SPRINT name ~%basename%~
@@ -336,8 +366,18 @@ DEFINE_ACTION_FUNCTION copy_portrait
 						OUTER_SET copied = 0
 					END
 				END ELSE BEGIN
-					WARN ~Unsupported portrait file type: %file%~
-					OUTER_SET copied = 0
+					//WARN ~Unsupported portrait file type: %file%~
+					//OUTER_SET copied = 0
+					LAF convert_portrait STR_VAR file = ~%file%~ END
+						
+					LAF copy_portrait
+						INT_VAR list_only = list_only chain_call = 1
+						STR_VAR 
+							file = ~%dir%/%basename%.bmp~
+							name = ~%name%~
+							target = ~%target%~
+							when = ~always~
+						RET copied END
 				END
 				
 				ACTION_IF copied AND NOT (list_only OR chain_call) THEN BEGIN
@@ -444,7 +484,7 @@ DEFINE_ACTION_FUNCTION copy_portrait_set
 	BEGIN
 		OUTER_TEXT_SPRINT filelist ~~
 		ACTION_DEFINE_ARRAY portraits BEGIN END
-		GET_FILE_ARRAY portraits ~%dir%~ ~^.+\.\(bmp\|ref\|refs\)$~ 
+		GET_FILE_ARRAY portraits ~%dir%~ ~^.+\.\(bmp\|png\|jpg\|jpeg\|ref\|refs\)$~ 
 		
 		ACTION_PHP_EACH portraits AS _ => path BEGIN //copy all new bmp files to target
 			
@@ -464,6 +504,9 @@ DEFINE_ACTION_FUNCTION copy_portrait_set
 					RET refs = filelist END
 				OUTER_TEXT_SPRINT filelist ~%filelist%%refs%~
 				
+			END ELSE ACTION_IF NOT ~%extension%~ STR_EQ ~bmp~ AND FILE_EXISTS ~%dir%/%basename%.bmp~ THEN BEGIN
+				LOG ~            IGNORING '%basename%' (%file%): '%basename%.bmp' exists.~
+			
 			END ELSE BEGIN //single file (or file ref)
 				LAF copy_portrait 
 					INT_VAR list_only = list_only

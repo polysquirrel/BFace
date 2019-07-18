@@ -24,7 +24,7 @@ fi
 
 case "$#" in
 	0)
-		eval "$0 package"
+		"./$0" package
 		exit $?
 		;;
 	*)
@@ -44,39 +44,43 @@ case "$#" in
 				sed -e "s:BACKUP ~$name/backup~:BACKUP ~$MOD_NAME/backup~:g" \
 				    -e "s:VERSION ~SNAPSHOT~:VERSION ~$MOD_VERSION~:g" \
 				    -e "s?AUTHOR ~polymorphedsquirrel~?AUTHOR ~$MOD_AUTHORS~?g" \
-				    ./main/src/$name.tp2 > $moddir/$MOD_NAME.tp2
+				    ./main/src/$name.tp2 > "$moddir/$MOD_NAME.tp2"
 				if [ ! "$MOD_NAME" == "$name" ]; then
-					rm $moddir/$name.tp2
+					rm "$moddir/$name.tp2"
 				fi
-				
+				mkdir -p "$moddir/bin"
 				
 				case "$#" in
 					1)	
 						echo "Packaging $MOD_NAME for $system..."
+						cp -u "./main/bin/gm-$system$extension" "$moddir/bin/gm$extension"
 						cp -u "./main/bin/weidu-$system$extension" "./target/exploded/setup-$MOD_NAME$extension"
 						
 						tar -czf "./target/$targetname-$system.tgz" -C "./target/exploded" "$MOD_NAME" "setup-$MOD_NAME$extension" 
 						;;
+						
 					*)
 						skip=1
 						for arch in $@; do
 							if [[ $skip == 0 ]]; then
 								echo "Packaging $MOD_NAME for $arch..."
+								rm "$moddir/bin/gm*"
 								case $arch in
 									all)
-										find ./main/bin -name "weidu-*" -exec basename {} \; | sed -e "s/weidu-\([^.]*\)\(\|\..*\)$/\1/g" | xargs ./do package
+										find ./main/bin -name "weidu-*" -exec basename {} \; | sed -e "s/weidu-\([^.]*\)\(\|\..*\)$/\1/g" | xargs "./$0" package
 										exit $?
 										;;
 									win*)
-																				cp -u ./main/bin/weidu-$arch.exe "./target/exploded/setup-$MOD_NAME.exe"
-										tar -czf "./target/$targetname-$arch.tgz" -C ./target/exploded "$MOD_NAME" "setup-$MOD_NAME.exe"
-																				;;
-																			*)
-																				cp -u ./main/bin/weidu-$arch "./target/exploded/setup-$MOD_NAME"
-																																								tar -czf "./target/$targetname-$arch.tgz" -C ./target/exploded "$MOD_NAME" "setup-$MOD_NAME" 
-																				;;
-																																						esac
-
+										exe=".exe"
+										;;
+									*)
+										exe=""
+										;;
+								esac
+																		cp -u ./main/bin/weidu-$arch$exe "./target/exploded/setup-$MOD_NAME$exe"
+								cp -u ./main/bin/gm-$arch$exe "$moddir/gm$exe"
+																		tar -czf "./target/$targetname-$arch.tgz" -C ./target/exploded "$MOD_NAME" "setup-$MOD_NAME$exe" 
+								
 							fi
 							skip=0
 						done
@@ -85,7 +89,7 @@ case "$#" in
 
 			testinstall)
 			        if [ ! -d "target/exploded" ]; then
-                                        ./do package
+                                        "./$0" package
                                         if [ ! $? -eq 0 ]; then
                                                 exit $?
                                         fi
@@ -111,7 +115,7 @@ case "$#" in
 			
 			codeinstall)
 				if [ ! -d "target/exploded" ]; then
-                                        ./do package
+                                        "./$0" package
                                         if [ ! $? -eq 0 ]; then
                                                 exit $?
                                         fi

@@ -338,40 +338,45 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 		/** The list of portrait files to installed, each without an extension and surrounded by a pair of '/' chars. */	
 		filelist = ~~
 	BEGIN
-		ACTION_IF merge THEN BEGIN
-			LAF list_pc_selection STR_VAR gender = ~%gender%~ RET current = filelist END
-			OUTER_TEXT_SPRINT filelist ~%filelist%%current%~
-			LAF clear_pc_selection END
-		END
-		ACTION_IF multi_size THEN BEGIN
-			LAF multi_size_list STR_VAR list = ~%filelist%~ 
-				RET filelist = list END
-		END
-		LAF remove_duplicates STR_VAR list = ~%filelist%~ 
-			RET filelist = unique END
-		
-		LAF pc_portrait_entries STR_VAR gender = ~%gender%~ filelist = ~%filelist%~
-			RET selection = portraits END
-
-		LOG ~Updating portrait selection with portraits:~
-		LOG ~%selection%~
-		
-		ACTION_IF NOT (~%selection%~ STRING_EQUAL ~~) THEN BEGIN
-			LOG ~Patching BGEE.LUA; no files modified here signifies a conflict with another module.~
-			//Patch portrait selection list if it's not empty
-			COPY_EXISTING ~BGEE.LUA~ ~override~ 
-				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
-					~portraits = %EOL%{%EOL%%selection%,~
-			IF ~^portraits =[^{}]*{[^{}]*\({[^{}]*}[^{}]*\)+}~
-		
-
-			//Patch portrait selection list if it's empty
-			COPY_EXISTING ~BGEE.LUA~ ~override~ //
-				REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{[^{}]*}~ 
-					~portraits = %EOL%{%EOL%%selection%%EOL%}~
-			IF ~^portraits =[^{}]*{[^{}]*}~
-		END		
+		ACTION_IF ~%filelist%~ STR_EQ ~~ THEN BEGIN
+			ACTION_IF NOT merge THEN BEGIN
+				WARN ~Can't replace the portrait selection with an empty list!~
+			END
+		END ELSE BEGIN
+			ACTION_IF merge THEN BEGIN
+				LAF list_pc_selection STR_VAR gender = ~%gender%~ RET current = filelist END
+				OUTER_TEXT_SPRINT filelist ~%filelist%%current%~
+				LAF clear_pc_selection END
+			END
+			ACTION_IF multi_size THEN BEGIN
+				LAF multi_size_list STR_VAR list = ~%filelist%~ 
+					RET filelist = list END
+			END
+			LAF remove_duplicates STR_VAR list = ~%filelist%~ 
+				RET filelist = unique END
 			
+			LAF pc_portrait_entries STR_VAR gender = ~%gender%~ filelist = ~%filelist%~
+				RET selection = portraits END
+
+			LOG ~Updating portrait selection with portraits:~
+			LOG ~%selection%~
+			
+			ACTION_IF NOT (~%selection%~ STRING_EQUAL ~~) THEN BEGIN
+				LOG ~Patching BGEE.LUA; no files modified here signifies a conflict with another module.~
+				//Patch portrait selection list if it's not empty
+				COPY_EXISTING ~BGEE.LUA~ ~override~ 
+					REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
+						~portraits = %EOL%{%EOL%%selection%,~
+				IF ~^portraits =[^{}]*{[^{}]*\({[^{}]*}[^{}]*\)+}~
+			
+
+				//Patch portrait selection list if it's empty
+				COPY_EXISTING ~BGEE.LUA~ ~override~ //
+					REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{[^{}]*}~ 
+						~portraits = %EOL%{%EOL%%selection%%EOL%}~
+				IF ~^portraits =[^{}]*{[^{}]*}~
+			END		
+		END
 	END
 	
 	
