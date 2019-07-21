@@ -15,6 +15,7 @@ case "$OSTYPE" in
 		extension=".exe"
 		;;
 esac
+
 if [[ "$PROCESSOR_ARCHITECTURE" == "AMD64" && -f "./main/bin/weidu-$system-amd64$extnesion" ]]; then
 	system="$system-amd64"
 else
@@ -144,10 +145,22 @@ case "$#" in
 			
 			clean)
 				rm -rf ./target
+				rm -rf ./main/src/charname/pool
 				;;
 			
 			*)
-				echo "Usage: $0 [-h | clean | package [<arch>*|all] | testinstall | codeinstall]"
+				echo "Usage: $0 [-h | clean | package [<arch>*|all] | testinstall | codeinstall | reftest]"
+				echo "  clean:        deletes ./target and ./main/src/charname/pool"
+				echo "  package:      packages the module for the specified architectures"
+				echo "  testinstall:  copies the recently built module from ./target to game"
+				echo "                directories present in ./test, uninstalling the previous"
+				echo "                version, if present"
+				echo "  codeinstall:  like above, but copies only the weidu scripts"
+				echo "                and not the portraits (for faster iteration)"
+				echo "  reftest:      runs the ./pool and ./reftest scripts to verify correctness"
+				echo "                of all .ref files under the portrait directories"
+		
+				;;	
 		esac
 		;;
 esac

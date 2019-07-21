@@ -71,6 +71,12 @@ else
 		        if [[ ! -f "$target" ]]; then
 			    if [[ -f "$target.bmp" ]]; then
 			        target="$target.bmp"
+			    elif [[ -f "$target.jpg" ]]; then
+				target="$target.jpg"
+			    elif [[ -f "$target.jpeg" ]]; then
+				target="$target.jpeg"
+			    elif [[ -f "$target.png" ]]; then
+				target="$target.png"
 			    elif [[ -f "$target.ref" ]]; then
 			        target="$target.ref"
 			    else
