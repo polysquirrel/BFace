@@ -633,7 +633,7 @@ to see the list of all available commands.
 
 ### 5.2 Scripts
 
-The root directory contains several other helpful scripts which make 
+The `bin` directory contains several other helpful scripts which make 
 development easier:
 
 #### 5.2.1 ref

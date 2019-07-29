@@ -1,0 +1,150 @@
+#!/bin/sh
+
+
+
+action=""
+targetdir=""
+targetname=""
+refsfile=""
+srcdir=""
+moddir=""
+
+for p in "$@"; do
+	case "$action" in
+		"srcdir") 
+			if [[ "$p" =~ .*/$ ]]; then
+				srcdir="$p"
+			else
+				srcdir="$p/"
+			fi
+			action=""
+			;;
+
+		"targetdir")
+			if [[ "$p" =~ .*/$ ]]; then
+				targetdir="$p"
+			else
+				targetdir="$p/"
+			fi
+			action=""
+			;;
+		"moddir")
+			if [[ "$p" =~ .*/$ ]]; then
+				moddir="$p"
+			else
+				moddir="$p/"
+			fi
+			action=""
+			;;
+		"rename")
+			targetname=$p
+			action=""
+			;;
+
+		"aggregate")
+			refsfile=$p
+			action=""
+			;;
+
+
+		*) case "$p" in
+			"-h"|"--help") 
+				echo "Usage: $0 [-h] [-t targetdir | -s srcdir | -n refname | -f refsfile | bmpfile]*" >&2
+				echo "   -h          : print this help" >&2
+				echo "   -s srcdir   : treat following file paths as relative to srcdir" >&2
+				echo "   -t targetdir: specify directory in which following ref files should be placed" >&2
+				echo "   -r rootdir  : specifies root directory of the module; all ref paths" >&2
+				echo "                 created with the '-p' option will be relative to this" >&2
+				echo "                 directory instead of being absolute." >&2
+				echo "   -p          : prefix all referenced files with the path to the current" >&2
+				echo "                 directory. Created references will use the absolute path">&2
+				echo "                 as if given the option '-t \`pwd\` '. If additionally the" >&2
+				echo "                 '-r dir' option was specified, and 'dir' is a prefix" >&2
+				echo "                 of the path to the current directory, it will be stripped" >&2
+				echo "                 in the created reference files, resulting in paths" >&2
+				echo "                 relative to the 'dir' directory." >&2
+				echo "   -n refname  : rename the next reference file to 'refname.ref' instead of" >&2
+				echo "                 using the original file's base name" >&2
+				echo "   -f refsfile : put all following references into a single aggregate file" >&2
+				echo "                 'refsfile.refs' instead of individual 'name.ref' files." >&2
+				echo "      <bmpfile>: path to a '.bmp' portrait file to reference from a '.ref' file" >&2
+				echo "" >&2
+				echo "For each of portrait files given as parameters, create a link-like '.ref' file" >&2 
+				echo "with the same base name containing path to that file. Created reference file" >&2
+				echo "will be named after the portrait file, with '.bmp' extension replaced with" >&2
+				echo "'.ref', unless the file argument is precedeed with a '-n reffile' switch, in" >&2
+				echo "case 'reffile' will be used in place of original file's base name. The reference" >&2 
+				echo "file will be placed in the current directory unless a '-t dir' switch is present" >&2
+				echo "in the argument list before the referenced file, in which case dir is used" >&2
+				echo "instead and created if needed. Additionally, if '-f refsfile' switch is present," >&2
+				echo "references of all following portrait files until next '-f' or '-t' switch are" >&2
+				echo "placed together in a single file 'refsfile.refs' instead of creating individual" >&2
+				echo "'.ref' file for every listed portrait. File paths given are used verbatim in" >&2
+				echo "the reference files, unless a '-s dir' switch is present in the argument list" >&2
+				echo "before the file name, in which case they are treated as relative to dir and" >&2
+				echo "created reference file points to 'dir/<file>'. Both -s and -t can occur" >&2
+				echo "multiple times in the argument list to reference portraits from different" >&2
+				echo "directories." >&2
+				action=""
+				;;
+
+			"-s") action="srcdir"
+				;;
+
+			"-t") 
+				action="targetdir"
+				refsfile=""
+				;;
+			"-r") action="moddir"
+				;;
+
+			"-n") action="rename"
+				;;
+
+			"-f") action="aggregate"
+				;;
+			"-p")
+				srcdir=`pwd`
+				if [[ ! "$srcdir" =~ ".*/$" ]]; then
+					srcdir="$srcdir/"
+				fi
+				;;
+
+			*)
+				path="$srcdir$p"
+			
+				if [[ "$moddir" ]]; then
+					script="s\\^$moddir\\\\g"
+					path=`echo "$path" | sed -e "$script"`
+				fi
+				if [ "$targetname" ]; then
+					filename="$targetname"
+				else
+					filename=`basename "$p" | sed -e "s/\.\(bmp\|ref\)$//g"`
+				fi
+				targetname=""
+
+				if [ "$targetdir" ]; then
+					mkdir -p "$targetdir"
+				fi
+				
+				if [ "$refsfile" ]; then
+					if [ ! -f "$targetdir$refsfile.refs" ]; then
+						mkdir -p "$targetdir$refsfile.refs" 
+						rm -r "$targetdir$refsfile.refs"
+					fi
+					echo "$filename	$path" >> "$targetdir$refsfile.refs"
+				else
+					echo $path > "$targetdir$filename.ref"
+				fi
+				;;
+				
+		esac
+		;;
+	esac
+done
+
+
+if [[ "$#" == 0 ]]; then
+	$0 -h
+fi	
