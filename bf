@@ -31,8 +31,8 @@ case "$#" in
 	*)
 		case "$1" in
 			reftest)
-				./pool -d ./main/src
-				./reftest -d ./main/src
+				./bin/pool -d ./main/src
+				./bin/reftest -d ./main/src
 				;;
 
 			package)
