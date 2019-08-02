@@ -26,9 +26,14 @@ LANGUAGE ~English~
          ~english~		 
          ~%MOD_FOLDER%/tra/english/setup.tra~
 
+LANGUAGE ~Semi-french~
+         ~french~
+		 ~%MOD_FOLDER%/tra/french/setup.tra~
+		 
 LANGUAGE ~Polski~
 		 ~polish~
 		 ~%MOD_FOLDER%/tra/polish/setup.tra~
+
 	
 	
 BEGIN @090 //init
@@ -1141,7 +1146,7 @@ REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ AND NOT ~%chosen_pc_
 
 BEGIN @703 //Exclude older characters
 REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
-REQUIRE_PREDICATE ~%unique_pc_portrait_sets%~ STRING_CONTAINS_REGEXP ~old~ @012
+REQUIRE_PREDICATE NOT ~old~ STRING_MATCHES_REGEXP ~^%unique_pc_portrait_sets%$~ @012
 	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
 		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?old~ ~~
 	END
@@ -1150,7 +1155,7 @@ REQUIRE_PREDICATE ~%unique_pc_portrait_sets%~ STRING_CONTAINS_REGEXP ~old~ @012
 
 BEGIN @704 //Exclude non-playable (officially) races
 REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
-REQUIRE_PREDICATE ~%unique_pc_portrait_sets%~ STRING_CONTAINS_REGEXP ~non-playable~ @012
+REQUIRE_PREDICATE NOT ~non-playable~ STRING_MATCHES_REGEXP ~^%unique_pc_portrait_sets%$~ @012
 	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
 		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?non-playable~ ~~
 	END
@@ -1159,7 +1164,7 @@ REQUIRE_PREDICATE ~%unique_pc_portrait_sets%~ STRING_CONTAINS_REGEXP ~non-playab
 
 BEGIN @705 //Exclude cameos of recognizable charactes
 REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
-REQUIRE_PREDICATE ~%unique_pc_portrait_sets%~ STRING_CONTAINS_REGEXP ~cameos~ @012
+REQUIRE_PREDICATE NOT ~cameos~ STRING_MATCHES_REGEXP ~^%unique_pc_portrait_sets%$~ @012
 	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
 		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?cameos~ ~~
 	END

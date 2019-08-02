@@ -505,7 +505,7 @@ DEFINE_ACTION_FUNCTION copy_portrait_set
 				OUTER_TEXT_SPRINT filelist ~%filelist%%refs%~
 				
 			END ELSE ACTION_IF NOT ~%extension%~ STR_EQ ~bmp~ AND FILE_EXISTS ~%dir%/%basename%.bmp~ THEN BEGIN
-				LOG ~            IGNORING '%basename%' (%file%): '%basename%.bmp' exists.~
+				LOG ~            IGNORING '%basename%' (%path%): '%basename%.bmp' exists.~
 			
 			END ELSE BEGIN //single file (or file ref)
 				LAF copy_portrait 
