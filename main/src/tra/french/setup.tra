@@ -1,0 +1,204 @@
+@000=	~Applicable uniquement à la série BGEE~ //includes EET
+@001=	~Applicable uniquement à BGEE~
+@002=	~Applicable uniquement à SoD~
+@003=	~Applicable uniquement à BG2EE~
+@004=	~Applicable uniquement à EET~
+@005=	~Applicable uniquement à la série BGEE officielle~ //does not include EET
+@006=	~Applicable uniquement à la série BG classique~
+@007=	~Applicable uniquement à BG classique~
+@008=	~Applicable uniquement à BG2 classique~
+@009=	~Applicable uniquement à BGT~
+@010=	~Non applicable à ce jeu~
+@011=	~Non pertinent à vos choix précédents~
+@012=	~Paquet des portraits non inclus dans cette version~
+@013=	~Non applicable à cette version~
+
+@020=	~Oui~
+@021=	~Non~
+
+@030=	~Installer le paquet '~
+@031=	~'? [I]nstaller/[N]on: ~
+
+
+@080=	~si~
+@081=	~JE COPIE DES PORTRAITS DE~
+@082=	~J'ÉCRASE LES PORTRAITS AVEC~
+
+
+@090=	~Préparation~
+@091=	~Salut! On vous recommande d'installer l'une des options préconfigurées des paquets de portraits pour les PNJ et PC. L'installation manuelle offrira plus d'options et plus de portraits pour PC, mais certaines combinaisons s'excluent mutuellement ou peuvent avoir des interactions non triviales. Lisez le fichier README pour plus d'informations.~
+
+@099=	~Finalisation~
+
+//@100 range reserved for BG/BGEE-only components
+//@200 range reserved for SoD-only components
+//@300 range reserved for BG2/BG2EE-only components
+//@400 range reserved for EET/BGT-only components
+
+
+@501=	~Les portraits de PNJ déjà choisi~
+@502=	~Vous ne serez pas demandé à choisir la version de portrait.~
+@503=	~On vous demandera de choisir la version de portrait si plusieurs sont disponibles.~
+@504=	~Afficher les galeries d'aperçu?~
+@506=	~Choisissez un portrait pour~
+@507=	~Entrez le numéro correspondant à l'option choisie:~
+@508=	~Installer des portraits pour~
+@509=	~? [I]nstaller/[N]on:~
+
+@510=	~Des portraits pour les PNJs~
+@511=	~Decidez pour chaque composant~
+@512=	~Compagnons officiels et personnages principaux (remplacez seulement)~
+@513=	~Compagnons officiels, personnages principaux et quelques portraits bonus associés~
+@524=	~Compagnons seulement~
+@514=	~Tous les compagnons et personnages principaux (remplacez seulement)~
+@515=	~Tous les compagnons, personnages principaux et quelques portraits bonus associés~
+@526=	~Personnages secondaires (sans des portraits)~
+@516=	~Tous les compagnons, personnages principaux et secondaires plus les portraits bonus~
+@527=	~Personnages secondaires et supplémentaires~
+@517=	~Tous les compagnons, personnages pricipaux, secondaires et supplémentaires, plus les portraits bonus~
+@518=	~Tous les portraits inclus~
+@519=	~Tous les portraits inclus, choisissez entre des versions alternatives~
+
+
+@520=	~Portraits alternatifs~
+@521=	~Choisissez entre des versions alternatives si disponible~
+@522=	~Choisissez entre des versions alternatives, afficher les galeries d'aperçu~
+
+
+@540=	~Portraits de compagnons~
+@541=	~Demandez pour chaque compagnon~
+@542=	~Seulement les portraits de compagnons officiels~	
+@543=	~Seulement les portraits de compagnons des modules optionnels installés~
+@544=	~Portraits de tous les compagnons officiels, demandez pour chaque compagnon de module optionnel~
+@545=	~Portraits de compagnons officels et des modules optionnels~
+
+
+@549=	~Unifiez tous les compagnons qui reviennent pour qu'ils utilisent de fichier de portrait de BGEE / SoD~
+
+@550=	~Portraits des compagnons d'entraînement d'Obe (quelques-uns des portraits pour les joueurs)~
+@551=	~Remplacez tous les compagnons d'Obe (partagés avec les portraits des joueurs)~
+@552=	~Remplacez seulement les portraits d'Arkanis et Deder (des catacombes de Candlekeep)~
+@553=	~Portraits séparés pour tous les compagnons d'Obe (non partagés avec les joueurs)~
+@554=	~Portraits séparés pour Arkanis et Deder (non partagés avec les joueurs)~
+@555=	~Portraits séparés pour Arkanis et Deder, partagés pour le reste~
+
+@560=	~Portraits de PNJs~
+@561=	~Demandez pour chaque groupe de PNJ~
+@562=	~Seulement pour les personnages principaux (remplacer les fichiers existants)~
+@563=	~Pour les personnages principaux et quelques portraits bonus associés~
+@564=	~Pour certains personnages secondaires (sans portraits)~
+@565=	~Pour les personnages principaux et secondaires plus quelques portraits bonus associés~
+@566=	~Pour personnages secondaires et supplémentaires (sans portraits)~
+@567=	~Pour les personnages principaux, secondaires, supplémentaires et portraits bonus~
+@568=	~Pour personnages secondaire, supplémentaires, et personnages de moindre importance (consistance de style inférieure)~
+@569=	~Pour tous les types de PNJ non-compagnons (consistance de style inférieure)~
+
+
+
+
+@580=	~Remplacez les portraits de compagnons officiels d'autres jeux (pour tout mods réintroduisant ce compagnon).~
+@581=	~Remplacez tous les portraits de compagnons qui ne sont pas normalement utilisés dans le jeu (pour les joueurs uniquement) par leurs portraits par défaut.~
+@582=	~Remplacez tous les portraits de compagnons qui ne sont pas normalement utilisés dans le jeu par versions choisi entre des alternatifs disponibles.~
+@583=	~Remplacez les portraits de compagnons pas presentes dans ce jeux par leurs portraits par défaut.~
+@584=	~Remplacez les portraits de compagnons pas presentes dans ce jeux par versions choisi entre de alternatifs disponibles.~
+
+@599=	~Changement de portrait vers et d'Edwina (portraits pour Edwina déjà inclus avec des PNJ principaux)~
+
+
+
+
+@601=	~Les portraits pour les joueurs déjà choisi~
+@607=	~Aucun portrait à installer~
+@608=	~Installation des portraits choisis sur l'écran de génération de personnage ...~
+@609=	~La sélection de portrait ne peut pas être vide! Réinstallez le mod ou le jeu va planter.~
+
+
+@610=	~Portraits pour les joueurs~
+@611=	~Partagé par les deux sexes; decidez pour chaque composant~
+@612=	~Partagé par les deux sexes; laisser les portraits par défaut existant~
+@613=	~Partagé par les deux sexes; remplacer les portraits par défaut~
+@614=	~Séparé pour chaque sexe; decidez pour chaque composant~
+@615=	~Séparé pour chaque sexe; ajouter aux sélections existantes~
+@616=	~Séparé pour chaque sexe; remplacer les sélections existantes (recommandé)~
+@617=	~Séparé pour chaque sexe; remplacer les sélections existantes et les portraits par défaut~
+
+
+@620=	~Supprimez des portraits de la sélection presante sur l'écran de génération du personnage~
+@621=	~Supprimez tous les portraits (recommandé; ajoutez de nouveaux portraits, sinon le jeu plantera!)~
+@622=	~Decidez pour chaque groupe de portraits séparément~
+
+@623=	~Supprimez les portraits des compagnons officiels de la sélection de la génération du personnage~
+@624=	~Supprimez les portraits des tous les compagnons officiels~
+@625=	~Supprimez les portraits des (vieux et nouveaux) de compagnons officiels de ce jeu~
+@626=	~Supprimez les portraits utilisé dans ce jeu par les compagnons officiels~
+
+@627=	~Supprimez les portraits des compagnons d'entraînement d'Obe de la sélection de la génération du personnage~
+@628=	~Supprimez tous les portraits des compagnons d'Obe (partagés avec les joueurs), Arkanis et Deder inclus~
+//@627=	~Remove portraits of Obe's training companions, leaving Arkanis' and Deder's (Candlekeep Catacombs)~
+@629=	~Supprimez les portraits d'Arkanis et Deder (des catacombes de Candlekeep)~
+
+
+@630=	~Remplacez les portraits standard pour les personnages de joueurs par des images uniques nouveaux~
+@631=	~Remplacez tous les vieux portraits uniquement pour les joueurs (recommandé lorsqu'ils ne sont pas retiré de l'écran de sélection)~
+@632=	~Remplacez tous les vieux portraits pour les joueurs, lors de compagnons d'Obe inclus~
+@633=	~Remplacez tous les vieux portraits uniquement pour les joueurs et ceux d'Arkanis et Deder~
+@634=	~Remplacez tous les vieux portraits de joueurs à l'exception d'Arkanis et de Deder~
+	
+@640=	~Remplacez certaines portraits des PNJs pas utilisé par des portraits pour les joueurs~
+@641=	~Remplacez tous les vieux portraits inutilisés des compagnons officiels de la série entière~
+@642=	~Remplacez tous les vieux portraits des compagnons officiels ne figurant pas dans ce jeu~
+@643=	~Remplacez tous les vieux portraits inutilisés des compagnons officiels de ce jeu~
+
+
+@650=	~Donner aux joueurs accès aux portraits des compagnons d'entraînement d'Obe~
+@651=	~Portraits des compagnons sauf Arkanis et Deder (catacombes de Candlekeep)~
+@652=	~Portraits de tous les compagnons illusoires~
+
+@660=	~Donner aux joueurs accès aux certaines portraits des compagnons officiels~
+@661=	~Certaines portraits alternatifs de tous les compagnons officiels de la série~
+@662=	~Portraits par défaut de tous les compagnons officiels de la série~
+@663=	~Portraits par défaut et alternatifs de tous les compagnons officiels de la série~
+@664=	~Portraits par défaut et alternatifs des compagnons absents et portraits alternatifs des compagnons actuels~
+@665=	~Quelques portraits alternatifs de compagnons officiels absents dans ce jeu~
+@666=	~Portraits par défaut de compagnons officiels absents dans ce jeu~
+@667=	~Portraits par défaut et alternatifs des compagnons absents dans ce jeux~
+
+
+@670=	~Donner aux joueurs accès aux certaines portraits des compagnons de modules optionnels~
+@671=	~Certaines portraits alternatifs de tous les compagnons connus~
+@672=	~Portraits par défaut de tous les compagnons connus~
+@673=	~Portraits par défaut et alternatifs de tous les compagnons connus~
+@674=	~Tous les portraits des compagnons non installés et portraits alternatifs des compagnons installés~
+@675=	~Certaines portraits alternatifs des compagnons non installés~
+@676=	~Portraits par défaut des compagnons non installés~
+@677=	~Portraits par défaut et alternatifs des compagnons non installés~
+@678=	~Certaines portraits alternatifs des compagnons d'autres jeux~
+@679=	~Portraits par défaut de compagnons d'autres jeux~
+@680=	~Portraits par défaut et alternatifs de compagnons d'autres jeux~
+@681=	~Portraits alternatifs des compagnons des versions classiques (non-EE)~
+@682=	~Portraits par défaut des compagnons de versions classiques (non-EE)~
+@683=	~Portraits par défaut et alternatifs des compagnons de versions classiques (non-EE)~
+
+
+
+@700=	~Excluez certains types de personnages?~
+@701=	~Excluez portraits des fammes~
+@702=	~Excluez portraits d'hommes~
+@703=	~Excluez portraits des personnes âgées~
+@704=	~Excluez portraits des races non jouable comme Drow and Tiefling~
+@705=	~Excluez les camées reconnaissables (comme les personnages d'autres jeux)~
+//@704=	~Exclude non-playable races and older characters~
+//@705=	~Exclude non-playable races and cameos~
+//@706=	~Exclude older characters and cameos~
+//@707=	~Exclude non-playable races, older characters and cameos~
+
+
+@710=	~Donnez aux joueurs de portraits uniques (composant principal)~
+@711=	~Sélection recommandé de portraits~
+@712=	~Tous les paquets, decidez sur installation des races non jouable, personnes âgées et camées~
+@713=	~Tous les portraits inclus~
+@714=	~Decidez pour chaque paquet and quels types de portraits a exclure~
+@715=	~Decidez pour chaque paquet, installez tous les portraits dans le paquet~
+@716=	~Affichez les galeries d'aperçu, decidez pour chaque paquet and quels types de portraits a exclure~
+@717=	~Affichez les galeries d'aperçu, decidez pour chaque paquet~
+

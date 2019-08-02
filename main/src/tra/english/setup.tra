@@ -8,7 +8,7 @@
 @007=	~Applicable only to classic BG~
 @008=	~Applicable only to classic BG2~
 @009=	~Applicable only to BGT~
-@010=	~Not aplicable to this game~
+@010=	~Not applicable to this game~
 @011=	~Not relevant to your previous choices~
 @012=	~Portrait bundle not included in this mod version~
 @013=	~Not available in this version~
@@ -26,7 +26,7 @@
 
 
 @090=	~Setup~
-@091=	~Hi! I recommended that you install one of the preconfigured options of NPC and PC portrait bundles.  Choosing manually installed components will offer more options and more portraits for PC, but some combinations are mutually exclusive or may have non-trivial interactions. Reading readme and some thought is advisable.~
+@091=	~Hi! I recommend that you install one of the preconfigured options of NPC and PC portrait bundles.  Choosing manually installed components will offer more options and more portraits for PC, but some combinations are mutually exclusive or may have non-trivial interactions. Reading readme and some thought is advisable.~
 
 @099=	~Finalisation~
 
@@ -40,7 +40,7 @@
 @502=	~No user prompt will be presented for NPCs with alternative portraits.~
 @503=	~You will be asked to select a portrait where several alternatives are available.~
 @504=	~Show preview galleries?~
-@506=	~Pick portrait for~
+@506=	~Pick a portrait for~
 @507=	~Enter the number corresponding to the selected option: ~
 @508=	~Install portraits for~
 @509=	~? [I]nstall/[N]o:~
@@ -123,7 +123,7 @@
 @617=	~Separate for each gender; replace the existing gender-specific lists and override default portraits~
 
 
-@620=	~Remove potraits from the current selection on the character generation screen~
+@620=	~Remove portraits from the current selection on the character generation screen~
 @621=	~Remove all portraits (recommended; add new portraits or the game will crash!)~
 @622=	~Ask about each portrait group individually~
 
@@ -138,7 +138,7 @@
 @629=	~Remove portraits of Arkanis and Deder from the character generation selection~
 
 
-@630=	~Replace default portraits for player characters with unique images from charname's pool~
+@630=	~Replace default portraits for player characters with unique images from CHARNAME's pool~
 @631=	~Replace all player-only portrait files (recommended when not removed from the selection screen)~
 @632=	~Replace all player portrait files, including those of companions from Obe's training~
 @633=	~Replace player-only portraits and those shared with Arkanis and Deder~
@@ -155,10 +155,10 @@
 @652=	~Portraits of all ilusory companions~
 
 @660=	~Give player characters access to the portraits of official companions~
-@661=	~Some of alternative portraits of all official companions~
+@661=	~Some of alternative portraits of all official companions in the series~
 @662=	~Default portraits of all official companions in the series~
-@663=	~Default and alternative portraits of all official companions~
-@664=	~Default and alternative portraits of absent companions and alternative portraits of present companions.~
+@663=	~Default and alternative portraits of all official companions in the series~
+@664=	~Default and alternative portraits of absent companions and alternative portraits of present companions~
 @665=	~Some of alternative portraits of official companions not from this game~
 @666=	~Default portraits of official companions not from this game~
 @667=	~Default and alternative portraits of official companions not from this game~
@@ -194,7 +194,7 @@
 
 
 @710=	~Give player characters new, unique portraits (main component)~
-@711=	~Default selection of portraits, balanced between consistency and variaton~
+@711=	~Recommended selection of portraits~
 @712=	~All bundles, decide about installing portraits for non-playable races, older characters and cameos~
 @713=	~All included portraits~
 @714=	~Decide for each bundle and which character types to exclude~
