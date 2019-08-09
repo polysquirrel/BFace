@@ -1060,6 +1060,7 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 		game = ~*~
 		gender = ~male\|female\|other~
 		name = ~*~
+		exclude = ~~
 		when = ~always~
 		previewdir = ~~
 	RET
@@ -1072,7 +1073,7 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 			INT_VAR defaults = 1
 			STR_VAR 
 				root = ~%root%~ role = ~%role%~ game=~%game%~ gender = ~%gender%~ name=~%name%~
-				target = ~%previewdir%/.preview~ when = ~%when%~
+				target = ~%previewdir%/.preview~ exclude = ~%exclude%~ when = ~%when%~
 			RET npccount filelist END
 		
 		ACTION_IF npccount THEN BEGIN

@@ -83,6 +83,7 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 		bundle = ~*~
 		gender = ~male\|female~
 		name = ~*~
+		exclude = ~~
 	RET
 		males
 		females
@@ -104,7 +105,7 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 				LAF create_portraits_preview
 					STR_VAR 
 						root = ~charname~ role = ~unique~ game = ~%bundle%~ gender = ~%gender%~ name = ~%name%~
-						previewdir = ~%bundledir%~ when = ~always~
+						previewdir = ~%bundledir%~ exclude = ~%exclude%~ when = ~always~
 					RET empty = empty END
 				
 				ACTION_IF NOT empty THEN BEGIN
@@ -114,7 +115,7 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 				LAF list_npc_portraits
 					STR_VAR 
 						root = ~charname~ role = ~unique~ game = ~%bundle%~ gender = ~%gender%~ name = ~%name%~
-						when = ~always~
+						exclude = ~%exclude%~ when = ~always~
 					RET empty = npccount END
 					OUTER_SET empty = NOT empty
 			END
@@ -132,13 +133,13 @@ DEFINE_ACTION_FUNCTION copy_pc_bundles
 				ACTION_IF ~%decision%~ STRING_EQUAL_CASE ~I~ THEN BEGIN
 					ACTION_IF NOT ~%gender%~ STRING_CONTAINS_REGEXP ~male~ THEN BEGIN
 						LAF copy_pc_portraits 
-							STR_VAR bundle = ~%bundle%~ gender = ~male~ name = ~%name%~
+							STR_VAR bundle = ~%bundle%~ gender = ~male~ name = ~%name%~ exclude = ~%exclude%~
 							RET filelist END
 						OUTER_TEXT_SPRINT males ~%males%%filelist%~
 					END
 					ACTION_IF NOT ~%gender%~ STRING_CONTAINS_REGEXP ~female~ THEN BEGIN
 						LAF copy_pc_portraits 
-							STR_VAR bundle = ~%bundle%~ gender = ~female~ name = ~%name%~
+							STR_VAR bundle = ~%bundle%~ gender = ~female~ name = ~%name%~ exclude = ~%exclude%~
 							RET filelist END
 						OUTER_TEXT_SPRINT females ~%females%%filelist%~
 					END

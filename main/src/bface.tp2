@@ -26,7 +26,7 @@ LANGUAGE ~English~
          ~english~		 
          ~%MOD_FOLDER%/tra/english/setup.tra~
 
-LANGUAGE ~Semi-french~
+LANGUAGE ~Semi-français~
          ~french~
 		 ~%MOD_FOLDER%/tra/french/setup.tra~
 		 
@@ -1078,6 +1078,7 @@ SUBCOMPONENT @710 //Unique portrait bundles for CHARNAME
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/unique~ @012
 REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
 	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~default~ 
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~~
 	
 
 
@@ -1085,19 +1086,20 @@ BEGIN @712 //All CHARNAME bundles, but ask about excluding some character types
 SUBCOMPONENT @710
 	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
 	OUTER_TEXT_SPRINT skip_excluding_pc_portraits ~~
-
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~~
 
 
 BEGIN @713 //All CHARNAME bundles, all portraits in the bundle
 SUBCOMPONENT @710
 	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
-//	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~*~
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~~
 	
 
  
 BEGIN @714 //Ask about each portrait bundle, ask which characters to exclude
 SUBCOMPONENT @710 
 	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~~
 	OUTER_TEXT_SPRINT skip_excluding_pc_portraits ~~
 	OUTER_SET install_all_pc_bundles = 0
 	
@@ -1106,6 +1108,7 @@ SUBCOMPONENT @710
 BEGIN @715 //Ask about each portrait bundle, install all portraits from the bundle
 SUBCOMPONENT @710
 	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~~	
 	OUTER_SET install_all_pc_bundles = 0
 	
 	
@@ -1113,6 +1116,7 @@ SUBCOMPONENT @710
 BEGIN @716 //Ask which character types to exclude, show bundle previews and ask about each one
 SUBCOMPONENT @710
 	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~~
 	OUTER_TEXT_SPRINT skip_excluding_pc_portraits ~~
 	OUTER_SET show_previews = 1
 	OUTER_SET install_all_pc_bundles = 0
@@ -1122,6 +1126,7 @@ SUBCOMPONENT @710
 BEGIN @717 //Show bundle previews and ask about each one
 SUBCOMPONENT @710
 	OUTER_TEXT_SPRINT chosen_pc_portrait_sets ~%unique_pc_portrait_sets%~
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~~
 	OUTER_SET show_previews = 1
 	OUTER_SET install_all_pc_bundles = 0
 
@@ -1147,27 +1152,33 @@ REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ AND NOT ~%chosen_pc_
 BEGIN @703 //Exclude older characters
 REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
 REQUIRE_PREDICATE NOT ~old~ STRING_MATCHES_REGEXP ~^%unique_pc_portrait_sets%$~ @012
-	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
-		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?old~ ~~
-	END
+	LAF copy_pc_portraits
+		INT_VAR list_only = 1
+		STR_VAR bundle = ~%chosen_pc_bundles%~ gender = ~%chosen_pc_genders%~ name = ~old~
+		RET filelist END
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~%excluded_pc_portraits%%filelist%~
 
 
 
 BEGIN @704 //Exclude non-playable (officially) races
 REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
 REQUIRE_PREDICATE NOT ~non-playable~ STRING_MATCHES_REGEXP ~^%unique_pc_portrait_sets%$~ @012
-	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
-		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?non-playable~ ~~
-	END
+	LAF copy_pc_portraits 
+		INT_VAR list_only = 1
+		STR_VAR bundle = ~%chosen_pc_bundles%~ gender = ~%chosen_pc_genders%~ name = ~non-playable~
+		RET filelist END
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~%excluded_pc_portraits%%filelist%~
 
 
 
-BEGIN @705 //Exclude cameos of recognizable charactes
+BEGIN @705 //Exclude cameos of recognizable characters
 REQUIRE_PREDICATE ~%skip_excluding_pc_portraits%~ STR_EQ ~~ @011
 REQUIRE_PREDICATE NOT ~cameos~ STRING_MATCHES_REGEXP ~^%unique_pc_portrait_sets%$~ @012
-	OUTER_PATCH_SAVE chosen_pc_portrait_sets ~%chosen_pc_portrait_sets%~ BEGIN
-		REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~\(\\|\)?cameos~ ~~
-	END
+	LAF copy_pc_portraits 
+		INT_VAR list_only = 1
+		STR_VAR bundle = ~%chosen_pc_bundles%~ gender = ~%chosen_pc_genders%~ name = ~cameos~
+		RET filelist END
+	OUTER_TEXT_SPRINT excluded_pc_portraits ~%excluded_pc_portraits%%filelist%~
 	
 	
 
@@ -1182,19 +1193,29 @@ REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
 		
 		ACTION_IF install_all_pc_bundles THEN BEGIN
 			ACTION_IF NOT ~%chosen_pc_genders%~ STRING_CONTAINS_REGEXP ~male~ THEN BEGIN
-				LAF copy_pc_portraits STR_VAR gender = ~male~ name = ~%chosen_pc_portrait_sets%~ RET filelist END
+				LAF copy_pc_portraits 
+					STR_VAR 
+						gender = ~male~ name = ~%chosen_pc_portrait_sets%~ 
+						exclude = ~%excluded_pc_portraits%~
+					RET filelist END
 				OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%filelist%~		
 			END
 			
 			ACTION_IF NOT ~%chosen_pc_genders%~ STRING_CONTAINS_REGEXP ~female~ THEN BEGIN
-				LAF copy_pc_portraits STR_VAR gender = ~female~ name = ~%chosen_pc_portrait_sets%~ RET filelist END
+				LAF copy_pc_portraits 
+					STR_VAR 
+						gender = ~female~ name = ~%chosen_pc_portrait_sets%~ 
+						exclude = ~%excluded_pc_portraits%~
+					RET filelist END
 				OUTER_TEXT_SPRINT female_portrait_list ~%male_portrait_list%%filelist%~
 			END
 		
 		END ELSE BEGIN
 			LAF copy_pc_bundles 
 				INT_VAR show_previews = show_previews
-				STR_VAR gender = ~%chosen_pc_genders%~ name = ~%chosen_pc_portrait_sets%~
+				STR_VAR 
+					gender = ~%chosen_pc_genders%~ name = ~%chosen_pc_portrait_sets%~ 
+					exclude = ~%excluded_pc_portraits%~
 				RET males = males females = females END
 			OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
 			OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
