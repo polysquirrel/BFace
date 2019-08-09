@@ -1,0 +1,35 @@
+#!/bin/sh
+
+#searches all subdirectories for bmp files starting with the first parameter
+#and renames them replacing it with the second parameter leaving the suffix 
+#intact. All files starting with the second prefix in turn are similarly 
+#renamed to the first prefix.
+
+if [[ "$#" != 2 ]]; then 
+    echo "usage: $0 prefix1 prefix2"
+    echo ""
+    echo "Searches all subdirectories for all files starting with the prefix"
+    echo "given as the first parameter and renames them, substituting the old prefix with"
+    echo "the new one, given as the second parameter. Similarly, files starting with"
+    echo "prefix2 are renamed to start with prefix1. Any characters following both"
+    echo "prefixes are preserved in the renamed files. If both the file prefix1<suffix>"
+    echo "and prefix2<suffix> are found for a certain suffix, they are swapped without"
+    echo "without overwriting each other."
+
+else
+    find -name "$1*" -print0 | while IFS= read -r -d '' path; do
+        tmp=`echo $path | sed -e "s|^\(.*\)/$1\([^/]*\)$|\1/\.tmp\.$1\2|"`
+	mv -i "$path" "$tmp"
+    done
+    find -name "$2*" -print0 | while IFS= read -r -d '' path; do
+        name=`echo $path | sed -e "s|^\(.*\)/$2\([^/]*\)$|\1/$1\2|"`
+	mv -i -v "$path" "$name"
+    done
+    find -name ".tmp.$1*" -print0 | while IFS= read -r -d '' path; do
+        prev=`echo $path | sed -e "s|^\(.*\)/\.tmp\.$1\([^/]*\)$|\1/$1\2|"`
+        name=`echo $path | sed -e "s|^\(.*\)/\.tmp\.$1\([^/]*\)$|\1/$2\2|"`
+	echo "'$prev' -> '$name'"
+        mv -i "$path" "$name";
+    done
+fi
+
