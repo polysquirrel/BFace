@@ -40,8 +40,6 @@ BEGIN @090 //init
 INSTALL_BY_DEFAULT
 REQUIRE_PREDICATE GAME_IS ~bgee bg2ee~ @005
 	
-	/** The value of this variable is injected on module packaging. */
-	OUTER_TEXT_SPRINT MOD_NAME ~bface~ 
 	
 	INCLUDE ~%MOD_FOLDER%/config.tph~
 	INCLUDE ~%MOD_FOLDER%/utility.tph~
