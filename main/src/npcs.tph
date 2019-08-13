@@ -586,13 +586,13 @@ DEFINE_ACTION_FUNCTION create_alternative_preview
 			END ELSE BEGIN
 				OUTER_TEXT_SPRINT preview ~~
 				OUTER_TEXT_SPRINT preview 
-					~%preview%    <div id="%name%" %preview_style%>%EOL%~
+					~%preview%    <div id="%name%" %preview_style%>%WNL%~
 				OUTER_TEXT_SPRINT preview 
-					~%preview%      <div><img src="%bestfile%" width="140" height="220"/></div>%EOL%~
+					~%preview%      <div><img src="%bestfile%" width="140" height="220"/></div>%WNL%~
 				OUTER_TEXT_SPRINT preview
-					~%preview%      <div style="margin-top: 2px;">%name%</div>%EOL%~
+					~%preview%      <div style="margin-top: 2px;">%name%</div>%WNL%~
 				OUTER_TEXT_SPRINT preview
-					~%preview%    </div>%EOL%~
+					~%preview%    </div>%WNL%~
 				
 				OUTER_TEXT_SPRINT previews ~%previews%%preview%~	
 			END
@@ -1018,7 +1018,7 @@ DEFINE_ACTION_FUNCTION copy_npc_portraits
 
 
 	
-/** A minimalistic wrapper over copy_npc_portraits which simply sets list_only = 1. */	
+/** A minimalistic wrapper over copy_npc_portraits which simply sets list_only = 1 and defaults = 1. */	
 DEFINE_ACTION_FUNCTION list_npc_portraits
 	STR_VAR 
 		root = ~npcs~
@@ -1047,8 +1047,58 @@ DEFINE_ACTION_FUNCTION list_npc_portraits
 
 
 
-
+/** This function is similar to list_npc_portraits and uses the same parameters and default values
+  * as copy_npc_portraits. The difference is that this function will list all files from the directory
+  * if any file would be included by copy_npc_portraits based on the given criteria.
+  * It is used to create blacklists of portraits for specified npcs. This is equivalent to calling
+  * list_npc_portraits twice: the first time with the exact same argument, the second one with
+  * the %name% parameter set to the returned %names% list and %when%="always".
+  */
+DEFINE_ACTION_FUNCTION list_all_npc_portraits
+	STR_VAR
+		root = ~npcs~
+		role = ~*~
+		game = ~?~
+		gender = ~male\|female\|other~
+		name = ~*~
+		when = ~used~
+		exclude = ~~
+		include = ~*~
+	RET
+		npccount
+		filelist
+		names
+	RET_ARRAY
+		filemap
+	BEGIN
+		LAF list_npc_portraits 
+			STR_VAR 
+				root = ~%root%~
+				role = ~%role%~
+				game = ~%game%~
+				gender = ~%gender%~
+				name = ~%name%~
+				when = ~%when%~
+				exclude = ~%exclude%~
+				include = ~%include%~
+			RET names END
+		LOG ~List all portrait files of found npc names~
+		LAF list_npc_portraits
+			STR_VAR
+				root = ~%root%~
+				role = ~%role%~
+				game = ~%game%~
+				gender = ~%gender%~
+				name = ~%names%~
+				when = ~always~
+				exclude = ~%exclude%~
+				include = ~%include%~
+			RET npccount filelist names
+			RET_ARRAY filemap
+		END
+	END
 	
+
 
 
 
@@ -1089,7 +1139,7 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 				REPLACE_EVALUATE CASE_SENSITIVE ~/\([^\\/]+\)/~ BEGIN
 					TEXT_SPRINT img ~.preview/%MATCH1%.bmp~
 					TEXT_SPRINT preview ~<div %preview_style%><img src="%img%" width="70" height="110"/></div>~
-					TEXT_SPRINT previews ~%previews%%preview%%EOL%~
+					TEXT_SPRINT previews ~%previews%%preview%%WNL%~
 				END ~~
 			END
 
@@ -1108,7 +1158,10 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 
 
 
-	
+/** Iterates over all npc groups (directories under %MOD_FOLDER%/npcs) and prompts the user
+  * about installation of each one individually. Optionally, can generate html galleries with
+  * portraits which would be included, based on other parameters. 
+  */  
 DEFINE_ACTION_FUNCTION copy_chosen_npc_roles
 	INT_VAR 
 		show_previews = 0
@@ -1179,8 +1232,6 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 		/** Copy no files, simply return the list of files that would be copied. 
 		  * Return value is the same as without this flag. */
 		list_only = 0
-//		/** If not zero, the user will be prompted about every portrait set (npc directory). */
-//		ask_each = 0
 	STR_VAR 
 		/** The root directory for the search, relative to %MOD_FOLDER%. This will be either ~npcs~ or ~charname~. */
 		root = ~npcs~
@@ -1205,6 +1256,8 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 		/** List of file names (without extensions) that should be excluded from copying. 
 		  * Each entry on the list should be surrounded with '/'. */
 		exclude = ~~
+		/** Whitelist of file names to be copied. Unless it equals '*' all other files will be ignored
+		  * regardless of other parameters. Each entry must be without extension and surrounded by '/'. */
 		include = ~*~
 	RET
 		/** Number of portrait sets (bottom level dirs) for which at least one file has been copied/listed.
@@ -1287,47 +1340,6 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 							LAF strip_prefix STR_VAR string = ~%npcdir%~ prefix = ~%genderdir%/~
 								RET npcname = suffix END
 							LOG ~        %npcname%:~
-
-	/*						
-							OUTER_TEXT_SPRINT copied_files ~~
-							OUTER_SET proceed = 0
-
-							ACTION_IF ask_each && NOT list_only THEN BEGIN
-								LOG ~          verifying if there are any files to be copied before asking the user...~
-								LAF copy_portrait_set 
-									INT_VAR list_only = 1 defaults = 1
-									STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ include = ~%include%~ target = ~~
-									RET copied_files = filelist END
-								
-								ACTION_IF NOT (copied_files STR_EQ ~~) THEN BEGIN
-									OUTER_TEXT_SPRINT copied_files ~~
-									OUTER_SPRINT prompt_prefix @508
-									OUTER_SPRINT prompt_suffix @509
-									OUTER_TEXT_SPRINT decision ~~ 
-									OUTER_WHILE NOT ((decision STRING_EQUAL_CASE ~I~) || (decision STRING_EQUAL_CASE ~N~)) BEGIN
-										PRINT ~  %prompt_prefix% %npcname%%prompt_suffix% ~								
-										ACTION_READLN ~decision~									
-									END
-									ACTION_IF (decision STRING_EQUAL_CASE ~I~) THEN BEGIN
-										LOG ~          installing %npcname%:~
-										OUTER_SET proceed = 1
-									END 
-								END								
-							END ELSE BEGIN
-								OUTER_SET proceed = 1
-							END
-							
-							ACTION_IF proceed THEN BEGIN
-								LAF copy_portrait_set
-									INT_VAR list_only = list_only defaults = defaults
-									STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ target = ~%target%~
-									RET copied_files = filelist END
-							END
-	*/
-							//LAF copy_portrait_set 
-							//	INT_VAR list_only = list_only defaults = 1
-							//	STR_VAR dir = ~%npcdir%~ when = ~%when%~ exclude = ~%exclude%~ target = ~%target%~
-							//	RET copied_files = filelist END
 		
 							ACTION_IF DIRECTORY_EXISTS ~%npcdir%/alternatives~ THEN BEGIN
 								GET_DIRECTORY_ARRAY versions ~%npcdir%/alternatives~ ~%any_dir%~
@@ -1392,6 +1404,79 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 		LOG ~~
 	END
 
+
+
+
+
+
+DEFINE_ACTION_FUNCTION list_all_npc_alternatives
+	STR_VAR 
+		/** The root directory for the search, relative to %MOD_FOLDER%. This will be either ~npcs~ or ~charname~. */
+		root = ~npcs~
+		/** Regexp for name of the directory for given npc kind(s) (alternative from canonnpcs|modnpcs|plotnpcs etc.)*/
+		role = ~*~
+		/** Regexp for game directories to cover: bgee|sod|bg2ee */	
+		game = ~?~
+		/** Regexp for gender directory grouping individual npcs. */
+		gender = ~male\|female\|other~ 
+		/** Regexp for npc directory (i.e. name/identifier). */
+		name = ~*~ 
+		/** Switch which decides if a file should be copied based on its existance in the game. Can be one of:
+		  * 'exists' - override only; the file must already exist in the game.
+		  * 'not exists' - only new portraits; don't copy if the file already exists
+		  * 'always' - all portraits; copy regardless of previous presence.
+		  * 'used' - the portrait must exist, or a file with creatures to patch specifies at least one existing creature (default). 
+		  * 'not used' - the portrait file must not exist and no creatures would be updated to use it.
+		  */
+		when = ~always~
+		/** List of file names (without extensions) that should be excluded from copying. 
+		  * Each entry on the list should be surrounded with '/'. */
+		exclude = ~~
+		/** Whitelist of file names to be copied. Unless it equals '*' all other files will be ignored
+		  * regardless of other parameters. Each entry must be without extension and surrounded by '/'. */
+		include = ~*~
+	RET
+		/** Number of portrait sets (bottom level dirs) for which at least one file has been copied/listed.
+		  * Due to weidu limitations returned array filemap is undefined if npccount==0.
+		  */
+		npccount 
+		/** List of base names of copied files. Each name is surrounded with '/' on both sides:
+		  * unless the list is empty, string starts and ends with '/' and each two files are separated by '//'. */
+		filelist 
+		/** List of directories matching %name% which contained at least one file included in %filelist%. 
+		  * Directories from all %role%/%game%/%gender% branches are listed together and separated by the regexp 
+		  * alternative symbol '\|'.
+		  */		
+		names 
+	RET_ARRAY
+		filemap
+	BEGIN
+		LAF list_npc_portraits 
+			STR_VAR 
+				root = ~%root%~
+				role = ~%role%~
+				game = ~%game%~
+				name = ~%name%~
+				when = ~%when%~
+				include = ~%include%~
+				exclude = ~%exclude%~
+			RET names END
+		
+		LOG ~List all default and alternative portraits of listed NPCs~
+		LAF copy_npc_alternatives
+			INT_VAR list_only = 1
+			STR_VAR
+				root = ~%root%~
+				role = ~%role%~
+				game = ~%game%~
+				name = ~%names%~
+				when = ~always~
+				include = ~%include%~
+				exclude = ~%exclude%~
+			RET npccount names filelist
+			RET_ARRAY filemap
+		END
+	END
 
 
 

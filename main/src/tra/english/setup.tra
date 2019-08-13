@@ -164,20 +164,21 @@
 @667=	~Default and alternative portraits of official companions not from this game~
 
 
-@670=	~Give player characters access to the portraits of mod companions~
-@671=	~Some of alternative portraits of all mod companions~
-@672=	~Default portraits of all known mod companions~
-@673=	~Default and alternative portraits of all known mod companions~
-@674=	~All portraits of not installed mod companions and alternative portraits of installed companions~
-@675=	~Some of alternative portraits of not installed mod companions~
-@676=	~Default portraits of not installed mod companions~
-@677=	~Default and alternative portraits of not installed mod companions~
-@678=	~Some of alternative portraits of mod companions from other games~
-@679=	~Default portraits of mod companions from other games~
-@680=	~Default and alternative portraits of mod companions from other games~
-@681=	~Alternative portraits of legacy (non-EE) mod companions~
-@682=	~Default portraits of legacy (non-EE) mod companions~
-@683=	~All suitable portraits of legacy (non-EE) mod companions~
+@670=	~Give player characters the portraits of npcs from mods for this game~
+@671=	~Some of alternative portraits of all known companions for this game~
+@672=	~Default portraits of all known companions for this game~
+@673=	~All unique portraits of known companions for this game~
+@674=	~Some of alternative portraits for not installed mods for this game~
+@675=	~Default portraits for not installed mods for this game~ 
+@676=	~All unique portraits for not installed mods for this game~
+@677=	~Alternative portraits for installed mods and all portraits for not installed mods~
+
+@680=	~Give player characters the portraits of npcs from mods for other games~
+@681=	~Portraits for mods not applicable to the EE series (abandoned)~
+@684=	~Some of alternative portraits of absent companions~
+@685=	~Default portraits of absent companions~
+@686=	~All unique portraits of absent companions~
+
 
 
 
@@ -187,10 +188,7 @@
 @703=	~Exclude older characters~
 @704=	~Exclude officially non-playable races like Drow and Tieflings~
 @705=	~Exclude recognisable cameos (like characters from other games)~
-//@704=	~Exclude non-playable races and older characters~
-//@705=	~Exclude non-playable races and cameos~
-//@706=	~Exclude older characters and cameos~
-//@707=	~Exclude non-playable races, older characters and cameos~
+
 
 
 @710=	~Give player characters new, unique portraits (main component)~

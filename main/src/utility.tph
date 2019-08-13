@@ -466,7 +466,7 @@ DEFINE_ACTION_FUNCTION refs_targets
 	BEGIN
 		OUTER_SET count = 0
 		ACTION_DEFINE_ASSOCIATIVE_ARRAY refs BEGIN END
-		OUTER_TEXT_SPRINT entry ~^\([^%WS%]*\)[%WS%]*\([^%WS%]\(.*[^%WS%%CR%]\|\)\)[%WS%]*%CR%?$~
+		OUTER_TEXT_SPRINT entry ~^\([^%WS%]*\)[%WS%]*\([^%WS%]\(.*[^%WS%%WNL%]\|\)\)[%WS%]*\(%MNL%\)?$~
 		COPY ~%refsfile%~ ~%empty_dir%~
 			REPLACE_EVALUATE CASE_SENSITIVE ~^\(.+\)$~ BEGIN
 				TEXT_SPRINT line ~%MATCH1%~
@@ -503,7 +503,7 @@ DEFINE_ACTION_FUNCTION ref_target
 				//two-step pattern matching to get rid of carriage return characters
 				//don't breath on it or it won't match!
 				INNER_PATCH ~%line%~ BEGIN
-					REPLACE_EVALUATE CASE_SENSITIVE ~^\([^%WS%]\(.*[^%WS%%CR%]\|\)\)[%WS%]*%CR%?$~ BEGIN
+					REPLACE_EVALUATE CASE_SENSITIVE ~^\([^%WS%]\(.*[^%WS%%WNL%]\|\)\)[%WS%]*%MNL%?$~ BEGIN
 						PATCH_IF ~%target%~ STR_EQ ~~ THEN BEGIN
 							TEXT_SPRINT target ~%MATCH1%~
 						END ELSE BEGIN

@@ -176,7 +176,7 @@ DEFINE_ACTION_FUNCTION list_pc_selection
 		OUTER_TEXT_SPRINT filelist ~~
 		//let's get rid of commented lines in bgee.lua which fool the regexp matcher
 		COPY_EXISTING ~BGEE.LUA~ ~%empty_dir%~
-			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~--.*$~ ~%EOL%~
+			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~--.*$~ ~%WNL%~
 		
 		COPY ~%empty_dir%/BGEE.LUA~ ~%empty_dir%~
 			REPLACE_EVALUATE CASE_SENSITIVE ~\({[%WS%]*'\([^'\\/]+\)'[%WS%]*,[%WS%]*%sex%[%WS%]*}\)~ BEGIN
@@ -222,7 +222,7 @@ DEFINE_ACTION_FUNCTION clear_pc_selection
 		END
 		COPY_EXISTING ~BGEE.LUA~ ~override~
 			REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{]*{[^{}]*\({[^}]*}[^{}]*\)*}~ 
-				~portraits = %EOL%{%EOL%}~
+				~portraits = %WNL%{%WNL%}~
 	END
 
 
@@ -367,14 +367,14 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 				//Patch portrait selection list if it's not empty
 				COPY_EXISTING ~BGEE.LUA~ ~override~ 
 					REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{~
-						~portraits = %EOL%{%EOL%%selection%,~
+						~portraits = %WNL%{%WNL%%selection%,~
 				IF ~^portraits =[^{}]*{[^{}]*\({[^{}]*}[^{}]*\)+}~
 			
 
 				//Patch portrait selection list if it's empty
 				COPY_EXISTING ~BGEE.LUA~ ~override~ //
 					REPLACE_TEXTUALLY CASE_SENSITIVE EVALUATE_REGEXP ~^portraits =[^{}]*{[^{}]*}~ 
-						~portraits = %EOL%{%EOL%%selection%%EOL%}~
+						~portraits = %WNL%{%WNL%%selection%%WNL%}~
 				IF ~^portraits =[^{}]*{[^{}]*}~
 			END		
 		END

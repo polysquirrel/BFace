@@ -9,15 +9,9 @@
 /****************************** CONSTANTS ****************************************/
 
 
-/** Dreaded Carriage Return symbol which fools weidu's regexp engine. */
-OUTER_TEXT_SPRINT CR ~~
-
-/** Line terminator, either CRNL or NL. */
-OUTER_TEXT_SPRINT EOL ~
-~
 
 /** Basic whitespace symbols for use in REGEXPs: space and tab only. */
-OUTER_TEXT_SPRINT WS ~ 	~
+OUTER_TEXT_SPRINT WS ~ %TAB%~
 
 
 
@@ -25,9 +19,9 @@ OUTER_TEXT_SPRINT WS ~ 	~
 OUTER_TEXT_SPRINT portrait_dir ~%USER_DIRECTORY%/portraits~
 	
 /** Matches directories corresponding to all three parts of the BG saga. */
-OUTER_TEXT_SPRINT any_game ~\(bgee\|sod\|bg2ee\|any\)~
+OUTER_TEXT_SPRINT any_game ~\(bgee\|sod\|bg2ee\|legacy\|any\)~
 
-OUTER_TEXT_SPRINT non_ee ~\(bg\|bg2)~
+OUTER_TEXT_SPRINT non_ee ~\(legacy)~
 	
 /** Matches all three default 'gender' directories: male/female/other. The last one is for non-player portraits. */
 OUTER_TEXT_SPRINT any_gender ~\(male\|female\|other\)~
@@ -72,20 +66,20 @@ ACTION_IF GAME_IS ~bgee~ THEN BEGIN
 	ACTION_IF GAME_INCLUDES ~sod~ THEN BEGIN
 		OUTER_TEXT_SPRINT game_dirs ~bgee\|sod\|any~
 		OUTER_TEXT_SPRINT game_code ~sod~
-		OUTER_TEXT_SPRINT other_games ~bg2ee~
+		OUTER_TEXT_SPRINT other_games ~bg2ee\|legacy~
 	END ELSE BEGIN
 		OUTER_TEXT_SPRINT game_dirs ~bgee\|any~
 		OUTER_TEXT_SPRINT game_code ~bgee~
-		OUTER_TEXT_SPRINT other_games ~sod\|bg2ee~
+		OUTER_TEXT_SPRINT other_games ~sod\|bg2ee\|legacy~
 	END
 END ELSE ACTION_IF GAME_IS ~bg2ee~ THEN BEGIN
 	OUTER_TEXT_SPRINT game_dirs ~bg2ee\|any~
 	OUTER_TEXT_SPRINT game_code ~bg2ee~
-	OUTER_TEXT_SPRINT other_games ~bgee\|sod~
+	OUTER_TEXT_SPRINT other_games ~bgee\|sod\|legacy~
 END ELSE ACTION_IF GAME_IS ~eet~ BEGIN //todo: this is most likely wrong, as characters use unified portraits I think
 	OUTER_TEXT_SPRINT game_dirs ~bgee\|sod\|bg2ee\|any~
 	OUTER_TEXT_SPRINT game_code ~eet~
-	OUTER_TEXT_SPRINT other_games ~none~  //can't use empty string as it often denotes a default value
+	OUTER_TEXT_SPRINT other_games ~legacy~  //can't use empty string as it often denotes a default value
 END ELSE BEGIN
 	FAIL @000
 END

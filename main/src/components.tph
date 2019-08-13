@@ -8,6 +8,10 @@
 
 
 
+DEFINE_ACTION_MACRO update_pc_portrait_lists BEGIN
+	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
+	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~
+END
 
 /** Overrides companion portraits which are not used by the (unmodified) game with new portraits of
   * the depicated companion. These will generally be portraits from other games included for the use
@@ -184,6 +188,8 @@ DEFINE_ACTION_FUNCTION used_npc_portraits
   * must be again present in the directory 'charname/npcs/<gender>/<role>' to be actually copied.
   */  
 DEFINE_ACTION_FUNCTION grant_pc_default_npc_portraits		
+	INT_VAR
+		list_only = 0
 	STR_VAR
 		role = ~*~
 		game = ~*~
@@ -202,6 +208,7 @@ DEFINE_ACTION_FUNCTION grant_pc_default_npc_portraits
 
 		LOG ~Copy charname aliases for portraits of male %role%~
 		LAF copy_pc_portraits 
+			INT_VAR defaults = 1 list_only = list_only
 			STR_VAR 
 				name = ~%role%~ role = ~npcs~ gender = ~male~ //name before role or it would be set to npcs
 				include = ~%include%~ target = ~%pc_install_target%~
@@ -209,7 +216,7 @@ DEFINE_ACTION_FUNCTION grant_pc_default_npc_portraits
 
 		LOG ~Copy charname aliases for portraits of female %role%~
 		LAF copy_pc_portraits 
-			INT_VAR defaults = 1
+			INT_VAR defaults = 1 list_only = list_only
 			STR_VAR 
 				name = ~%role%~ role = ~npcs~ gender = ~female~ 
 				include = ~%include%~ target = ~%pc_install_target%~
@@ -234,6 +241,8 @@ DEFINE_ACTION_FUNCTION grant_pc_default_npc_portraits
   * must be again present in the directory 'charname/npcs/<gender>/<role>' to be actually copied.
   */  
 DEFINE_ACTION_FUNCTION grant_pc_alternative_npc_portraits
+	INT_VAR 
+		list_only = list_only
 	STR_VAR
 		role = ~*~
 		game = ~*~
@@ -258,6 +267,7 @@ DEFINE_ACTION_FUNCTION grant_pc_alternative_npc_portraits
 			
 		LOG ~Copy charname aliases for default portraits of male %role%~
 		LAF copy_pc_portraits
+			INT_VAR list_only = list_only
 			STR_VAR 
 				name = ~%role%~ role = ~npcs~ gender = ~male~ 
 				include = ~%whitelist%~ target = ~%pc_install_target%~
@@ -265,6 +275,7 @@ DEFINE_ACTION_FUNCTION grant_pc_alternative_npc_portraits
 
 		LOG ~Copy charname aliases for alternative portraits of female %role%~
 		LAF copy_pc_portraits
+			INT_VAR list_only = list_only
 			STR_VAR 
 				name = ~%role%~ role = ~npcs~ gender = ~female~  
 				include = ~%whitelist%~ target = ~%pc_install_target%~
@@ -381,10 +392,12 @@ DEFINE_ACTION_FUNCTION grant_pc_absent_npc_portraits
 	
 
 
-/** List the names of all NPCs whose replaced potraits appear in the selection screen and all their
+/** List the names of all NPCs whose replaced portraits appear in the selection screen and all their
   * default portrait files, including other resolutions and aliases for CHARNAME.
+  * This function is needed to exclude canon npc portraits already available to the player as in
+  * an unmodded game when granting npc portraits.
   */
-DEFINE_ACTION_FUNCTION list_installed_npcs
+DEFINE_ACTION_FUNCTION list_npc_portraits_used_by_pc
 	RET
 		names
 		filelist

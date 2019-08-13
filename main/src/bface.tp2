@@ -801,8 +801,7 @@ REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STRING_MATCHES_REGEXP ~AnD\|~) OR
 	LAF grant_pc_default_npc_portraits 
 		STR_VAR role = ~canonnpcs~ game = ~obe~ name = ~Canderous\|Mordaine\|Osprey~
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 
 
 
@@ -812,8 +811,7 @@ REQUIRE_PREDICATE (~%cleared_obe_portraits%~ STR_EQ ~all~) OR
 		(~%overriden_obe_npcs%~ STR_EQ ~~ AND ~%installed_obe_npcs%~ STR_EQ ~~) @011
 	LAF grant_pc_default_npc_portraits STR_VAR role = ~canonnpcs~ game = ~obe~ 
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 		
 		
 
@@ -831,26 +829,24 @@ REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
 		
 	LAF grant_pc_alternative_npc_portraits STR_VAR role = ~canonnpcs~ exclude = ~%defaults%~ 
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 
 
 
 BEGIN @662 //Give PC the default portraits of all official companions
 SUBCOMPONENT @660
-	LAF list_installed_npcs RET exclude = filelist END
+	LAF list_npc_portraits_used_by_pc RET exclude = filelist END
 	
 	LAF grant_pc_default_npc_portraits 
 		STR_VAR role = ~canonnpcs~ exclude = ~%exclude%~
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 
 	
 
 BEGIN @663 //Give PC the default and alternative portraits of all official companions
 SUBCOMPONENT @660
-	LAF list_installed_npcs RET exclude = filelist END
+	LAF list_npc_portraits_used_by_pc RET exclude = filelist END
 	
 	LAF grant_pc_alternative_npc_portraits 
 		STR_VAR role= ~canonnpcs~ exclude = ~%exclude%~
@@ -863,7 +859,7 @@ SUBCOMPONENT @660
 BEGIN @664 //Give PC all portraits of absent companions and alternative portaits of present companions
 SUBCOMPONENT @660
 REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF list_installed_npcs RET exclude = filelist END
+	LAF list_npc_portraits_used_by_pc RET exclude = filelist END
 	
 	LOG ~List the default portraits (and their aliases for charname) of this game's official companions~
 	LAF list_npc_portraits STR_VAR role = ~canonnpcs~ when = ~always~ 
@@ -880,7 +876,7 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 BEGIN @665 //Give PC alternative portraits of official companions from other games
 SUBCOMPONENT @660
 REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF list_installed_npcs RET exclude = filelist END
+	LAF list_npc_portraits_used_by_pc RET exclude = filelist END
 	
 	LOG ~List all alternative portraits of official npcs from this game~
 	LAF copy_npc_alternatives 
@@ -890,15 +886,14 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 		
 	LAF grant_pc_alternative_npc_portraits STR_VAR role = ~canonnpcs~ exclude = ~%exclude%%present%~
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 		
 
 
 BEGIN @666 //Give PC the default portraits of official companions from other games
 SUBCOMPONENT @660 
 REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF list_installed_npcs RET exclude = filelist END
+	LAF list_npc_portraits_used_by_pc RET exclude = filelist END
 	
 	LOG ~List the default portraits from any game of official companions from this game (including aliases for charname)~
 	LAF list_npc_portraits 
@@ -908,167 +903,152 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 	LAF grant_pc_default_npc_portraits 
 		STR_VAR role = ~canonnpcs~ exclude = ~%exclude%%present%~ 
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 
 
 			
 BEGIN @667 //Give PC default and alternative portraits of official companions from other games
 SUBCOMPONENT @660		
 REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF list_installed_npcs RET exclude = filelist END
+	LAF list_npc_portraits_used_by_pc RET exclude = filelist END
 	
 	LAF grant_pc_absent_npc_alternatives 
 		STR_VAR role = ~canonnpcs~ exclude = ~%exclude%~
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 
 
 
 	
 
-	
-BEGIN @671 //Give PC alternative portraits of all mod npcs
-SUBCOMPONENT @670 //Portraits of mod companions for PC
+
+BEGIN @671 //Give PC alternative portraits of all mod npcs for this game
+SUBCOMPONENT @670 //Portraits of this game's mod companions for PC
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/npcs~ @012
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
 REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
-	LOG ~List the default portraits of all mod npcs~
-	LAF list_npc_portraits STR_VAR role = ~modnpcs~ game = ~%any_game%~ when = ~always~
-		RET defaults = filelist END
+	LOG ~List the default portraits of npcs from mods for this game~
+	LAF list_npc_portraits STR_VAR role = ~modnpcs~ when = ~always~ RET defaults = filelist END
+	
+	LAF grant_pc_alternative_npc_portraits 
+		STR_VAR role = ~modnpcs~ game = ~?~ exclude = ~%defaults%~
+		RET males females END
+	LAM update_pc_portrait_lists
+
+
+
+BEGIN @673 //Give PC all portraits for mods for this game
+SUBCOMPONENT @670	
+	LAF grant_pc_alternative_npc_portraits STR_VAR role = ~modnpcs~ game = ~?~ RET males females END
+	LAM update_pc_portrait_lists
+	
+	
 		
-	LAF grant_pc_alternative_npc_portraits STR_VAR role = ~modnpcs~ exclude = ~%defaults%~ 
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~			
-
-
-
-BEGIN @672 //Give PC default portraits of all mod npcs
+BEGIN @674 //Alternative portraits for not installed mods for this game
 SUBCOMPONENT @670
-	LAF grant_pc_default_npc_portraits STR_VAR role = ~modnpcs~ 
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-
-
-
-BEGIN @673 //Give PC default and alternative portraits of all mod NPCs
-SUBCOMPONENT @670
-	LAF grant_pc_alternative_npc_portraits STR_VAR role = ~modnpcs~ 
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-
-
-
-BEGIN @674 //Give PC alternative portraits of installed mod companions and all portraits of absent companions
-SUBCOMPONENT @670
-	LOG ~List installed mod npcs~
-	LAF list_npc_portraits STR_VAR role = ~modnpcs~ when = ~exists~
-		RET installed_mods = names END
+	LOG ~List installed mod npcs and all their portraits~
+	LAF list_all_npc_alternatives STR_VAR role = ~modnpcs~ when = ~used~ RET exclude = filelist END
 		
-	LOG ~List all default portraits of installed mod companions~
-	LAF list_npc_portraits STR_VAR role = ~modnpcs~ game = ~%any_game%~ name = ~%installed_mods%~
-		RET exclude = filelist END
+	LOG ~List default portraits of not installed npcs for this game~	
+	LAF list_npc_portraits 
+		STR_VAR role = ~modnpcs~ exclude = ~%exclude%~ when = ~always~
+		RET not_installed = filelist END
+		
+	LOG ~Copy non-default CHARNAME aliases of not installed mod npcs for this game~
+	LAF grant_pc_alternative_npc_portraits
+		STR_VAR role = ~modnpcs~ game = ~?~ exclude = ~%exclude%%not_installed%~
+		RET males females END
+	LAM update_pc_portrait_lists	
+
+
+		
+BEGIN @676 //All portraits for not installed mods for this game
+SUBCOMPONENT @670
+	LOG ~List installed mod npcs and all their portraits~
+	LAF list_all_npc_alternatives STR_VAR role = ~modnpcs~ when = ~used~ RET exclude = filelist END
 	
-	LAF grant_pc_alternative_npc_portraits STR_VAR role = ~modnpcs~ exclude = ~%exclude%~ 
+	LAF grant_pc_alternative_npc_portraits 
+		STR_VAR role = ~modnpcs~ game = ~?~ exclude = ~%exclude%~
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-
-
-
-BEGIN @675 //Give pc alternative portraits of not installed mod npcs
-SUBCOMPONENT @670
-	LAF grant_pc_absent_npc_alternatives STR_VAR role = ~modnpcs~ when = ~exists~
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-
-
-
-BEGIN @676 //Give PC default portraits of not installed mod npcs
-SUBCOMPONENT @670
-	LAF grant_pc_absent_npc_defaults STR_VAR role = ~modnpcs~ when = ~exists~ 
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-
-
-	
-BEGIN @677 //Give PC default and alternative portraits of not installed mod npcs
-SUBCOMPONENT @670
-	LAF grant_pc_absent_npc_portraits STR_VAR role = ~modnpcs~ when = ~exists~ 
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-
-
-
-BEGIN @678 //Give PC alternative portraits of mod companions not from this game
-SUBCOMPONENT @670
-REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF grant_pc_absent_npc_alternatives STR_VAR role = ~modnpcs~ 
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-
-
-
-BEGIN @679 //Give PC default portraits of mod companions not from this game
-SUBCOMPONENT @670
-REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF grant_pc_absent_npc_defaults STR_VAR role = ~modnpcs~
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-
-
-
-BEGIN @680 //Give PC default and alternative portraits of mod companions not from this game.
-SUBCOMPONENT @670
-REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
-	LAF grant_pc_absent_npc_portraits STR_VAR role = ~modnpcs~ 
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-	
-	
-/*	
-//no alternative portraits for legacy mod companions
-BEGIN @681 //Give PC alternative portraits of legacy mod companions from non-EE games
-SUBCOMPONENT @670
-	LAF list_npc_portraits STR_VAR role = ~modnpcs~ game = ~%non_ee%~ 
-		RET defaults = filelist
-	END
-	LAF grant_pc_alternative_npc_portraits STR_VAR role = ~modnpcs~ game = ~%non_ee%~ exclude = ~%defaults%~ 
-		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 	
 	
 	
-BEGIN @682 //Give PC default portraits of legacy mod companions from non-EE games
+BEGIN @677 //Unused alternative portraits of installed mod npcs and all portraits of not installed mod npcs
 SUBCOMPONENT @670
-	LAF grant_pc_default_npc_portraits STR_VAR role = ~modnpcs~ game = ~%non_ee%~
+	LOG ~List installed mod npcs and all their default portraits~
+	LAF list_all_npc_portraits STR_VAR role = ~modnpcs~ RET installed = filelist END
+	
+	LAF grant_pc_alternative_npc_portraits 
+		STR_VAR role = ~modnpcs~ game = ~?~ exclude = ~%installed%~
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
-*/	
+	LAM update_pc_portrait_lists
+		
 	
 
-BEGIN @683 //Give PC all portraits of legacy mod companions from non-EE games
-SUBCOMPONENT @670
+
+
+
+BEGIN @681 //Give PC portraits of legacy mod companions (not-EE)
+SUBCOMPONENT @680 //Portraits of mod companions from other games for PC
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/charname/npcs~ @012
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
+REQUIRE_PREDICATE ~%skip_pc%~ STR_EQ ~~ @601
 	LAF grant_pc_alternative_npc_portraits STR_VAR role = ~modnpcs~ game = ~%non_ee%~
 		RET males females END
-	OUTER_TEXT_SPRINT male_portrait_list ~%male_portrait_list%%males%~
-	OUTER_TEXT_SPRINT female_portrait_list ~%female_portrait_list%%females%~		
+	LAM update_pc_portrait_lists
 
+
+
+BEGIN @684 //Give PC alternative portraits of companions from other games
+SUBCOMPONENT @680 //Portraits of mod companions from other games for PC
+REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
+	LOG ~List mod npcs from this game~
+	LAF list_npc_portraits
+		STR_VAR role = ~modnpcs~ when = ~always~
+		RET npcs = names END
+
+	LOG ~List portraits from all games of mod npcs from this game~
+	LAF copy_npc_alternatives
+		INT_VAR list_only = 1
+		STR_VAR role = ~modnpcs~ game = ~%any_game%~ name = ~%npcs%~ 
+		RET exclude = filelist END
+		
+		
+	LOG ~List npcs from mods not for this game and their default portraits~
+	LAF list_npc_portraits 
+		STR_VAR role = ~modnpcs~ game = ~%any_game%~ exclude = ~%exclude%%extraexlude%~ when = ~always~
+		RET defaults = filelist END
+		
+	LAF grant_pc_alternative_npc_portraits
+		STR_VAR role = ~modnpcs~ exclude = ~%exclude%%defaults%~
+		RET males females END
+	LAM update_pc_portrait_lists
+	
+	
+	
+BEGIN @686 //Give PC all portraits of mod companions from other games
+SUBCOMPONENT @680
+REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
+	LOG ~List mod npcs from this game~
+	LAF list_npc_portraits
+		STR_VAR role = ~modnpcs~ when = ~always~
+		RET npcs = names END
+
+	LOG ~List portraits from all games of mod npcs from this game~
+	LAF copy_npc_alternatives
+		INT_VAR list_only = 1
+		STR_VAR role = ~modnpcs~ game = ~%any_game%~ name = ~%npcs%~ 
+		RET exclude = filelist END
+	
+	LAF grant_pc_alternative_npc_portraits
+		STR_VAR role = ~modnpcs~ exclude = ~%exclude%~
+		RET males females END
+	LAM update_pc_portrait_lists
 
 	
 	
+
 
 
 BEGIN @711 //Give CHARNAME the default portrait set from all bundles

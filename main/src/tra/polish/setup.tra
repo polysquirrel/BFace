@@ -162,21 +162,21 @@
 @666=	~Domyślne portrety nieobecnych towarzyszy~
 @667=	~Domyślne i alternatywne portrety nieobecnych towarzyszy~
 
-@670=	~Oferuj graczom niektóre portrety (fanowskich) towarzyszy z modów~
-@671=	~Niektóre alternatywne (niewykorzystywane) portrety postaci z modów~
-@672=	~Domyślne portrety wszystkich znanych fanowskich towarzyszy~
-@673=	~Domyślne i alternatywne portrety wszystkich znanych fanowskich towarzyszy~
-@674=	~Alternatywne portrety zainstalowanych towarzyszy z modów oraz wszystkie portrety tych nieobecnych~
-@675=	~Niektóre alternatywne portrety do niezainstalowanych modów~
-@676=	~Domyślne portrety do niezainstalowanych modów~
-@677=	~Domyślne i alternatywne portrety do niezainstalowanych modów~
-@678=	~Alternatywne portrety towarzyszy z modów do pozostałych gier~
-@679=	~Domyślne portrety towarszyszy z modów do pozostałych gier~
-@680=	~Domyślne i alternatywne portrety towarzyszy z modów do pozostałych gier~
-@681=	~Alternatywne portrety do starych modów (nie do EE)~
-@682=	~Domyślne portrety do starych modów (nie do EE)~
-@683=	~Wszystkie możliwe portrety do starych modów (nie do EE)~
 
+@670=	~Oferuj graczom niektóre portrety NPC z modów do tej gry~
+@671=	~Niektóre alternatywne (niewykorzystywane) portrety towarzyszy z tej gry~
+@672=	~Domyślne portrety towarzyszy z tej gry~
+@673=	~Wszystkie unikalne portrety towarzyszy z tej gry~
+@674=	~Niektóre alternatywne portrety do niezainstalowanych modów~
+@675=	~Domyślne portrety do niezainstalowanych modów~
+@676=	~Wszystkie unikalne portrety do niezainstalowanych modów~
+@677=	~Alternatywne portrety do zainstalowanych modów i wszystkie do niezainstalowanych~
+
+@680=	~Oferuj graczom niektóre portrety NPC z modów do pozostałych gier~
+@681=	~Portrety do starych modów (nie do EE)~
+@684=	~Niektóre alternatywne portrety nieobecnych towarzyszy~
+@685=	~Domyślne portrety nieobecnych towarzyszy~
+@686=	~Wszystkie portrety nieobecnych towarzyszy~
 
 
 @700=	~Nie instalować portretów dla niektórych typów postaci?~
