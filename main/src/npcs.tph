@@ -600,7 +600,7 @@ DEFINE_ACTION_FUNCTION create_alternative_preview
 		END
 		LOG ~%previews%~
 	
-		COPY ~%MOD_FOLDER%/alternative-preview.html~ ~%dir%/preview.html~
+		COPY ~%MOD_FOLDER%/templates/alternative-preview.html~ ~%dir%/preview.html~
 			REPLACE_EVALUATE CASE_INSENSITIVE ~<body\([^>]*\)>\(.*\)</body>~ BEGIN
 			END ~<body%MATCH1%>%MATCH2%%previews%</body>~
 		IF_EXISTS 
@@ -1095,7 +1095,7 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 
 			LOG ~%previews%~
 		
-			COPY ~%MOD_FOLDER%/bundle-preview.html~ ~%previewdir%/preview.html~
+			COPY ~%MOD_FOLDER%/templates/bundle-preview.html~ ~%previewdir%/preview.html~
 				REPLACE_EVALUATE CASE_INSENSITIVE ~<body\([^>]*\)>\(.*\)</body>~ BEGIN
 				END ~<body%MATCH1%>%MATCH2%%previews%</body>~
 			IF_EXISTS 
