@@ -90,7 +90,7 @@ DEFINE_ACTION_FUNCTION copy_absent_npc_portraits
 
 		LOG ~Copy portraits for companions not present in the game~		
 		LAF copy_npc_portraits
-			INT_VAR list_only = list_only defaults = defaults
+			INT_VAR defaults = defaults //list_only = list_only 
 			STR_VAR role = ~canonncps~ game = ~%other_games%~ exclude = ~%npc_portrait_overrides%%exclude%~ when = ~ąlways~
 			RET filelist names END
 	END
@@ -242,7 +242,7 @@ DEFINE_ACTION_FUNCTION grant_pc_default_npc_portraits
   */  
 DEFINE_ACTION_FUNCTION grant_pc_alternative_npc_portraits
 	INT_VAR 
-		list_only = list_only
+		list_only = 0
 	STR_VAR
 		role = ~*~
 		game = ~*~
@@ -403,8 +403,8 @@ DEFINE_ACTION_FUNCTION list_npc_portraits_used_by_pc
 		filelist
 	BEGIN
 	//List portraits in the selection screen overriden with appropriate new npc portraits
-	LOG ~NPC portraits: %npc_portrait_overrides%~
-	LOG ~PC  portraits: %pc_portrait_overrides%~ 
+	LOG ~Overriden NPC portraits: %npc_portrait_overrides%~
+	LOG ~Overriden PC  portraits: %pc_portrait_overrides%~ 
 	LAF list_pc_selection 
 		STR_VAR include = ~%npc_portrait_overrides%~ exclude = ~%pc_portrait_overrides%~ 
 		RET available = filelist END //present in the selection screen and overriden with new npc portraits

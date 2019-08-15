@@ -8,7 +8,8 @@
 
 /****************************** CONSTANTS ****************************************/
 
-
+/** A max 6-character long name of this mod used to create unique files. */
+OUTER_TEXT_SPRINT short_mod_name ~BFace~
 
 /** Basic whitespace symbols for use in REGEXPs: space and tab only. */
 OUTER_TEXT_SPRINT WS ~ %TAB%~
@@ -36,7 +37,10 @@ OUTER_TEXT_SPRINT any_npc_type ~\(canonnpcs\|modnpcs\|plotnpcs\|bonusnpcs\|suppo
 OUTER_TEXT_SPRINT any_dir ~\([^\.\\/].*\)~
 //OUTER_TEXT_SPRINT any_dir ~\([^\.\\/][^\\/]*\)\|\(\.[^\.\\/][^\\/]*\)\|\(\.\.[^\\/]+\)~
 
-/** Regexp matching '.bmp' and '.ref' files. */
+/** Extensions of supported portrait files. */
+OUTER_TEXT_SPRINT portrait_file_types ~bmp\|jpg\|jpeg\|png\|ref~
+
+/** Regexp matching '.bmp', '.ref' and '.jpg'/'.png' files. */
 OUTER_TEXT_SPRINT portrait_file ~^[^\./\\]+\.\(bmp\|jpg\|jpeg\|png\|ref\)$~
 
 /** Regexp matching '.bmp', '.ref' and '.refs' files. */
@@ -158,6 +162,15 @@ OUTER_TEXT_SPRINT pc_portrait_overrides ~~
 
 /** Directory where most of new PC portraits will be intalled. */
 OUTER_TEXT_SPRINT pc_install_target ~~
+
+/** The type of installation used for PC portraits. Leaving initial value signifies choosing one
+  * one of the preconfigured default options and skipping individual componenets.
+  *  - ~BGEE.lua~ mandates patching that file and merging with the portrait lists there;
+  *  - ~M_*.lua~  mandates creating a file registering the portraits during game start-up
+  *  - ~standard~ is the default method for manual addition of custom portraits - copying to the proper directory.
+  */
+OUTER_TEXT_SPRINT pc_install_method ~~
+
 /** List of base file names of male portraits which should be installed in the player selection screen */
 OUTER_TEXT_SPRINT male_portrait_list ~~
 /** List of base file names of female portraits which should be installed in the player selection screen */

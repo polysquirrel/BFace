@@ -108,19 +108,23 @@
 
 
 @601=	~Choice of installed PC portraits already made~
-@607=	~No portraits to install~
-@608=	~Installing chosen portraits to the selection screen...~
+@605=	~Crossmod with Portrait Picker - generating portrait list and descriptions M_BG.lua...~
+@606=	~No portraits to install~
+@607=	~Creating an install hook for the chosen portraits...~
+@608=	~Installing the chosen portraits to the selection screen...~
 @609=	~Portrait selection cannot be empty! Reinstall the mod or the game will crash.~
 
 
 @610=	~Portraits for player characters~
-@611=	~Shared by both genders; ask about each component~
-@612=	~Shared by both genders; leave existing default portraits~
-@613=	~Shared by both genders; override default portraits (if in conflict with GUI mods)~
-@614=	~Separate for each gender; ask about each component~
-@615=	~Separate for each gender; add to existing selections, patching game files~
-@616=	~Separate for each gender; replace the existing selections (recommended)~
-@617=	~Separate for each gender; replace the existing gender-specific lists and override default portraits~
+@611=	~Standard location, shared by both genders; ask about each component~
+@612=	~Standard location, shared by both genders; leave existing default portraits~
+@613=	~Standard location, shared by both genders; override default portraits~
+@614=	~Independent installation, adding to separate portrait lists; ask about each componenent~
+@615=	~Independent installation, adding to separate portrait lists - no interference with other portraits~
+@616=	~Directly patch the portrait lists in the game files; ask about each component~
+@617=	~Directly patch game files, merging with present portrait lists~
+@618=	~Directly patch game files, replacing existing portrait lists~
+@619=	~Directly patch game files, replacing existing portrait lists and overwrite default portraits~
 
 
 @620=	~Remove portraits from the current selection on the character generation screen~
@@ -138,11 +142,12 @@
 @629=	~Remove portraits of Arkanis and Deder from the character generation selection~
 
 
-@630=	~Replace default portraits for player characters with unique images from CHARNAME's pool~
-@631=	~Replace all player-only portrait files (recommended when not removed from the selection screen)~
-@632=	~Replace all player portrait files, including those of companions from Obe's training~
-@633=	~Replace player-only portraits and those shared with Arkanis and Deder~
-@634=	~Replace player portraits, including those shared with Obe's training copanions, but not Arkanis and Deder~
+@630=	~Replace default portraits for player characters with images from CHARNAME's pool~
+@632=	~Replace default player portraits with copies of included images~
+@633=	~Replace player-only portraits with unique images (ommited later from installation)~
+@634=	~Replace all player portrait files with unique images, including those of companions from Obe's training~
+@635=	~Replace player-only portraits and those shared with Arkanis and Deder with unique images~
+@636=	~Replace player portraits with unique images, including those shared with Obe's training copanions, but not Arkanis and Deder~
 	
 @640=	~Replace some unused portraits of official NPCs with portraits for player characters~
 @641=	~Replace all not overriden unused portraits of official companions from the whole series~

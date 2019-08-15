@@ -106,8 +106,9 @@
 
 
 @601=	~Wybór portretów dla postaci gracza już dokonany~
-
-@607=	~Brak portretów do zainstalowania~
+@605=	~Crossmod z Portrait Picker: generuję listę portretów i opisów M_BG.lua...~
+@606=	~Brak portretów do zainstalowania~
+@607=	~Rejestracja wybranych portretów w grze...~
 @608=	~Instaluję wybrane portrety w ekranie wyboru podczas tworzenia postaci...~
 @609=	~Lista dostępnych portretów nie może być pusta! Konieczna reinstalacja, gra kaput!~
 
@@ -137,11 +138,12 @@
 @629=	~Usuń portrety Arkanisa i Dedera (wykorzystywane w katakumbach Candlekeep)~
 
 
-@630=	~Zastąp standardowe portrety dla gracza nowymi z puli unikalnych obrazów~
-@631=	~Zastąp portrety dostępne wyłącznie dla gracza nowymi (zalecane jeśli nie zostały usunięte z listy wyboru)~
-@632=	~Zastąp wszystkie portrety gracza, wliczając iluzorycznych towarzyszy Obe'a~
-@633=	~Zastąp portrety dostępne wyłącznie dla gracza oraz te Arkanisa i Dedera~
-@634=	~Zastąp portrety dostępne wyłącznie dla gracza oraz towarzyszy iluzorycznych z wyjątkiem Arkanisa i Dedera~
+@630=	~Zastąp standardowe portrety dla gracza~
+@632=	~Zastąp wszystkie standardowe portrety gracza kopiami z załączonego zestawu~
+@633=	~Zastąp portrety dostępne wyłącznie dla gracza nowymi, unikalnymi (pomijanymi w późniejszej instalacji)~
+@634=	~Zastąp wszystkie portrety gracza, wliczając iluzorycznych towarzyszy Obe'a, nowymi, unikalnymi portretami~
+@635=	~Zastąp unikalnymi obrazami portrety dostępne wyłącznie dla gracza oraz te Arkanisa i Dedera~
+@636=	~Zastąp unikalnymi obrazami portrety dostępne wyłącznie dla gracza oraz towarzyszy iluzorycznych z wyjątkiem Arkanisa i Dedera~
 
 @640=	~Zastąp wybrane, niewykorzystywane w grze, portrety towarzyszy nowymi, unikalnymi portretami dla gracza~
 @641=	~Zastąp wszystkie, niezastąpione wcześniej i niewykorzstywane portrety towarzyszy z całej serii~

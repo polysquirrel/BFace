@@ -9,9 +9,10 @@
 /** This is a very light wrapper over `copy_npc_portraits` providing default arguments for
   * names of directories in the pc portrait tree. The user will not be asked to pick between alternatives.
   * Sets `role = ~charname~`, group (game) = ~unique~, gender = `male|female` and when = ~always~ by default; 
-  * all other parameters have the same default values as in copy_npc_portraits. All given parameters are passed on 
-  * verbatim to copy_npc_portraits; similarly, the values returned by that function are returned without 
-  * any modification. See `copy_npc_portraits` documentation.
+  * Additionally, if %target% is not specified, global %pc_install_target% is used. All other parameters 
+  * have the same default values as in copy_npc_portraits and are passed on verbatim to copy_npc_portraits.
+  * Similarly, the values returned by that function are returned without any modification. 
+  * See `copy_npc_portraits` documentation.
   */  
 DEFINE_ACTION_FUNCTION copy_pc_portraits
 	INT_VAR
@@ -21,7 +22,7 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 		bundle = ~*~
 		gender = ~male\|female~
 		name = ~*~
-		target = ~override~
+		target = ~~
 		when = ~always~
 		include = ~*~
 		exclude = ~~
@@ -35,6 +36,10 @@ DEFINE_ACTION_FUNCTION copy_pc_portraits
 		ACTION_IF ~%bundle%~ STR_EQ ~*~ THEN BEGIN
 			OUTER_TEXT_SPRINT bundle ~%any_dir%~ //default value required to avoid using current game dir instead
 		END	
+		ACTION_IF ~%target%~ STR_EQ ~~ THEN BEGIN
+			OUTER_TEXT_SPRINT target ~%pc_install_target%~
+		END
+		
 		LAF copy_npc_portraits 
 			INT_VAR 
 				list_only = list_only 
@@ -288,6 +293,20 @@ DEFINE_ACTION_FUNCTION remove_npc_portraits
 	
 	
 	
+DEFINE_ACTION_MACRO set_pc_gender BEGIN
+	ACTION_MATCH ~%gender%~	WITH 
+		~male~ ~Male~ ~MALE~ ~M~ ~m~ BEGIN
+			OUTER_SET pc_gender = 1
+		END
+		~female~ ~Female~ ~FEMALE~ ~F~ ~f~ BEGIN
+			OUTER_SET pc_gender = 2
+		END
+		DEFAULT
+			FAIL ~Unrecognized gender: %gender%~
+	END
+END
+	
+	
 	
 /** Translates the given list of portraits into a string injectable to BGEE.LUA. */
 DEFINE_ACTION_FUNCTION pc_portrait_entries
@@ -297,16 +316,7 @@ DEFINE_ACTION_FUNCTION pc_portrait_entries
 	RET
 		portraits
 	BEGIN
-		ACTION_MATCH ~%gender%~	WITH 
-			~male~ ~Male~ ~MALE~ ~M~ ~m~ BEGIN
-				OUTER_SET pc_gender = 1
-			END
-			~female~ ~Female~ ~FEMALE~ ~F~ ~f~ BEGIN
-				OUTER_SET pc_gender = 2
-			END
-			DEFAULT
-				FAIL ~Unrecognized gender: %gender%~
-		END
+		LAM set_pc_gender
 
 		OUTER_INNER_PATCH_SAVE portraits ~%filelist%~ BEGIN
 			REPLACE_EVALUATE CASE_SENSITIVE ~/\([^/\\]+\)/~ BEGIN
@@ -324,7 +334,7 @@ DEFINE_ACTION_FUNCTION pc_portrait_entries
 
 /** Installs the given portrait list in the player selection screen for EE games.
   */
-DEFINE_ACTION_FUNCTION install_pc_portrait_list
+DEFINE_ACTION_FUNCTION merge_pc_portrait_list
 	INT_VAR
 		/** If non-zero, portrait pairs 'L' and 'M' on the list are replaced with their common name prefix. */
 		multi_size = 1
@@ -384,21 +394,99 @@ DEFINE_ACTION_FUNCTION install_pc_portrait_list
 	
 	
 	
+
+
+DEFINE_PATCH_FUNCTION register_pc_portrait_list
+	INT_VAR
+		/** If non-zero, portrait pairs 'L' and 'M' on the list are replaced with their common name prefix. */
+		multi_size = 1
+	STR_VAR
+		/** Gender of the portrayed characters determining the list into which portraits are installed.
+		    Must be either 'M' or 'F'. */
+		gender = ~?~
+		/** The list of portrait files to installed, each without an extension and surrounded by a pair of '/' chars. */	
+		filelist = ~~
+	BEGIN
+		INNER_ACTION BEGIN
+			ACTION_IF multi_size THEN BEGIN
+				LAF multi_size_list STR_VAR list = ~%filelist%~ 
+					RET filelist = list END
+			END
+			LAF remove_duplicates STR_VAR list = ~%filelist%~ 
+				RET filelist = unique END
+			
+			LAF split_file_list STR_VAR list = ~%filelist%~ RET length RET_ARRAY portraits = elements END
+			
+			LAM set_pc_gender
+		END
+		
+		PATCH_LOG ~Included in M_%short_mod_name%.lua:~
+
+		SET offset = BUFFER_LENGTH
+		FOR (i = 0; i < length; ++i) BEGIN
+			TEXT_SPRINT portrait $portraits(~%i%~)
+			TEXT_SPRINT line ~addPortrait("%portrait%", "%pc_gender%")%WNL%~
+			PATCH_LOG ~addPortrait(%portrait%, %pc_gender%)~
+		
+			SET length = STRING_LENGTH ~%line%~
+			INSERT_BYTES offset length
+			WRITE_ASCIIE offset ~%line%~
+			SET offset += length
+		END
+	END
+
+
+
+DEFINE_ACTION_FUNCTION register_pc_portraits
+	STR_VAR
+		males = ~~
+		females = ~~
+	BEGIN
+		OUTER_TEXT_SPRINT hook ~.../%MOD_FOLDER%-inlined/M_BF.lua~
+		<<<<<<<< %hook%
+function addPortrait(name, gender)
+	table.insert(portraits, {name, gender})
+end
+
+>>>>>>>>	
+		ACTION_IF FILE_EXISTS ~override/M_%short_mod_name%.lua~ THEN BEGIN
+			WARN ~File M_%short_mod_name%.lua already exists. Appending to it instead of overwriting and hoping for the best.~
+			OUTER_TEXT_SPRINT hook ~override/M_%short_mod_name%.lua~ 
+		END
+		
+		COPY ~%hook%~ ~override/M_%short_mod_name%.lua~
+			LPF register_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
+			LPF register_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
+		
+		DELETE ~.../%MOD_FOLDER%-inlined/M_BF.lua~	
+		
+	END
 	
-/** Copies bmp files from the specified branches of a portrait directory tree using copy_npc_portraits
-  * and updates BGEE.LUA to add the new portraits to the selection list for both playable sexes.
+	
+	
+	
+	
+/** Copies bmp files from the specified branches of a portrait directory tree to %pc_install_target%,
+  * using copy_npc_portraits and adds copied portraits to the player selection. 
+  * If %pc_install_method% == ~BGEE.lua~ than BGEE.lua is patched, merging copied file names into
+  * the portrait list there. If %pc_install_method% == ~M_BFace.lua~ than an appropriate LUA plugin file
+  * is created which will register the portraits during game startup.
   * The 'gender' directories in the tree must be named 'male' and 'female', the names of directories 
   * on all other levels are completely optional. Only the root level argument (corresponding to 'role'
   * for npc portraits) must be specified; the rest will default to all directories.
   */
 DEFINE_ACTION_FUNCTION install_pc_portraits 
 	STR_VAR
+		method = ~~
 		role = ~unique~
 		bundle = ~*~
 		set = ~*~
 		exclude = ~~
 		when = ~always~
 	BEGIN
+		ACTION_IF ~%method%~ STR_EQ ~~ THEN BEGIN
+			OUTER_TEXT_SPRINT method ~%pc_install_method%~
+		END
 		ACTION_IF ~%bundle%~ STR_EQ ~*~ THEN BEGIN
 			OUTER_TEXT_SPRINT bundle ~%any_dir%~
 		END
@@ -425,10 +513,161 @@ DEFINE_ACTION_FUNCTION install_pc_portraits
 				exclude = ~%exclude%~ 
 				when = ~%when%~
 			RET females = filelist END
+		
+		ACTION_IF ~%method%~ STRING_EQUAL_CASE ~BGEE.lua~ THEN BEGIN
+			LAF merge_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
+			LAF merge_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
+		
+		END ELSE ACTION_IF ~%method%~ STRING_EQUAL_CASE ~M_BFace.lua~ THEN BEGIN
+			LAF register_pc_portraits STR_VAR males = ~%males%~ females = ~%females%~ END
+		END ELSE BEGIN
+			WARN ~install_pc_portraits: unknown installation method <<%method%>>. Doing nothing.~
+		END
+		
+		LAF portrait_picker_crossmod STR_VAR males = ~%males%~ females = ~%females%~ END
 			
-		LAF install_pc_portrait_list STR_VAR gender = ~male~ filelist = ~%males%~ END
-		LAF install_pc_portrait_list STR_VAR gender = ~female~ filelist = ~%females%~ END
 	END
+	
+	
+	
+	
+	
+
+DEFINE_ACTION_FUNCTION decode_acronym_filename
+	STR_VAR 
+		prefix = ~BF~
+		filename = ~~
+	RET description gender
+	BEGIN
+		OUTER_PATCH_SAVE description ~%filename%~ BEGIN
+			TEXT_SPRINT gender ~~
+			REPLACE_EVALUATE CASE_INSENSITIVE ~^%prefix%\(.\)\(.\)\(.\)\(..\)\([GLMS]?\)$~ BEGIN
+				PATCH_MATCH ~%MATCH1%~ WITH
+					~F~ ~f~ BEGIN TEXT_SPRINT gender ~female~ END
+					~M~ ~m~ BEGIN TEXT_SPRINT gender ~male~ END
+					~A~ ~a~ BEGIN TEXT_SPRINT gender ~any~ END
+					DEFAULT TEXT_SPRINT gender ~other~ 
+				END
+				
+				PATCH_MATCH ~%MATCH2%~ WITH
+					~D~ ~d~ BEGIN TEXT_SPRINT race ~Dwarf~ END
+					~E~ ~e~ BEGIN TEXT_SPRINT race ~Elf~ END
+					~G~ ~g~ BEGIN TEXT_SPRINT race ~Gnome~ END
+					~H~ ~h~ BEGIN TEXT_SPRINT race ~Halfling~ END
+					~M~ ~m~ BEGIN TEXT_SPRINT race ~Human~ END
+					~O~ ~o~ BEGIN TEXT_SPRINT race ~Half-ork~ END
+					~W~ ~w~ BEGIN TEXT_SPRINT race ~Drow~ END
+					~T~ ~t~ BEGIN TEXT_SPRINT race ~Tiefling~ END
+					~V~ ~v~ BEGIN TEXT_SPRINT race ~Vampire~ END
+					~R~ ~r~ BEGIN TEXT_SPRINT race ~Ogre~ END
+					DEFAULT TEXT_SPRINT race ~~ 
+				END
+				
+				PATCH_MATCH ~%MATCH3%~ WITH 
+					~B~ ~b~ BEGIN TEXT_SPRINT class ~bard~ END
+					~C~ ~c~ BEGIN TEXT_SPRINT class ~cleric~ END
+					~F~ ~f~ BEGIN TEXT_SPRINT class ~fighter~ END
+					~K~ ~k~ BEGIN TEXT_SPRINT class ~fighter~ END
+					~M~ ~m~ BEGIN TEXT_SPRINT class ~monk~ END
+					~R~ ~r~ BEGIN TEXT_SPRINT class ~ranger~ END
+					~S~ ~s~ BEGIN TEXT_SPRINT class ~druid/shaman~ END
+					~T~ ~t~ BEGIN TEXT_SPRINT class ~thief~ END
+					~W~ ~w~ BEGIN TEXT_SPRINT class ~mage~ END
+					//these aren't for charname:
+					~G~ ~g~ BEGIN TEXT_SPRINT class ~guard~ END
+					~N~ ~n~ BEGIN TEXT_SPRINT class ~noble~ END
+					~P~ ~p~ BEGIN TEXT_SPRINT class ~peasant~ END
+					//these aren't really used by us
+					~D~ ~d~ BEGIN TEXT_SPRINT class ~druid~ END
+					//~P~ ~p~ BEGIN TEXT_SPRINT class ~paladin~ END
+					DEFAULT TEXT_SPRINT class ~~ 
+				END
+				
+				PATCH_IF ~%race%~ STR_EQ ~~ AND ~%class%~ STR_EQ ~~ THEN BEGIN	
+					TEXT_SPRINT replacement ~%filename%~
+				END ELSE BEGIN
+					TEXT_SPRINT replacement ~%race% %class% %MATCH4%~
+				END
+			END ~%replacement%~ 
+		END
+	END
+	
+	
+	
+	
+	
+	
+DEFINE_ACTION_FUNCTION portrait_picker_crossmod
+	INT_VAR
+		multi_size = 1
+	STR_VAR 
+		males = ~~
+		females = ~~
+	BEGIN
+		OUTER_TEXT_SPRINT sex ~M~
+		ACTION_FOR_EACH var IN males females BEGIN
+			OUTER_TEXT_SPRINT list EVAL ~%%var%%~
+
+			ACTION_IF multi_size THEN BEGIN
+				LAF multi_size_list STR_VAR list = ~%list%~ 
+					RET list END
+			END			
+			LAF remove_duplicates STR_VAR list = ~%list%~ RET unique END			
+			LAF split_file_list STR_VAR list = ~%list%~ RET length RET_ARRAY portraits = elements END
+			
+			OUTER_PATCH_SAVE entries ~~ BEGIN
+				SET offset = 0
+				FOR (i = 0; i < length; ++i) BEGIN
+					TEXT_SPRINT portrait $portraits(~%i%~)
+					INNER_ACTION BEGIN
+						LAF decode_acronym_filename STR_VAR filename = ~%portrait%~ RET gender description END
+					END
+					
+					/*
+					PATCH_MATCH gender WITH
+						~male~ BEGIN TEXT_SPRINT sex ~M~ END
+						~female~ BEGIN TEXT_SPRINT sex ~F~ END
+						~other~ BEGIN TEXT_SPRINT sex ~Z~ END
+						DEFAULT TEXT_SPRINT sex ~D~ 
+					END
+					*/
+					TEXT_SPRINT entry ~    { "%description%", "%sex%", "%portrait%" }%WNL%~
+					SET length = STRING_LENGTH ~%entry%~
+					INSERT_BYTES offset length
+					WRITE_ASCIIE offset ~%entry%~
+					SET offset += length
+				END
+			END
+
+			OUTER_TEXT_SPRINT hook ~M_BG.lua~
+			ACTION_IF NOT FILE_EXISTS_IN_GAME ~%hook%~ THEN BEGIN
+				OUTER_TEXT_SPRINT hook ~.../%MOD_FOLDER%-inlined/M_BG.lua~
+				<<<<<<<< %hook%
+BGImages = {
+}
+>>>>>>>>
+
+				COPY ~%hook%~ ~override~
+				DELETE ~%hook%~
+			END			
+			
+			OUTER_SET done = 0
+			COPY_EXISTING ~M_BG.lua~ ~override~
+				PATCH_PRINT ~Injecting to empty file: %entries%~
+				REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~{\([%WS%%WNL%]*\)}~ ~{%WNL%%entries%}~		
+				SET done = 1
+			IF ~BGImages\([%WS%]*\)=\([%WS%]*\){\([%WS%%WNL%]*\)}~
+			
+			ACTION_IF NOT done THEN BEGIN
+				COPY_EXISTING ~M_BG.lua~ ~override~
+					PATCH_PRINT ~Injecting to non-empty file: %entries%~
+					REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~}\([%WS%%WNL%]*\)}~ ~}%WNL%%entries%}~			
+			END
+			
+			OUTER_TEXT_SPRINT sex ~F~ //for the second iteration
+		END
+	END
+	
 	
 	
 	

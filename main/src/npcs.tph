@@ -100,7 +100,7 @@ DEFINE_ACTION_FUNCTION patched_creatures
 	BEGIN
 		OUTER_SET number = 0
 		
-		LAF base_file_name STR_VAR file = ~%file%~ extension = ~\(bmp\|ref\|2da\)~
+		LAF base_file_name STR_VAR file = ~%file%~ extension = ~\(%portrait_file_types%\|2da\)~
 			RET basename match END
 		
 		ACTION_IF match THEN BEGIN
@@ -708,7 +708,8 @@ DEFINE_ACTION_FUNCTION select_alternative_portraits
 				
 				//copy the files under chosen directory to override and create references in %dir%
 				ACTION_PHP_EACH files AS _ => portrait BEGIN
-					LAF base_file_name STR_VAR file = ~%portrait%~ dir = ~%chosen%~ extension = ~bmp\|ref~
+					LAF base_file_name 
+						STR_VAR file = ~%portrait%~ dir = ~%chosen%~ extension = ~%portrait_file_types%~
 						RET basename match END
 					ACTION_IF NOT match THEN BEGIN
 						FAIL ~Unsupported alternative portrait file type: [%portrait%]~

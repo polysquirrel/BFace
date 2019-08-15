@@ -383,7 +383,8 @@ DEFINE_ACTION_FUNCTION delete_files
 			GET_FILE_ARRAY portraits ~%dir%~ ~%supported_file%~
 			
 			ACTION_PHP_EACH portraits AS _ => file BEGIN
-				LAF base_file_name STR_VAR dir = ~%dir%~ file = ~%file%~ extension = ~bmp\|ref\|refs~
+				LAF base_file_name 
+					STR_VAR dir = ~%dir%~ file = ~%file%~ extension = ~%portrait_file_types%\|refs~
 					RET basename END
 				OUTER_TEXT_SPRINT files ~%files%/%basename%/~
 			END

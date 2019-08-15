@@ -108,7 +108,9 @@
 
 
 @601=	~Les portraits pour les joueurs déjà choisi~
-@607=	~Aucun portrait à installer~
+@605=	~Je compose une liste des portraits pour mod Portrait Picker: M_BG.lua...~
+@606=	~Aucun portrait à installer~
+@607=	~Registration des portraits choisis aux listes des portraits pour CHARNAME...~
 @608=	~Installation des portraits choisis sur l'écran de génération de personnage ...~
 @609=	~La sélection de portrait ne peut pas être vide! Réinstallez le mod ou le jeu va planter.~
 
@@ -138,11 +140,11 @@
 @629=	~Supprimez les portraits d'Arkanis et Deder (des catacombes de Candlekeep)~
 
 
-@630=	~Remplacez les portraits standard pour les personnages de joueurs par des images uniques nouveaux~
-@631=	~Remplacez tous les vieux portraits uniquement pour les joueurs (recommandé lorsqu'ils ne sont pas retiré de l'écran de sélection)~
-@632=	~Remplacez tous les vieux portraits pour les joueurs, lors de compagnons d'Obe inclus~
-@633=	~Remplacez tous les vieux portraits uniquement pour les joueurs et ceux d'Arkanis et Deder~
-@634=	~Remplacez tous les vieux portraits de joueurs à l'exception d'Arkanis et de Deder~
+@630=	~Remplacez les portraits standard pour les personnages de joueurs par des images nouveaux~
+@633=	~Remplacez tous les vieux portraits uniquement pour les joueurs par des images uniques (exclus d'installation suivant)~
+@634=	~Remplacez tous les vieux portraits pour les joueurs, lors de compagnons d'Obe inclus, par des images uniques~
+@635=	~Remplacez par images uniques tous les vieux portraits uniquement pour les joueurs et ceux d'Arkanis et Deder~
+@636=	~Remplacez par images uniques tous les vieux portraits de joueurs à l'exception d'Arkanis et de Deder~
 	
 @640=	~Remplacez certaines portraits des PNJs pas utilisé par des portraits pour les joueurs~
 @641=	~Remplacez tous les vieux portraits inutilisés des compagnons officiels de la série entière~

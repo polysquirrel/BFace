@@ -419,7 +419,7 @@ where:
 
   - *gender*:   [F|M] standing for Female/Male;
 
-  - *race*:    [D|G|H|E|M|O|W] for Dwarf/Gnome/Halfling/Elf/huMan/half-Orc/droW.
+  - *race*:    [D|E|G|H|M|O|W] for Dwarf/Elf/Gnome/Halfling/huMan/half-Orc/droW.
                 Additionally, some portraits of non-playable races may be made
                 available to players on request during installation for 
                 role-playing or esthetic reasons. In that case they will follow
@@ -488,7 +488,7 @@ occupations:
 
   - *gender*:   [B|F|G|M] with new Boy/Girl designators;
 
-  - *race*:    [D|G|H|E|M|O|R|T|V|W] with new V, R, T standing for Vampire, 
+  - *race*:    [D|E|G|H|M|O|R|T|V|W] with new V, R, T standing for Vampire, 
                ogRe and Tiefling. The latter includes also Cambions (and 
                potentially humanoid demons and devils), with the gender being 
                the discriminator. They may be also optionally offered 
