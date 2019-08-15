@@ -545,6 +545,8 @@ DEFINE_ACTION_FUNCTION create_alternative_preview
 		OUTER_TEXT_SPRINT previews ~~
 		OUTER_TEXT_SPRINT game_folder ~../../../../../../..~
 		
+		LAF decompose_file_path STR_VAR file = ~%dir%~ RET npc = filename END
+		
 		ACTION_PHP_EACH alternatives AS _ => altdir BEGIN
 			LAF strip_prefix STR_VAR string = ~%altdir%~ prefix = ~%dir%/~ RET name = suffix END
 			LOG ~        '%name%':~
@@ -601,6 +603,7 @@ DEFINE_ACTION_FUNCTION create_alternative_preview
 		LOG ~%previews%~
 	
 		COPY ~%MOD_FOLDER%/templates/alternative-preview.html~ ~%dir%/preview.html~
+			REPLACE_TEXTUALLY CASE_INSENSITIVE ~<title></title>~ ~<title>%npc%</title>~
 			REPLACE_EVALUATE CASE_INSENSITIVE ~<body\([^>]*\)>\(.*\)</body>~ BEGIN
 			END ~<body%MATCH1%>%MATCH2%%previews%</body>~
 		IF_EXISTS 
@@ -1147,6 +1150,7 @@ DEFINE_ACTION_FUNCTION create_portraits_preview
 			LOG ~%previews%~
 		
 			COPY ~%MOD_FOLDER%/templates/bundle-preview.html~ ~%previewdir%/preview.html~
+				REPLACE_TEXTUALLY CASE_INSENSITIVE EXACT_MATCH ~<title></title>~ ~<title>%role%</title>~
 				REPLACE_EVALUATE CASE_INSENSITIVE ~<body\([^>]*\)>\(.*\)</body>~ BEGIN
 				END ~<body%MATCH1%>%MATCH2%%previews%</body>~
 			IF_EXISTS 
@@ -1409,7 +1413,14 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 
 
 
-
+/** This is similar to list_npc_portraits and takes the same parameterss with the same defaults -
+  * except %when% is set to ~always~ unless provided. There are two differences:
+  *  - all files under 'alternatives/*' directories located in traversed root/role/game/gender/name are
+  *    listed, not only those directly in the npc ('name') directory;
+  *  - if any file in a directory would be listed, all files in this directory (and optional alternatives)
+  *    are listed, too.
+  * This function is used primarily to create 'exclude' lists with selected groups of npcs.
+  */
 DEFINE_ACTION_FUNCTION list_all_npc_alternatives
 	STR_VAR 
 		/** The root directory for the search, relative to %MOD_FOLDER%. This will be either ~npcs~ or ~charname~. */
