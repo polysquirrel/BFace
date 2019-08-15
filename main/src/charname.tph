@@ -615,55 +615,61 @@ DEFINE_ACTION_FUNCTION portrait_picker_crossmod
 			LAF remove_duplicates STR_VAR list = ~%list%~ RET unique END			
 			LAF split_file_list STR_VAR list = ~%list%~ RET length RET_ARRAY portraits = elements END
 			
-			OUTER_PATCH_SAVE entries ~~ BEGIN
-				SET offset = 0
-				FOR (i = 0; i < length; ++i) BEGIN
-					TEXT_SPRINT portrait $portraits(~%i%~)
-					INNER_ACTION BEGIN
-						LAF decode_acronym_filename STR_VAR filename = ~%portrait%~ RET gender description END
-					END
+			ACTION_IF length THEN BEGIN
+				OUTER_PATCH_SAVE entries ~~ BEGIN
+					SET offset = 0
 					
-					/*
-					PATCH_MATCH gender WITH
-						~male~ BEGIN TEXT_SPRINT sex ~M~ END
-						~female~ BEGIN TEXT_SPRINT sex ~F~ END
-						~other~ BEGIN TEXT_SPRINT sex ~Z~ END
-						DEFAULT TEXT_SPRINT sex ~D~ 
+					FOR (i = 0; i < length; ++i) BEGIN
+						TEXT_SPRINT portrait $portraits(~%i%~)
+						INNER_ACTION BEGIN
+							LAF decode_acronym_filename STR_VAR filename = ~%portrait%~ RET gender description END
+						END
+						
+						/*
+						PATCH_MATCH gender WITH
+							~male~ BEGIN TEXT_SPRINT sex ~M~ END
+							~female~ BEGIN TEXT_SPRINT sex ~F~ END
+							~other~ BEGIN TEXT_SPRINT sex ~Z~ END
+							DEFAULT TEXT_SPRINT sex ~D~ 
+						END
+						*/
+						PATCH_IF i < length - 1 THEN BEGIN
+							TEXT_SPRINT entry ~    { "%description%", "%sex%", "%portrait%" },%WNL%~
+						END ELSE BEGIN
+							TEXT_SPRINT entry ~    { "%description%", "%sex%", "%portrait%" }%WNL%~
+						END
+						SET length = STRING_LENGTH ~%entry%~
+						INSERT_BYTES offset length
+						WRITE_ASCIIE offset ~%entry%~
+						SET offset += length
 					END
-					*/
-					TEXT_SPRINT entry ~    { "%description%", "%sex%", "%portrait%" }%WNL%~
-					SET length = STRING_LENGTH ~%entry%~
-					INSERT_BYTES offset length
-					WRITE_ASCIIE offset ~%entry%~
-					SET offset += length
+				END
+
+				OUTER_TEXT_SPRINT hook ~M_BG.lua~
+				ACTION_IF NOT FILE_EXISTS_IN_GAME ~%hook%~ THEN BEGIN
+					OUTER_TEXT_SPRINT hook ~.../%MOD_FOLDER%-inlined/M_BG.lua~
+					<<<<<<<< %hook%
+	BGImages = {
+	}
+	>>>>>>>>
+
+					COPY ~%hook%~ ~override~
+					DELETE ~%hook%~
+				END			
+				
+				OUTER_SET done = 0
+				COPY_EXISTING ~M_BG.lua~ ~override~
+					PATCH_PRINT ~Injecting to empty file: %entries%~
+					REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~{\([%WS%%WNL%]*\)}~ ~{%WNL%%entries%}~		
+					SET done = 1
+				IF ~BGImages\([%WS%]*\)=\([%WS%]*\){\([%WS%%WNL%]*\)}~
+				
+				ACTION_IF NOT done THEN BEGIN
+					COPY_EXISTING ~M_BG.lua~ ~override~
+						PATCH_PRINT ~Injecting to non-empty file: %entries%~
+						REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~}\([%WS%%WNL%]*\)}~ ~},%WNL%%entries%}~			
 				END
 			END
-
-			OUTER_TEXT_SPRINT hook ~M_BG.lua~
-			ACTION_IF NOT FILE_EXISTS_IN_GAME ~%hook%~ THEN BEGIN
-				OUTER_TEXT_SPRINT hook ~.../%MOD_FOLDER%-inlined/M_BG.lua~
-				<<<<<<<< %hook%
-BGImages = {
-}
->>>>>>>>
-
-				COPY ~%hook%~ ~override~
-				DELETE ~%hook%~
-			END			
-			
-			OUTER_SET done = 0
-			COPY_EXISTING ~M_BG.lua~ ~override~
-				PATCH_PRINT ~Injecting to empty file: %entries%~
-				REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~{\([%WS%%WNL%]*\)}~ ~{%WNL%%entries%}~		
-				SET done = 1
-			IF ~BGImages\([%WS%]*\)=\([%WS%]*\){\([%WS%%WNL%]*\)}~
-			
-			ACTION_IF NOT done THEN BEGIN
-				COPY_EXISTING ~M_BG.lua~ ~override~
-					PATCH_PRINT ~Injecting to non-empty file: %entries%~
-					REPLACE_TEXTUALLY CASE_INSENSITIVE EVALUATE_REGEXP ~}\([%WS%%WNL%]*\)}~ ~}%WNL%%entries%}~			
-			END
-			
 			OUTER_TEXT_SPRINT sex ~F~ //for the second iteration
 		END
 	END
