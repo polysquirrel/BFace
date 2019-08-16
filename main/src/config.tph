@@ -60,7 +60,7 @@ OUTER_TEXT_SPRINT pc_pool_dir ~%MOD_FOLDER%/charname/pool~
 /** An empty directory used as a target of COPY BUT_ONLY_IF_IT_CHANGES in ordere to simply read a file. */	
 OUTER_TEXT_SPRINT empty_dir ~%MOD_FOLDER%/empty~	
 
-
+OUTER_TEXT_SPRINT edwina_dir ~%MOD_FOLDER%/npcs/bonusnpcs/bg2ee/other/Edwina~
 
 	
 //sets game_dirs to a regex alternative of included games, i.e. (bgee|sod|bg2ee)
@@ -137,7 +137,7 @@ OUTER_TEXT_SPRINT npc_portrait_overrides ~~
 /** Patched all returning NPCs to use the portrait files from BG1, where applicable. */
 OUTER_TEXT_SPRINT unified_portraits ~~ 
 
-/** Flag specifying if portraits for obe have been installed. 2 = all; 1 = arkanis and deder; 0 = none. */
+/** Flag specifying if portraits for obe have been installed. */
 OUTER_TEXT_SPRINT installed_obe_npcs ~~
 /** Flag specifying if npc portraits unused in the game where replaced with new npc portraits. */
 OUTER_TEXT_SPRINT installed_unused_npcs ~~

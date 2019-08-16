@@ -45,7 +45,7 @@
 @508=	~Installer des portraits pour~
 @509=	~? [I]nstaller/[N]on:~
 
-@510=	~Des portraits pour les PNJs~
+@510=	~Portraits pour les PNJs~
 @511=	~Decidez pour chaque composant~
 @512=	~Compagnons officiels et personnages principaux (remplacez seulement)~
 @513=	~Compagnons officiels, personnages principaux et quelques portraits bonus associés~
@@ -102,7 +102,7 @@
 @583=	~Remplacez les portraits de compagnons pas presentes dans ce jeux par leurs portraits par défaut.~
 @584=	~Remplacez les portraits de compagnons pas presentes dans ce jeux par versions choisi entre de alternatifs disponibles.~
 
-@599=	~Changement de portrait vers et d'Edwina (portraits pour Edwina déjà inclus avec des PNJ principaux)~
+@599=	~Changement de portrait vers et d'Edwina (portraits pour Edwina déjà inclus avec des portraits bonus)~
 
 
 
@@ -117,12 +117,14 @@
 
 @610=	~Portraits pour les joueurs~
 @611=	~Partagé par les deux sexes; decidez pour chaque composant~
-@612=	~Partagé par les deux sexes; laisser les portraits par défaut existant~
-@613=	~Partagé par les deux sexes; remplacer les portraits par défaut~
-@614=	~Séparé pour chaque sexe; decidez pour chaque composant~
-@615=	~Séparé pour chaque sexe; ajouter aux sélections existantes~
-@616=	~Séparé pour chaque sexe; remplacer les sélections existantes (recommandé)~
-@617=	~Séparé pour chaque sexe; remplacer les sélections existantes et les portraits par défaut~
+@612=	~Partagé par les deux sexes; laissez les portraits par défaut existant~
+@613=	~Partagé par les deux sexes; remplacez les portraits par défaut~
+@614=	~Installation independante d'autres modifications; decidez pour chaque composant~
+@615=	~Installation independante d'autres modifications (séparé pour chaque sexe)~
+@616=	~Modifiez directement les deux listes dans les fichier de jeu; decidez pour chaque composant~
+@617=	~Étendre séparément les deux listes existantes directement dans les fichiers du jeu~
+@618=	~Remplacez séparément les deux listes existantes directement dans les fichiers du jeu~
+@619=	~Remplacez séparément les deux listes existantes directement dans les fichiers du jeu; remplacez les portraits par défaut~
 
 
 @620=	~Supprimez des portraits de la sélection presante sur l'écran de génération du personnage~

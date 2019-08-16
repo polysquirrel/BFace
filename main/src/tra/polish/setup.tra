@@ -117,10 +117,12 @@
 @611=	~Standardowo, wspólne dla obu płci; pytaj o każdy komponent~
 @612=	~Standardowo, wspólne dla obu płci; pozostaw istniejące portrety bez zmian~ 
 @613=	~Standardowo, wspólne dla obu płci; podmień portrety standardowe na nowe~
-@614=	~Osobno dla obu płci; pytaj o każdy komponent~
-@615=	~Osobno dla obu płci; dodaj do istniejących listy portretów, modyfikując pliki gry~
-@616=	~Osobno dla obu płci; zastąp istniejące listy dostępne przy tworzeniu bohatera (zalecane)~
-@617=	~Osobno dla obu płci; zastąp istniejące listy dostępne przy tworzeniu bohatera oraz podmień portrety standardowe~
+@614=	~Instalacja niezależna od obecnych modów i portretów; pytaj o każdy komponent~
+@615=	~Instalacja niezależna od obecnych modów i portretów (osobno dla obu płci)~
+@616=	~Bezpośrednia modyfikacja obu list portretów w plikach gry; pytaj o każdy komponent~
+@617=	~Bezpośrednie rozszerzenie list portretów dla obu płci w plikach gry~
+@618=	~Bezpośrednie zastąpienie list portretów dla obu płci w plikach gry~
+@619=	~Bezpośrednie zastąpienie list portretów dla obu płci w plikach gry; nadpisz standardowe portrety~
 
 
 @620=	~Usuń wybrane portrety z listy dostepnej podczas tworzenia bohatera~

@@ -82,7 +82,7 @@
 @554=	~Separate portraits for Arkanis and Deder (not shared with PC)~
 @555=	~Separate portraits for Arkanis and Deder and shared portraits for the rest~
 
-@560=	~Portraits of NPCs~
+@560=	~Portraits of non-joinable NPCs~
 @561=	~Ask for each npc group~
 @562=	~For main plot NPCs only (override existing portraits)~
 @563=	~For main plot NPCs plus some bonus matching portraits~
@@ -102,7 +102,7 @@
 @583=	~Replace portraits of companions not normally present in this game with their default portraits~
 @584=	~Replace portraits of companions not normally present in this game with their selected portraits~
 
-@599=	~Portrait change to and from Edwina (portraits for Edwina already bundled with plot NPCs)~
+@599=	~Portrait change to and from Edwina (portraits for Edwina already bundled with bonus NPCs)~
 
 
 

@@ -91,7 +91,7 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnpcs~
 		STR_VAR role = ~canonnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~ 
 		RET npc_portrait_overrides = filelist END //npc_portrait_overrides is used by copy_unused_npc_portraits
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
-	LAF edwina_portrait_change END	
+	//LAF edwina_portrait_change END	
 	
 	
 	
@@ -121,11 +121,11 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnps~
 		STR_VAR role = ~canonnpcs\|modnpcs\|plotnpcs~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
-	LAF edwina_portrait_change END
+	//LAF edwina_portrait_change END
 	
 	
 
-BEGIN @524 //Mod companions and plot NPCs
+BEGIN @524 //Official and mod companions
 SUBCOMPONENT @510
 REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/modnpcs~ @012
 REQUIRE_PREDICATE NOT DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/plotnpcs~ @013 //Alternate wording only
@@ -137,7 +137,7 @@ REQUIRE_PREDICATE DIRECTORY_EXISTS ~%MOD_FOLDER%/npcs/bonusnps~
 		STR_VAR role = ~canonnpcs\|modnpcs~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
-	LAF edwina_portrait_change END
+	//LAF edwina_portrait_change END
 	
 	
 	
@@ -180,7 +180,7 @@ REQUIRE_PREDICATE ~%mod_contents%~ STR_EQ ~expansion~ @013
 	LAF copy_npc_portraits
 		STR_VAR role = ~bonusnpcs\|supportnpcs~ //bonusnpcs just in case
 		RET npc_portrait_overrides = filelist END
-		
+	LAF edwina_portrait_change END 
 		
 
 BEGIN @517 //All companions, main, bonus, supporting and minor NPCs
@@ -206,7 +206,7 @@ REQUIRE_PREDICATE ~%mod_contents%~ STR_EQ ~expansion~ @013
 	LAF copy_npc_portraits
 		STR_VAR role = ~bonusnpcs\|supportnpcs\|minornpcs~
 		RET npc_portrait_overrides = filelist END
-	
+	LAF edwina_portrait_change END
 	
 
 BEGIN @518 //All included NPC portraits
@@ -215,7 +215,10 @@ SUBCOMPONENT @510
 		STR_VAR npctype = ~%any_npc_type%~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
-	LAF edwina_portrait_change END
+	
+	ACTION_IF DIRECTORY_EXISTS ~%edwina_dir%~ THEN BEGIN
+		LAF edwina_portrait_change END
+	END
 
 
 
@@ -226,7 +229,10 @@ SUBCOMPONENT @510
 		STR_VAR role = ~%any_npc_type%~ game = ~%game_dirs%\|obe~
 		RET npc_portrait_overrides = filelist END
 	LAF copy_unused_npc_portraits RET npc_portrait_overrides = installed END
-	LAF edwina_portrait_change END
+	
+	ACTION_IF DIRECTORY_EXISTS ~%edwina_dir%~ THEN BEGIN
+		LAF edwina_portrait_change END
+	END
 	
 
 
@@ -530,6 +536,7 @@ REQUIRE_PREDICATE NOT GAME_IS ~eet~ @010
 BEGIN @599 //Edwina
 REQUIRE_PREDICATE (~%skip_npc%~ STR_EQ ~~) @501
 REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ @003
+REQUIRE_PREDICATE DIRECTORY_EXISTS ~%edwina_dir%~ @012
 	LAF edwina_portrait_change END
 
 	
@@ -787,7 +794,7 @@ REQUIRE_PREDICATE ~%installed_absent_npcs%~ STR_EQ ~~ @011
 		
 BEGIN @643  //override unused portraits of official companions for this game
 SUBCOMPONENT @640
-REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ OR GAME_INCLUDES ~sod~ @010
+REQUIRE_PREDICATE GAME_IS ~bg2ee eet~ OR GAME_INCLUDES ~sod~ @010 //eet makes sense only after unification, doesn't it?
 	LOG ~List all portraits of npcs from this game %canon_game_npcs%.~
 	LAF list_npc_portraits
 		STR_VAR role = ~canonncps~ game = ~%any_game%~ name = ~%canon_game_npcs%~ when = ~always~

@@ -1,0 +1,526 @@
+<html>
+  <head>
+    <title>Baldur's Face</title>
+    <style>
+      @font-face {
+        font-family: Sherwood;
+        src: url("style/Sherwood.ttf") format("truetype");
+      }
+      @font-face {
+        font-family: PostAntiquaRoman;
+        src: url("style/PostAntiquaRomanTT.ttf") format("truetype");
+      }
+      body {
+        background: #000000;
+        color: #d9d9d1;
+        font-family: PostAntiquaRoman, Antiqua, Roman;
+        font-size: 14px;
+      }
+      h1 {
+        text-align: left;
+        display: block;
+        margin: 15px 10% 10px;
+        color: #e1d533;
+        font-family: Sherwood, Fantasy;
+        font-size: 50px;
+      }
+      h2 {
+        margin: 30px 0px 5px; 
+        color: #e1d533;
+        font-family: Sherwood, sans-serif;	
+        font-size: 25px;
+      }	
+      h3 {
+        margin: 15px 0px 5px;
+        color: #91c2be;
+        font-family: PostAntiquaRoman, Antiqua, Roman;
+        font-size: 14px;		
+      }
+      .box_wrapper {
+        text-align: center;	      
+      }
+      .box {
+        display: inline-block;
+        width: 90%;		
+        text-align: left;
+        border: 35px solid transparent;
+        padding: 0px;
+        border-image: url(style/BGDialogBox.jpg) 35 stretch;
+        -webkit-border-image: url(style/BGDialogBox.jpg) 35 stretch;
+        -o-border-image: url(style/BGDialogBox.jpg) 35 stretch;
+      }
+      .section {
+        margin: 10px 5px 10px 0px;
+      }
+      #credits {
+        text-align: center;
+        margin: 10px
+      }
+      #credits table {
+/*        display: inline-block; */
+      }	      
+      #credits td {
+      	/*margin: 10px 20px 5px 5px;*/
+        padding: 5px 20px 5px 5px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="title">
+      <h1>Baldur's Face</h1>
+    </div>
+    <div class="box_wrapper">
+      <div class="box">
+        
+	      
+        <h2>Overview</h2>
+        <div class="section">
+  
+          <h3>Baldur's Face</h3>
+          Baldur's Face is a <i>WeiDU</i> mod for Infinity Engine games
+          installing an included portrait pack and designed to be easily
+          customizable by players to include their own collections.
+        </div>
+        
+
+        <h2>Compatibility</h2>
+        <div class="section">
+
+          <h3>Supported games</h3>
+          Currently supported games are: BGEE (with or without SoD), BG2EE 
+          and EET(?). Additional games might be added in the future given
+          demand.
+
+          <h3>Compatibility</h3>
+          This is a <i>WeiDU</i> mod which replaces original bitmap images	
+          and modifies several creatures by giving them brand new portraits.
+          As such, it should cause no conflicts with other weidu mods. Two
+          potential exceptions are obviously other portrait mods and heavy
+          UI reworks. In the first case, the last mod to be installed will
+          overwrite the changes done by those installed previously. This 
+          will not have any adverse effect on the game though; furthermore,
+          the choice of installation options offered here is quite flexible  
+          and should help with avoiding those conflicts. One minor conflict
+          possibility is from an automatically installed script changing
+          the portrait of one of BG2 characters to one of opposite sex in 
+          the appropriate circumstances. If other mods offer similar function,
+          it is best to avoid them or pick manual component selection for NPCs
+          and skip the appropriate component here. As for GUI mods,
+          the only cases which will cause trouble are potrait pickers which
+          maintain separate portrait lists and do not use the standard API
+          to retrieve portraits. In that case it is recommended to select
+          the standard or 'independent' method when installing portraits for
+          CHARNAME rather than direct patching of game files.
+          See the description for <a href="#PC">PC portrait installation</a>.
+
+          <h3>Installation order</h3>
+          This mod should be installed after all mods adding characters for
+          whom portraits are included here. In the minimum, after all NPC mods,
+          but best after tweaks and together with UI mods. Of note, 
+          <i>PortraitPicker</i> is installed best before this mod, as it will
+          otherwise ignore portraits added by this mod unless the standard 
+          installation method for custom portraits is chosen. If installed
+          later, this mod will generate or update the list of portraits used by 
+          <i>PortraitPicker</i> and add some basic category descriptions.	  
+          <h3>A word of warning</h3>
+          This mod is quite heavy on the installation options. While a lot
+          of effort went - and goes - into testing various combinations
+          and disabling those that make little sense, it may still be possible
+          for the mod to enter to a conflict of sorts with itself. If you
+          press it and look closely, you may even find a bug! Fortunately,
+          typical installations can be made by choosing - and seeing - only
+          two components.
+        </div>
+
+
+
+        <h2 id="NPCs">Components with portraits for NPCs</h2>
+        <div class="section">
+	
+          <h3>Portraits for NPCs</h3>
+          The first (optional) component offers several preselected
+          installation options, allowing to skip all following NPC components.
+          Skipping it will skip also all other NPC components. You can either 
+          choose take the full control over what will be installed, or select 
+          one of combinations of NPC groups which should receive portraits from
+          this mod. The individual group in questions are:
+          <dl>
+            <dt>Official companions</dt>
+            <dd>
+              All Bioware and Beamdog companions present in the unmodded game.
+            </dd>
+            <dt>Main plot characters</dt>
+            <dd>
+              Characters crucial to the plot - mainly adversaries - who already
+              have portraits in the unmodded game.
+            </dd>
+            <dt>Mod companions</dt>
+            <dd>
+              Companions introduced by fan modifications. This will install 
+              files only for currently installed NPCs. Sadly, not all existing 
+              NPCs are covered yet.
+            </dd>  
+            <dt>Bonus portraits</dt>
+            <dd>
+              Portraits for several non-joinable NPCs who didn't have portraits
+              before but were singled out as part of the 'core' collection, for
+              example Gorion.	   
+            </dd>
+            <dt>Supporting characters</dt>
+            <dd>
+              Several important secondary characters such as end of chapter 
+              bosses or prominent quest givers.
+            </dd>
+            <dt>Minor characters</dt>
+            <dd>
+              A larger group of NPCs which generally can be completely ignored
+              in the game and offer very limited interaction.	   
+            </dd>
+          </dl>
+          Of the above, only the components for portraits which are actually 
+          included in this particular mod version will show. An extra option
+          is the manual choice between alternative portraits for NPCs which
+          come with more than one: for every such character, you will be
+          prompted to pick one - the names showed correspond to subdirectories
+          of the portrait directory for the NPC. You may view them manually
+          under <tt>npc/&lt;game&gt;</tt> or in included gallery files. 
+	  
+          <h3>Alternative portraits</h3>
+          This is a small configuration component which allows to manually
+          select between alternative portrait versions offered by the following
+          components. Not installing it will result in the mod picking the
+          default option for every NPC. The first option is the same as the
+          'select between alternatives' from the first component: a command line
+          prompt will display available options and ask for picking one similar
+          to how WeiDU components with several alternative subcomponents are
+          handled. The second option is the same, but for each NPC it will first
+          display a html gallery showing the portraits in the default browser.
+          Note that for the purpose of all other components, picking whichever
+          of the versions has the side effect of setting it as 'default'.
+          In the result, components referring to "alternate versions" will since
+          use all <i>not chosen</i> portraits of the given NPC.
+
+          <h3>Portraits of companions</h3>
+          This component presents the choice which joinable NPCs should
+          receive portraits from this mod and covers both official Bioware and 
+          Beamdog NPCs and those from fan-made modifications. The options here 
+          are similar to those offered by the first component, but it allows 
+          also to decide on the per NPC basis instead of installing the whole 
+          groups.
+
+          <h3>Unify all returning companions to use the same portrait files</h3>
+          Bioware companions reappearing in BG2 had different portraits than in
+          the first game. This component will patch their files, as well as well
+          as similar cases of mod NPCs, to refer to the portrait names from 
+          the game of their first appearance. It may be useful for EET so that
+          now unused files can be overriden with portraits for PC. If no NPC 
+          portraits were installed this component will be unavailable.	
+  
+          <h3>Portraits of Obe's training companions</h3>
+          In BG prologue, during the combat tutorial, the player is joined by 
+          several ilusory and - very - temporary companions. This component 
+          offers to replace them with portraits matching those of of other NPCs.
+          From the above - whom most players will not see in repeated plays - 
+          Arkanis and Deder are singled out for separate installation as their 
+          real counterparts show up in Candlekeep Catacombs and have speaking 
+          lines. As for all intents and purposes these are de facto portraits 
+          for player charaters, a very similar component is also offered in the 
+          in the CHARNAME component group.
+
+          <h3>Portraits of non-joinable NPCs</h3>
+          This component offers portraits for non-joinable characters. Several
+          installation options are available: you can either manually decide for
+          each group of NPCs, or select one of sensible configurations. These
+          are similar, but more numerous, to those offered by the first 
+          component. If appropriate portraits are available, one additional
+          NPC group is listed: the 'extras' who are of no real importance to
+          the plot, such as for example tavern keepers or one-line messengers.
+
+          <h3>Replace official companion portraits from other games</h3>
+          This component offers to replace standard portraits available in
+          the game files - and potentially offered to players - but not used
+          in the unmodified game. This in particular includes all BG1 portraits
+          in a BG2 installation. It is useful for mods which reintroduce such 
+          a companion (as a lot of them use the old portrait files), or for
+          consistency's sake: for example, preconfigured characters which come
+          with the game will use the new portraits. Available subcomponents 
+          distinguish between portraits of characters not present normally 
+          in the game (for example, Xan in BG2) and 'old' portraits of present 
+          companions.  A closely related component overwriting these portraits 
+          with unique and unrelated characters is offered in the CHARNAME 
+          component group, so there is no need to install this one solely for 
+          the sake of the character generation screen.
+
+          <h3>Portrait change to and from Edwina</h3>
+          This is a minor component based on original code by cliffette which
+          switches Edwin's portrait for the duration of his accident. As its
+          variant is offered by several other mods, it is advisable, although
+          not strictly necessary, to install only one of such components. 
+          Edwina's files are bundled with bonus NPCs and, provided other 
+          mods use the same names of 'EdwinaL' and 'EdwinaM', will overwrite 
+          those installed previously without installing this component.
+        </div>
+
+
+        <h2 id="PC">Components with portraits for PC</h2>
+        <div class="section">
+
+          <h3>Portraits for player characters</h3>	
+          This component offers several recommended installation configurations
+          of portraits for player characters, giving you the chance to skip
+          manual selection of individual componenets. Not installing it will
+          also skip all the following components. You must choose here the
+          installation method and whether you want to go manually through all
+          the component. The methods are:
+          <dl>
+            <dt><i>Standard</i></dt>
+            <dd>
+              This will simply copy the installed portraits to the appropriate
+              directory as with manual installation of custom portraits. For
+              Enhanced Editions, this is the 'portraits' subdirectory of
+              the game's directory in user's 'Documents and folders' 
+              (or equivalent). Installed portraits will always appear for
+              both genders. Choose this if you encounter conflicts with other
+              methods.
+            </dd>
+            <dt><i>Independent</i></dt>
+            <dd>
+              This will register installed portraits independently for both
+              genders on each game start-up. The new portraits will appear
+              after any previously existing on the lists. This method requires
+              game patch 2.5, but is guaranteed to work with all future patches
+              and is completely isolated from other mods. The only possibility 
+              for conflict is with GUI mods which completely bypass standard
+              portrait lists used by the game. This is a good choice if you
+              plan on using such mods or want to keep your existing portrait	
+              collection. This precludes modification of existing portrait	              lists and some components offering this functionality will be 
+              skipped even with the option 'decide for each component'.	      
+            </dd>
+            <dt><i>Direct patching of game files</i></dt>
+            <dd>
+              This is the most fully-featured method as it allows free 
+              modification of existing portrait lists. The code patches
+              the portrait lists for both genders in a way which should be
+              compatible with any other well-behaved WeiDU mod, but as always,
+              there is a risk that future game patches will break it if the
+              whole portrait selection were to be reimplemented. You have the
+              choice here of either adding new portraits to the existing 
+              selection, or replacing it completely. The former will
+              <i>merge</i> the lists, so all portraits will appear 
+              alphabetically sorted. The latter will remove all standard 
+              portraits and portraits installed by other mods in the same way.
+              Note that portraits installed using one of the former methods
+              are exempt from modification: this mod won't delete your existing
+              files and can't bypass hard-coded search of the 'portraits'
+              directory and portraits added by mods during application start-up     	    </dd>
+          </dl>
+          All of these methods can be used either as 'one-click' installations,
+          which include default selections of portraits unique to player
+          characters, or in the 'decide for each component' variant, which 
+          offers a fine-grained control over what is installed, an option to
+          use NPC portraits or modify the existing ones. Additionally, it is
+          also possible here to choose to overwrite the default portraits 
+          (this includes Obe's companions, but not 'real' NPCs).
+
+          <h3>Remove portraits from the character generation selection</h3>
+          This component offers to either clear all NPC and PC portraits 
+          currently on the portrait lists in the game files, or pick 
+          individually types of portraits to remove in the following components.
+          All following components from the 'remove portraits' category will
+          be offered only if the latter is chosen. This component 
+          (nor any from this category) will not be offered unless 'direct 
+          game patching' is chosen as the installation method.
+
+          <h3>Remove portraits of official companions from the selection</h3>
+          This will make unavailable to players the portraits of NPCs.
+          The choice is between removing all NPC portraits, those actually
+          used in the game, or all portraits of present companions (so, for
+          example, both BG1 and BG2 portrait of Minsc).
+
+          <h3>Remove portraits of Obe's companions from the selection</h3>
+          This can make unavailable to players either all portraits of
+          the illusory companions from the combat training in the BG1 prologue
+          (essentially, most of 'classic' PC portraits), or only those of
+          Arkanis and Deder (who show up as real characters later in BG1).	  
+          <h3>Replace default CHARNAME portraits</h3>
+    	  This offers to override standard non-companion portraits with new
+          included images. There is choice to limit this to only portraits
+          not used in the game (PC-only), or to include Obe's companions
+          (with or without Deder). Additionally, you may choose between
+          either using <i>copies</i> of included portraits or <i>unique</i>
+          portraits. The difference is that the latter precludes those
+          portraits from being installed by later components, the former does
+          not. The logical decision is to use copies if you chose to remove
+          those portraits from the selection screen (which will limit the effect
+          to the standard pregenerated characters or, at worst, risk you 
+          meeting a doppelganger early on in Obe's basement) and to use unique
+          files if the overriden portraits where left in the existing lists.
+          The opposite choice will, respectively, make some unique portraits
+          completely unavailable to you, or result in duplicates during
+          character generation.
+
+          <h3>Replace unused portraits of NPCs</h3>
+          This component offers to override the portraits of NPCs which are
+          unused by the game with unique and <i>unrelated</i> portraits for
+          player characters. The choice is between unused ('old') portraits
+          of companions from the given game, portraits of companions
+          - normally - absent in the game, or both. This will <i>not</i>
+          overwrite any portraits already overwritten by the similar component
+          in the NPC group and the subcomponent	corresponding to the choice
+          made there will not be offered. This option is only really useful
+          if the overwritten portraits remain on the selection lists and may
+          not show at all based on previous choices. Similarly, it will not
+          show for games which don't have unused portraits.
+
+          <h3>Give PC the portraits of Obe's companions</h3>
+          This component will show up only if the direct installation method
+          was chosen and the corresponding portraits where removed from the 
+          portrait list in the first place or were not overriden. You will
+          have the option of adding portraits of all Obe's companions to the 
+          players' list or to exclude Arkanis and Deder. It has 
+          an unobvious use - why give something you have just taken away 
+          or is already there? First, all components in this category do not 
+          actually add the original files - overriden or not - but copies
+          of included dedicated override files which are differently named.
+          This is done so that all installed portraits follow a logical order
+          after sorting (which would be broken by the standard portrait names).
+          If you choose to install this component without removing the 
+          portraits of the corresponding characters, you will end up with both
+          the old and replacement versions. Removing those characters previously
+          will be equivalent to simply overriding the old files, but with a	          portraits in a better order.
+         
+          <h3>Give PC portraits of official companions</h3>
+          This will install for the player included replacements for standard
+          NPCs. The choice is between various combinations of which companions'
+          portraits you want to install (all or absent) and if you want
+          their default, non-default or all portraits. This will never result
+          two identical images on the list, regardless of what previous
+          installation options you have chosen for NPCs and PC.	  
+
+          <h3>Give PC portraits of companions from mods for this game</h3>
+          This will install for the player included replacements for NPCs
+          introduced by certain mods. The choice is again between default
+          vs. alternative portraits and installed vs. absent vs. all known
+          mod companions.
+	  
+          <h3>Give PC portraits of companions from mods for other games</h3>
+          This will install for the player included replacements for NPCs
+          introduced by some mods for other games. If an NPC has a mod for
+          both the current game and others, they will not be included here.	
+          The choice is simple between all and non-default portraits for
+          an NPC.
+
+          <h3>Give CHARNAME unique portraits</h3>
+          This is the main component granting the properly unique portraits
+          to player characters. You can choose to install the default set,
+          all portraits, or to decide individually for each included portrait
+          bundle, optionally after being shown an html preview gallery.
+          Additionally, if you can specify you whish to exclude certain types
+          of portraits (currently grouped as characters older than the 
+          protagonist's backstory suggests, non-playable (without proxing) 
+          races and cameos - portraits of characters from other media.
+          This will proceed to offer you components where individual
+          decisions can be made. In all other cases this component will
+          round up the installation. If you opt to see preview galleries,
+          they will include only portraits actually to be installed, excluding
+          any character groups you opt out of using the following components. 
+
+          <h3>Exclude female portraits</h3>
+          This component will be available only if you decide earlier to 
+          exclude certain portrait types and if you are following the
+          'standard' installation method which results in a joint pool
+          of portraits for both genders. Installing it will prevent
+          all female portraits from being installed in the result.
+
+          <h3>Exclude male portraits</h3>
+          This component will be available only if you decide earlier to
+          exclude certain portrait types and if you are following the
+          'standard' installation method - and if you do not exclude all
+          female portraits. Installing it will prevent all male portraits
+          from being installed.
+
+          <h3>Exclude older characters</h3>
+          This will prevent from installing portraits of characters much older
+	  than the 20 years old the protagonist is supposed to be.
+
+          <h3>Exclude non-playable races</h3>
+          This will prevent from installing certain races such as Drow and 
+          Tieflings.
+
+          <h3>Exclude recognisable cameos</h3>
+          This will prevent from installing fanart of characters from other
+          games, films etc.
+
+        </div>
+
+
+        <h2>Outstanding issues</h2>
+        <div class="section">
+	  
+          <h3>Known issues</h3>
+          <ul>
+            <li>
+              This mod can't - and probably shouldn't - remove custom PC
+              portraits added manually or by other mods unless they also patched
+              the BGEE.lua file.	      
+            </li>
+            <li>
+              Picking a non-default portrait for a NPC makes it the new 
+              default (by design). If you choose to give PC access to their
+              alternative portraits you may receive two images with very minor
+              differences you would not if you chose the default. This will
+              happen if the default portrait has a very close alternative (as	              they often do) but is much too complex to prevent due to 
+              component interactions. This is not considered a bug.
+            </li>
+            <li>
+              Choices of alternative companion portraits don't transfer between
+              the games outside of EET. If you choose a non-default replacement
+              for Khalid in BG1 and install the component granting PC 
+              alternative portraits of absent companions in BG2, you will get
+              the same portrait he used in BG1. It is unclear what the fix 
+              should be (and if it is needed).
+            </li>
+	    <li>
+              The great mod <i>PortraitPicker</i> which adds search and 
+              filter functions to the portrait list on the character generation
+              screen maintains its own portrait lists and ignores those in the
+              game files - it will ignore all portraits	added using any other
+              method than 'standard'. This mod generates/updates a list in	              PortraitPicker's format during installation, but must be installed
+              after it, otherwise the later will clear that list. This is 
+              inherent to its implementation and until cross-mod decision is 
+              taken you must install it before this mod.
+	    </li>  
+            <li>
+              Not tested EET support.
+            </li>
+          </ul>		  
+
+          <h3>Unknown issues</h3>
+          Probably a dozen.	  
+        </div>		
+
+
+        <h2>Credits</h2>
+        <div id="credits" class="section">
+          <table>
+            <tr>
+              <td>code:</td><td>polymorphedsquirrel</td>
+            </tr><tr>
+              <td>WeiDU:</td><td>Wes Weimer, the bigg, Wisp</td>
+            </tr>
+          </table>
+        </div>
+
+
+        <h2>Version history</h2>
+        <div id="versions" class="section">
+          <h3>0.0.0.1</h3>
+          Initial public beta	  
+        </div>
+
+      </div>	
+    </div>    
+  </body>
+</html>
+
