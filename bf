@@ -65,7 +65,8 @@ case "$#" in
 						for arch in $@; do
 							if [[ $skip == 0 ]]; then
 								echo "Packaging $MOD_NAME for $arch..."
-								rm "$moddir/bin/gm*"
+								rm -f "$moddir/bin/gm*"
+								rm -f "$moddir/setup-$MOD_NAME*"
 								case $arch in
 									all)
 										find ./main/bin -name "weidu-*" -exec basename {} \; | sed -e "s/weidu-\([^.]*\)\(\|\..*\)$/\1/g" | xargs "./$0" package
@@ -79,9 +80,12 @@ case "$#" in
 										;;
 								esac
 																		cp -u ./main/bin/weidu-$arch$exe "./target/exploded/setup-$MOD_NAME$exe"
-								cp -u ./main/bin/gm-$arch$exe "$moddir/gm$exe"
-																		tar -czf "./target/$targetname-$arch.tgz" -C ./target/exploded "$MOD_NAME" "setup-$MOD_NAME$exe" 
-								
+								if [[ ! -f ./main/bin/gm-$arch$exe ]]; then
+									echo "Failed to package $arch: main/bin/gm-$arch$exe not found"
+								else	
+									cp -u ./main/bin/gm-$arch$exe "$moddir/bin/gm$exe"
+									tar -czf "./target/$targetname-$arch.tgz" -C ./target/exploded "$MOD_NAME" "setup-$MOD_NAME$exe" 
+								fi								
 							fi
 							skip=0
 						done
