@@ -52,7 +52,7 @@ in a single go.
 
 ## 2. Mods hosted as part of this repository
 
-### 2,1 PaintBG (EE)
+### 2.1. PaintBG (EE)
 
 A complete set of portraits for all Bioware NPCs and many popular mod NPCs
 created by [artastrophe](http://artrastrophe.deviantart.com). It includes all
@@ -62,7 +62,7 @@ complete portrait replacement and one of few stylistically consistent packs.
 
 
 
-### 2.2 ExtraFaces
+### 2.2. ExtraFaces
 
 A portrait pack created to complement `PaintBG`, containing portraits of
 other artists selected to match the established style as closely as possible,
@@ -123,7 +123,7 @@ where:
 
 
 
-### 3,1 The NPC directory tree		
+### 3.1. The NPC directory tree		
 
 Contains the portraits dedicated to individual game characters and normally 
 unavailable to the player. This includes both companions and other NPCs, in
@@ -131,7 +131,7 @@ particular also those without existing portraits in the game.
 
 
 
-#### 3.1,1 NPC roles
+#### 3.1.1. NPC roles
 
 The 'role' level can contain the following directories (any others will be 
 ignored):
@@ -163,7 +163,7 @@ ignored):
 
 
 
-#### 3,1,2 NPC games
+#### 3.1.2. NPC games
 
 Currently supported 'game' directories are: 'bgee', 'bg2ee', 'sod', 'any', where
 the latter contains files used by all supported games (it is always included 
@@ -183,7 +183,7 @@ installation in the sense of WeiDU 'GAME\_IS' function.
 
 
 
-#### 3.1.3 NPC gender
+#### 3.1.3. NPC gender
 
 Can be one of 'male', 'female' or 'other'
 
@@ -201,7 +201,7 @@ a character supposed to be around 18 years old.
 
 
 
-#### 3.1.4 NPC portrait set
+#### 3.1.4. NPC portrait set
 
 Sometimes refered to as the 'NPC' level or simply as 'name' in the code,
 it contains files which are always copied in tandem.  The names of directories 
@@ -225,7 +225,7 @@ decision is made during the installation) should be named the same as standard
 portrait sets in the `charname/unique` tree (see 'CHARNAME portrait set').
 
 
-#### 3.1.5 Alternative potrait sets
+#### 3.1.5. Alternative potrait sets
 
 A directory with a portrait set can have a special subdirectory 'alternatives'.
 When present, it should contain multiple (more than one) subdirectories, each
@@ -247,16 +247,16 @@ to, assuming they have seen them before.
 
 
 
-### 3.2 CHARNAME directory tree
+### 3.2. CHARNAME directory tree
 
 The files for CHARNAME are likewise grouped in a 5-deep directory tree, but the 
 functions of the levels are slightly different:
 
->	charname/<role>/<bundle>/<gender>/<portraitset>
+>	charname/&lt;role&gt;/&lt;bundle&gt;/&lt;gender&gt;/&lt;portraitset&gt;
 
 
 
-#### 3.2.1  CHARNAME portrait role 
+#### 3.2.1.  CHARNAME portrait role 
 
 The purpose of directories at this level varies significantly more than simple
 logical grouping as is the case in the 'npcs' tree. Each of the following
@@ -306,7 +306,7 @@ directoories is used in different scenario and for different options:
 
 
 
-#### 3.2.2 CHARNAME portrait bundles
+#### 3.2.2. CHARNAME portrait bundles
 
 As there isn't much benefit in offering different portraits to the CHARNAME in
 different games, this directory level serves a completely different purpose.
@@ -325,7 +325,7 @@ may use it as it sees fit, for example to group portraits by artists or source.
 
 
 
-#### 3.2.3 CHARNAME gender
+#### 3.2.3. CHARNAME gender
 
 This is the same as under the NPC tree, with the exception that only 'male' and
 'female' directories are used. Each of them contains files which are installed 
@@ -334,7 +334,7 @@ screen.
 
 
 
-#### 3.2.4 CHARNAME portrait set
+#### 3.2.4. CHARNAME portrait set
 
 As there is no requirement to match the portraits of the same character between games and the files are installed in larger bundles, there is no real need for
 the directories at this level to contain a single portrait - in fact, as 
@@ -381,7 +381,7 @@ group of portraits they override:
 
 
 
-## 3.3 File name format
+## 3.3. File name format
 
 Replacements for existing files are named after the replaced files. All 
 new files start with a unique two-letter modder/module prefix. This is 
@@ -390,7 +390,7 @@ characters.
 
 
 
-### 3.3.1 CHARNAME portraits
+### 3.3.1. CHARNAME portraits
 
 The portraits intended for player characters follow a strict, established naming
 scheme. This is to guarantee uniqueness (which might be a problem with source
@@ -410,7 +410,7 @@ of the predefined choices either.
 
 The file name format is thus defined as follows:
 
->	<prefix><gender><race><class><id><size>.<extension>
+>	&lt;prefix&gt;&lt;gender&gt;&lt;race&gt;&lt;class&gt;&lt;id&gt;&lt;size&gt;.&lt;extension&gt;
 
 where:
 
@@ -478,7 +478,7 @@ where:
 
 
 
-### 3.3.2 NPC portraits
+### 3.3.2. NPC portraits
 
 Portraits for characters already having portraits, be it from the standard game
 or mods, are obviously named after the files they override. New portraits start
@@ -601,7 +601,7 @@ installing [Git Bash](https://git-scm.com/download/win) which,apart from
 the needed console with the emulation layera contains other utilities, 
 such as `ssh` and `git` used as the version control system.
 
-### 5.1 Packaging
+### 5.1. Packaging
 
 All modules are packaged individually for each supported operating system
 and architecture. The packages differ not only in the included WeiDU binary,
@@ -631,31 +631,31 @@ to see the list of all available commands.
 
 
 
-### 5.2 Scripts
+### 5.2. Scripts
 
 The `bin` directory contains several other helpful scripts which make 
 development easier:
 
-#### 5.2.1 ref
+#### 5.2.1. ref
 Creates a .ref file pointing to a given portrait file. Run `ref -h` to see 
 the options.
 
-#### 5.2.2 renameset
+#### 5.2.2. renameset
 Renames all files in the project starting with a given prefix to names starting
 with a new prefix, i.e.: `renameset BFMMF01 BFMMF02`.
 
-#### 5.2.3 renameall
+#### 5.2.3. renameall
 A more powerful version of `renameset`, finds all the files matching a given 
 pattern and substitutes the specified shared portion of the name with new 
 characters, eg.: `renameall BF???0? XY???X?`. Run `renameall -h` for more
 information.
 
-#### 5.2.4 pool
+#### 5.2.4. pool
 Copies everything from under main/src/charname/override to /main/src/charname
 (almost) as it would happen during installation - helpful for validating
 reference files
 
-#### 5.2.5 reftest
+#### 5.2.5. reftest
 Searches for all .ref files in the project and tests if they point to existing
 files.
 
