@@ -69,7 +69,7 @@ case "$#" in
 								rm -f "$moddir/setup-$MOD_NAME*"
 								case $arch in
 									all)
-										find ./main/bin -name "weidu-*" -exec basename {} \; | sed -e "s/weidu-\([^.]*\)\(\|\..*\)$/\1/g" | xargs "./$0" package
+										find ./main/bin -name "weidu-*" -exec basename {} \; | sed -e "s/weidu-\([^.]*\)\(\|\..*\)$/\1/g" | xargs "$0" package
 										exit $?
 										;;
 									win*)
