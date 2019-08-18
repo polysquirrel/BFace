@@ -1415,7 +1415,7 @@ DEFINE_ACTION_FUNCTION copy_npc_alternatives
 
 /** This is similar to list_npc_portraits and takes the same parameterss with the same defaults -
   * except %when% is set to ~always~ unless provided. There are two differences:
-  *  - all files under 'alternatives/*' directories located in traversed root/role/game/gender/name are
+  *  - all files under 'alternatives/ *' directories located in traversed root/role/game/gender/name are
   *    listed, not only those directly in the npc ('name') directory;
   *  - if any file in a directory would be listed, all files in this directory (and optional alternatives)
   *    are listed, too.
