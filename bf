@@ -65,7 +65,7 @@ case "$#" in
 						for arch in $@; do
 							if [[ $skip == 0 ]]; then
 								echo "Packaging $MOD_NAME for $arch..."
-								rm -f "$moddir/bin/gm*"
+								rm -f "$moddir/bin/gm"*
 								rm -f "$moddir/setup-$MOD_NAME*"
 								case $arch in
 									all)
