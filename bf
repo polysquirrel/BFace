@@ -16,10 +16,10 @@ case "$OSTYPE" in
 		;;
 esac
 
-if [[ "$PROCESSOR_ARCHITECTURE" == "AMD64" && -f "./main/bin/weidu-$system-amd64$extnesion" ]]; then
-	system="$system-amd64"
+if [[ "$PROCESSOR_ARCHITECTURE" == "AMD64" && -f "./main/bin/weidu-$system"64$extnesion ]]; then
+	system="$system"64
 else
-	system="$system-x86"
+	system="$system"32
 fi	
 
 
@@ -55,6 +55,9 @@ case "$#" in
 					1)	
 						echo "Packaging $MOD_NAME for $system..."
 						cp -u "./main/bin/gm-$system$extension" "$moddir/bin/gm$extension"
+						if [[ -d "main/lib/$system" ]]; then
+							cp -t "$moddir/bin" ./main/lib/$system/*
+						fi
 						cp -u "./main/bin/weidu-$system$extension" "./target/exploded/setup-$MOD_NAME$extension"
 						
 						tar -czf "./target/$targetname-$system.tgz" -C "./target/exploded" "$MOD_NAME" "setup-$MOD_NAME$extension" 
@@ -65,7 +68,7 @@ case "$#" in
 						for arch in $@; do
 							if [[ $skip == 0 ]]; then
 								echo "Packaging $MOD_NAME for $arch..."
-								rm -f "$moddir/bin/gm"*
+								rm -f "$moddir/bin/"*
 								rm -f "$moddir/setup-$MOD_NAME*"
 								case $arch in
 									all)
@@ -84,6 +87,9 @@ case "$#" in
 									echo "Failed to package $arch: main/bin/gm-$arch$exe not found"
 								else	
 									cp -u ./main/bin/gm-$arch$exe "$moddir/bin/gm$exe"
+									if [[ -d main/lib/$arch ]]; then
+										cp -t "$moddir/bin" main/lib/$arch/*
+									fi
 									tar -czf "./target/$targetname-$arch.tgz" -C ./target/exploded "$MOD_NAME" "setup-$MOD_NAME$exe" 
 								fi								
 							fi
