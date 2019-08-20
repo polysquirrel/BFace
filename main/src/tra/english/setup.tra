@@ -19,11 +19,9 @@
 @030=	~Install bundle '~
 @031=	~'? [I]nstall/[N]o: ~
 
-
 @080=	~when~
 @081=	~COPY PORTRAITS FROM~
 @082=	~OVERWRITE PORTRAITS WITH~
-
 
 @090=	~Setup~
 @091=	~Hi! I recommend that you install one of the preconfigured options of NPC and PC portrait bundles.  Choosing manually installed components will offer more options and more portraits for PC, but some combinations are mutually exclusive or may have non-trivial interactions. Reading readme and some thought is advisable.~
@@ -34,7 +32,6 @@
 //@200 range reserved for SoD-only components
 //@300 range reserved for BG2/BG2EE-only components
 //@400 range reserved for EET/BGT-only components
-
 
 @501=	~Choice of NPC portraits already made~
 @502=	~No user prompt will be presented for NPCs with alternative portraits.~
@@ -59,11 +56,9 @@
 @518=	~All included NPC portraits~
 @519=	~All included NPC portraits, select between alternative versions~
 
-
 @520=	~Alternative portraits~
 @521=	~Select between alternative versions where available~
 @522=	~Select between alternative versions, show previews~
-
 
 @540=	~Portraits of companions~
 @541=	~Ask about each companion~
@@ -71,7 +66,6 @@
 @543=	~Portraits of installed mod companions only~
 @544=	~Portraits of all official companions and ask about each present mod companion~
 @545=	~Portraits of official and mod companions~
-
 
 @549=	~Unify all returning companions to refer to the same (BGEE/SoD) portrait file names~
 
@@ -93,9 +87,6 @@
 @568=	~For supporting and minor characters and extras (lower style consistency)~
 @569=	~For all non-joinable NPC types (lower style consistency)~
 
-
-
-
 @580=	~Replace official companion portraits from other games (for any mods reintroducing that companion)~
 @581=	~Replace all companion portraits not normally used in the game (player only) with their default portraits~
 @582=	~Replace all companion portraits not normally used in the game with those selected between their alternatives~
@@ -104,16 +95,12 @@
 
 @599=	~Portrait change to and from Edwina (portraits for Edwina already bundled with bonus NPCs)~
 
-
-
-
 @601=	~Choice of installed PC portraits already made~
 @605=	~Crossmod with Portrait Picker - generating portrait list and descriptions M_BG.lua...~
 @606=	~No portraits to install~
 @607=	~Creating an install hook for the chosen portraits...~
 @608=	~Installing the chosen portraits to the selection screen...~
 @609=	~Portrait selection cannot be empty! Reinstall the mod or the game will crash.~
-
 
 @610=	~Portraits for player characters~
 @611=	~Standard location, shared by both genders; ask about each component~
@@ -125,7 +112,6 @@
 @617=	~Directly patch game files, merging with present portrait lists~
 @618=	~Directly patch game files, replacing existing portrait lists~
 @619=	~Directly patch game files, replacing existing portrait lists and overwrite default portraits~
-
 
 @620=	~Remove portraits from the current selection on the character generation screen~
 @621=	~Remove all portraits (recommended; add new portraits or the game will crash!)~
@@ -141,7 +127,6 @@
 //@627=	~Remove portraits of Obe's training companions, leaving Arkanis' and Deder's (Candlekeep Catacombs)~
 @629=	~Remove portraits of Arkanis and Deder from the character generation selection~
 
-
 @630=	~Replace default portraits for player characters with images from CHARNAME's pool~
 @632=	~Replace default player portraits with copies of included images~
 @633=	~Replace player-only portraits with unique images (ommited later from installation)~
@@ -153,7 +138,6 @@
 @641=	~Replace all not overriden unused portraits of official companions from the whole series~
 @642=	~Replace not overriden portraits of official companions not appearing in the game~
 @643=	~Replace all not overriden unused portraits of official companions from this game~
-
 
 @650=	~Give player characters access to portraits of Obe's training companions~
 @651=	~Portraits of companions other than Arkanis and Deder (Candlekeep catacombs)~
@@ -167,7 +151,6 @@
 @665=	~Some of alternative portraits of official companions not from this game~
 @666=	~Default portraits of official companions not from this game~
 @667=	~Default and alternative portraits of official companions not from this game~
-
 
 @670=	~Give player characters the portraits of npcs from mods for this game~
 @671=	~Some of alternative portraits of all known companions for this game~
@@ -184,17 +167,12 @@
 @685=	~Default portraits of absent companions~
 @686=	~All unique portraits of absent companions~
 
-
-
-
 @700=	~Exclude some character types?~
 @701=	~Exclude female portraits~
 @702=	~Exclude male portraits~
 @703=	~Exclude older characters~
 @704=	~Exclude officially non-playable races like Drow and Tieflings~
 @705=	~Exclude recognisable cameos (like characters from other games)~
-
-
 
 @710=	~Give player characters new, unique portraits (main component)~
 @711=	~Recommended selection of portraits~
@@ -204,4 +182,3 @@
 @715=	~Decide for each bundle, include all portraits in the bundle~
 @716=	~Show preview galleries, decide for each bundle and which character types to exclude~
 @717=	~Show preview galleries, decide for each bundle~
-
