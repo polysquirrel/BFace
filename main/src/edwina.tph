@@ -7,7 +7,7 @@
   */
 DEFINE_ACTION_FUNCTION edwina_portrait_change
 BEGIN
-	ACTION_IF NOT FILE_EXISTS ~%edwina_dir%/EdwinaL~ THEN
+	ACTION_IF NOT FILE_EXISTS ~%edwina_dir%/EdwinaL~ THEN BEGIN
 		WARN ~Can't install Edwina's portrait as it is missing!~
 	END ELSE BEGIN
 		ACTION_IF GAME_IS ~bg2ee eet~ THEN BEGIN //todo:  soa tob bgt

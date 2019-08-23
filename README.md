@@ -486,13 +486,14 @@ all with a 'BF' prefix for 'Baldur's Face'. Humanoid characters generally
 follow the scheme for CHARNAME with extensions allowing for more races and
 occupations:
 
-  - *gender*:   [B|F|G|M] with new Boy/Girl designators;
+  - *gender*:  [B|F|G|M] with new Boy/Girl designators;
 
-  - *race*:    [D|E|G|H|M|O|R|T|V|W] with new V, R, T standing for Vampire, 
-               ogRe and Tiefling. The latter includes also Cambions (and 
-               potentially humanoid demons and devils), with the gender being 
-               the discriminator. They may be also optionally offered 
-               to players, depending on installation choices.
+  - *race*:    [B|D|E|G|H|M|N|O|R|T|V|W] with new B, N, V, R, T standing for 
+               goBlin, Nyad/Nymph, ogRe, Tiefling and Vampire. 
+               Tieflings latter include also Cambions (and 
+               potentially humanoid demons and devils). They may be also 
+               optionally offered to players, depending on installation 
+               choices.
   
   - *class*:   [A|B|C|F|G|K|M|N|P|R|S], the new characters standing for 
                Guard/Noble/Peasant.

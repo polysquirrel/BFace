@@ -23,7 +23,6 @@
 @081=	~KOPIUJĘ PLIKI Z~
 @082=	~NADPISUJĘ PLIKI Z~
 
-
 @090=	~Przygotowanie~
 @091=	~Hej! Doradzam instalację w jednej z predefiniowanych konfiguracji dla NPC oraz portretów gracza. Indwidualny wybór komponentów oferuje więcej opcji oraz dodatkowe portrety dla PC, ale niektóre kombinacje się wykluczają bądź mają nieoczywiste interakcje. Zalecane jest zapoznanie się z readme i uważne decyzje.~ 
 
@@ -34,7 +33,6 @@
 //@300 range reserved for BG2/BG2EE-only components
 //@400 range reserved for EET/BGT-only components
 
-
 @501=	~Wybór portretów NPC już dokonany~
 @502=	~Nie będziesz proszony/a o wybór pomiędzy alternatywnymi portretami postaci.~
 @503=	~Będziesz proszony/a o wybór pomiędzy alternatywnymi portretami postaci.~
@@ -43,7 +41,6 @@
 @507=	~Poddaj numer wybranej opcji: ~
 @508=	~Instalować portrety dla~
 @509=	~? [I]nstaluj/[N]ie:~
-
 
 @510=	~Portrety dla postaci niezależnych (NPCs)~
 @511=	~Decyduj indywidualnie dla każdego komponentu~
@@ -63,15 +60,12 @@
 @521=	~Wybieraj pomiędzy dostępnymi alternatywnymi wersjami portretów~
 @522=	~Pokazuj podgląd dostępnych alternatywnych wersji i decyduj indywidualnie pomiędzy nimi~
 
-
-
 @540=	~Portrety towarzyszy~
 @541=	~Pytaj o każdego obecnego towarzysza~
 @542=	~Tylko portrety towarzyszy oficjalnych~	
 @543=	~Tylko portrety zainstalowanych towarzyszy z modów~
 @544=	~Portrety towarzyszy oficjalnych, pytaj o każdego zainstalowanego towarzysza z modów~
 @545=	~Portrety towarzyszy oficjalnych oraz z modów~
-
 
 @549=	~Zunifikuj wykorzystanie portretów, modyfikując pliki postaci by wykorzystywały zawsze najwcześniejszy portret.~
 
@@ -93,7 +87,6 @@
 @568=	~Postaci drugo- i trzecioplanowych oraz statystów (niższa spójność stylu)~
 @569=	~Wszystkich typów NPC (niższa spójność stylu)~
 
-
 @580=	~Podmień portrety towarzyszy z innych gier (na wypadek modów przenoszących tę postać do tej gry)~
 @581=	~Podmień, normalnie niewykorzystywane w grze, alternatywne portrety towarzyszy na nowe domyślne portrety~
 @582=	~Podmień, normalnie niewykorzystywane w grze, alternatywne portrety towarzyszy na nowe, ręcznie wybierane spomiędzy różnych wersji~
@@ -102,16 +95,12 @@
 
 @599=	~Automatyczna zmiana portretu Edwina na kobiecy w odpowiednim momencie (oraz z powrotem)~
 
-
-
-
 @601=	~Wybór portretów dla postaci gracza już dokonany~
 @605=	~Crossmod z Portrait Picker: generuję listę portretów i opisów M_BG.lua...~
 @606=	~Brak portretów do zainstalowania~
 @607=	~Rejestracja wybranych portretów w grze...~
 @608=	~Instaluję wybrane portrety w ekranie wyboru podczas tworzenia postaci...~
 @609=	~Lista dostępnych portretów nie może być pusta! Konieczna reinstalacja, gra kaput!~
-
 
 @610=	~Portrety dla postaci gracza (CHARNAME)~
 @611=	~Standardowo, wspólne dla obu płci; pytaj o każdy komponent~
@@ -124,21 +113,19 @@
 @618=	~Bezpośrednie zastąpienie list portretów dla obu płci w plikach gry~
 @619=	~Bezpośrednie zastąpienie list portretów dla obu płci w plikach gry; nadpisz standardowe portrety~
 
-
 @620=	~Usuń wybrane portrety z listy dostepnej podczas tworzenia bohatera~
 @621=	~Usuń wszystkie obecne portrety z listy (jeśli nie dodasz nowych gra przestanie działać!)~
 @622=	~Zdecyduj osobno dla poszczególnych grup portretów~
 
-@624=	~Usuń portrety oficjalnych towarzyszy z listy portretów dla gracza~
-@625=	~Usuń portrety wszystkich oficjalnych towarzyszy~
-@626=	~Usuń wszystkie (stare i nowe) portrety towarzyszy obecnych w grze~
-@627=	~Usuń portrety towarzyszy wykorzystywane w grze~
+@623=	~Usuń portrety oficjalnych towarzyszy z listy portretów dla gracza~
+@624=	~Usuń portrety wszystkich oficjalnych towarzyszy~
+@625=	~Usuń wszystkie (stare i nowe) portrety towarzyszy obecnych w grze~
+@626=	~Usuń portrety towarzyszy wykorzystywane w grze~
 
 @627=	~Usuń portrety iluzorycznych towarzyszy z treningu Obe'a~
 @628=	~Usuń portrety wszystkich towarzyszy iluzorycznych, wliczając Arkanisa i Dedera~
 //@627=	~Usuń portrety towarzyszy iluzorycznych z wyjątkiem Arkanisa i Dedera~
 @629=	~Usuń portrety Arkanisa i Dedera (wykorzystywane w katakumbach Candlekeep)~
-
 
 @630=	~Zastąp standardowe portrety dla gracza~
 @632=	~Zastąp wszystkie standardowe portrety gracza kopiami z załączonego zestawu~
@@ -152,7 +139,6 @@
 @642=	~Zastąp, te niezastąpione wcześniej, portrety towarzyszy nieobecnych w grze~
 @643=	~Zastąp, te niezastąpione wcześniej, alternatywne portrety towarzyszy obecnych w grze~
 
-
 @650=	~Oferuj graczom portrety towarzyszy z treningu Obe'a~
 @651= 	~Wszystkich towarzyszy Obe'a z wyjątkiem Arkanisa i Dedera~
 @652=	~Wszystkich iluzorycznych towarzyszy~
@@ -165,7 +151,6 @@
 @665=	~Niektóre alternatywne portrety nieobecnych towarzyszy~
 @666=	~Domyślne portrety nieobecnych towarzyszy~
 @667=	~Domyślne i alternatywne portrety nieobecnych towarzyszy~
-
 
 @670=	~Oferuj graczom niektóre portrety NPC z modów do tej gry~
 @671=	~Niektóre alternatywne (niewykorzystywane) portrety towarzyszy z tej gry~
@@ -182,18 +167,12 @@
 @685=	~Domyślne portrety nieobecnych towarzyszy~
 @686=	~Wszystkie portrety nieobecnych towarzyszy~
 
-
 @700=	~Nie instalować portretów dla niektórych typów postaci?~
 @701=	~Nie instaluj portretów kobiet~
 @702=	~Nie instaluj portretów mężczyzn~
 @703=	~Nie instaluj portretów starszych postaci~
 @704=	~Nie instaluj portretów oficjalnie niegrywalnych ras jak Drow~
 @705=	~Nie instaluj portretów rozpoznawalnych postaci~
-//@704=	~Exclude non-playable races and older characters~
-//@705=	~Exclude non-playable races and cameos~
-//@706=	~Exclude older characters and cameos~
-//@707=	~Exclude non-playable races, older characters and cameos~
-
 
 @710=	~Oferuj graczom nowe, unikalne portrety (główny komponent)~
 @711=	~Polecany wybór portretów~
@@ -203,4 +182,3 @@
 @715=	~Decyduj dla każdego zestawu, instaluj wszystkie portrety z zestawu~
 @716=	~Pokazuj galerie z podglądem każdego zestawu, decyduj indywidalnie; wybierz nie instalowane typy postaci~
 @717=	~Pokazuj galerie z podglądem zestawów, decyduj indywidualnie~
-
