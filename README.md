@@ -488,15 +488,15 @@ occupations:
 
   - *gender*:  [B|F|G|M] with new Boy/Girl designators;
 
-  - *race*:    [B|D|E|G|H|M|N|O|R|T|V|W] with new B, N, V, R, T standing for 
-               goBlin, Nyad/Nymph, ogRe, Tiefling and Vampire. 
-               Tieflings latter include also Cambions (and 
-               potentially humanoid demons and devils). They may be also 
-               optionally offered to players, depending on installation 
-               choices.
+  - *race*:    [B|D|E|G|H|K|M|N|O|R|T|V|W] with new K, B, N, V, R, T standing 
+               for goBlin, Kobold, Nyad/Nymph, ogRe, Tiefling and Vampire. 
+               Tieflings include also Cambions (and potentially humanoid demons
+               and devils). They may be also optionally offered to players, 
+               depending on installation choices.
   
-  - *class*:   [A|B|C|F|G|K|M|N|P|R|S], the new characters standing for 
-               Guard/Noble/Peasant.
+  - *class*:   [A|B|C|F|G|H|K|L|M|N|O|P|R|S|T|V|W], the new characters standing 
+               for Harlot, Labourer/sLave, Guard, Noble, cOmmoner, Peasant/Poor,
+               Venerable(old).
   
   - *id*:      does not change from the CHARNAME format and naturally must 
                remain unique between CHARNAME and NPC portraits. NPC portraits 
@@ -660,6 +660,8 @@ reference files
 Searches for all .ref files in the project and tests if they point to existing
 files.
 
+### 5.2.6. flip
+Flips horizontally all images given as command line arguments. Requires GraphicsMagick to be installed and available in PATH
 
 
 
