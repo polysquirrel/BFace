@@ -1,7 +1,14 @@
 MOD_NAME=BaldurFace
-MOD_VERSION=0.0.1
+
+CODE_VERSION=0.1
+
+if [ "$PORTRAIT_VERSION" ]; then
+    MOD_VERSION="$CODE_VERSION-$PORTRAIT_VERSION"
+else
+    MOD_VERSION="$CODE_VERSION"
+fi
+
 MOD_BUILDER=polymorphedsquirrel
-MOD_ARTISTS=artastrophe
 
 if [ "$MOD_ARTISTS" ]; then 
     MOD_AUTHORS="art: $MOD_ARTISTS; bugs: $MOD_BUILDER"
