@@ -656,14 +656,21 @@ Copies everything from under main/src/charname/override to /main/src/charname
 (almost) as it would happen during installation - helpful for validating
 reference files
 
-#### 5.2.5. reftest
+#### 5.2.5. refcheck
 Searches for all .ref files in the project and tests if they point to existing
 files.
 
-### 5.2.6. flip
-Flips horizontally all images given as command line arguments. Requires GraphicsMagick to be installed and available in PATH
+#### 5.2.6. rescheck
+Searches for all portrait files in the main/src directory and verifies if their 
+resolution matches the last letter of the filename.
 
+#### 5.2.7. flip
+Flips horizontally all images given as command line arguments. Requires Graphics
+Magick to be installed and available in PATH
 
+#### 5.2.8. flipset
+Flips horizontally all images located under current directory (recursively) 
+with file names starting with the command line argument.
 
 
 
