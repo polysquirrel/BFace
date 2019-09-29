@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [[ $OSTYPE == "linux" || $OSTYPE == "darwin" ]]; then
+    magic=gm
+else
+    magic="gm.exe"
+fi
+
+for prefix in $@; do
+    find -name "$prefix"\* -exec $magic convert -flop {} {} \;
+done

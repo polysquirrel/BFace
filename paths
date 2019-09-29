@@ -1,0 +1,3 @@
+dir=`pwd`
+export SRC=$dir/main/src
+export PATH=$dir/bin:$PATH

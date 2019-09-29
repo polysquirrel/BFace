@@ -1,0 +1,12 @@
+#!/bin/sh
+
+find $SRC -name \*L.jpg -print0 | while IFS= read -r -d '' f; do file $f | grep -v 210x330; done | tee largeerrors.txt
+
+find $SRC -name \*M.jpg -print0 | while IFS= read -r -d '' f; do file $f | grep -v 169x266; done | tee mediumerrors.txt
+
+cat largeerrors.txt mediumerrors.txt | sort > reserrors.txt
+rm largeerrors.txt mediumerrors.txt
+if [[ ! -s reserrors.txt ]]; then
+    rm reserrors.txt
+    echo "All portrait resolutions are correct for BGEE"
+fi

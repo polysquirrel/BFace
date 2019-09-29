@@ -1,7 +1,15 @@
 MOD_NAME=PaintBGEE
-MOD_VERSION=0.0.1.4
-MOD_BUILDER=polymorphedsquirrel
+PORTRAIT_VERSION=2
+CODE_VERSION=0.4
+
+if [ "$PORTRAIT_VERSION" ]; then
+    MOD_VERSION="$CODE_VERSION-$PORTRAIT_VERSION"
+else
+    MOD_VERSION="$CODE_VERSION"
+fi
+
 MOD_ARTISTS=artastrophe
+MOD_BUILDER=polymorphedsquirrel
 
 if [ "$MOD_ARTISTS" ]; then 
     MOD_AUTHORS="art: $MOD_ARTISTS; bugs: $MOD_BUILDER"
