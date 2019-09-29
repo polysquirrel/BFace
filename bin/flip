@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [[ $OSTYPE == "linux" || $OSTYPE == "darwin" ]]; then
+    magic=gm
+else
+    magic="gm.exe"
+fi
+
+for file in $@; do
+    $magic convert -flop $1 $1
+done

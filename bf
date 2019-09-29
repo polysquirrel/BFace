@@ -16,7 +16,7 @@ case "$OSTYPE" in
 		;;
 esac
 
-if [[ "$PROCESSOR_ARCHITECTURE" == "AMD64" && -f "./main/bin/weidu-$system"64$extnesion ]]; then
+if [[ "$PROCESSOR_ARCHITECTURE" == "AMD64" && -f "./main/bin/weidu-$system"64$extension ]]; then
 	system="$system"64
 else
 	system="$system"32

@@ -488,15 +488,15 @@ occupations:
 
   - *gender*:  [B|F|G|M] with new Boy/Girl designators;
 
-  - *race*:    [B|D|E|G|H|M|N|O|R|T|V|W] with new B, N, V, R, T standing for 
-               goBlin, Nyad/Nymph, ogRe, Tiefling and Vampire. 
-               Tieflings latter include also Cambions (and 
-               potentially humanoid demons and devils). They may be also 
-               optionally offered to players, depending on installation 
-               choices.
+  - *race*:    [B|D|E|G|H|K|M|N|O|R|T|V|W] with new K, B, N, V, R, T standing 
+               for goBlin, Kobold, Nyad/Nymph, ogRe, Tiefling and Vampire. 
+               Tieflings include also Cambions (and potentially humanoid demons
+               and devils). They may be also optionally offered to players, 
+               depending on installation choices.
   
-  - *class*:   [A|B|C|F|G|K|M|N|P|R|S], the new characters standing for 
-               Guard/Noble/Peasant.
+  - *class*:   [A|B|C|F|G|H|K|L|M|N|O|P|R|S|T|V|W], the new characters standing 
+               for Harlot, Labourer/sLave, Guard, Noble, cOmmoner, Peasant/Poor,
+               Venerable(old).
   
   - *id*:      does not change from the CHARNAME format and naturally must 
                remain unique between CHARNAME and NPC portraits. NPC portraits 
@@ -656,12 +656,21 @@ Copies everything from under main/src/charname/override to /main/src/charname
 (almost) as it would happen during installation - helpful for validating
 reference files
 
-#### 5.2.5. reftest
+#### 5.2.5. refcheck
 Searches for all .ref files in the project and tests if they point to existing
 files.
 
+#### 5.2.6. rescheck
+Searches for all portrait files in the main/src directory and verifies if their 
+resolution matches the last letter of the filename.
 
+#### 5.2.7. flip
+Flips horizontally all images given as command line arguments. Requires Graphics
+Magick to be installed and available in PATH
 
+#### 5.2.8. flipset
+Flips horizontally all images located under current directory (recursively) 
+with file names starting with the command line argument.
 
 
 
