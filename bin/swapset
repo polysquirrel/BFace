@@ -18,18 +18,42 @@ if [[ "$#" != 2 ]]; then
 
 else
     find -name "$1*" -print0 | while IFS= read -r -d '' path; do
-        tmp=`echo $path | sed -e "s|^\(.*\)/$1\([^/]*\)$|\1/\.tmp\.$1\2|"`
+        tmp=`echo $path | sed -e "s|^\(.*\)/$1\([^/]*\)$|\1/_swapset_$1\2|"`
+	old=`basename $path | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)$//"`
+	new=`basename $tmp | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)$//"`
 	mv -i "$path" "$tmp"
+
+	find \( -name "*.ref" -or -name "*.refs" \) -exec sed -i -e "s/$old/$new/g" {} \;
     done
+    find -name "*.refs" -print0 | while IFS= read -r -d '' path; do
+        sed -i -e "s/^$1/_swapset_$1/g" "$path"
+    done
+    
     find -name "$2*" -print0 | while IFS= read -r -d '' path; do
         name=`echo $path | sed -e "s|^\(.*\)/$2\([^/]*\)$|\1/$1\2|"`
-	mv -i -v "$path" "$name"
+	old=`basename $path | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)$//"`
+	new=`basename $name | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)$//"`
+        echo "'$path' ->	'$name'"
+	mv -i "$path" "$name"
+
+	find \( -name "*.ref" -or -name "*.refs" \) -exec sed -i -e "s/$old/$new/g" {} \;
     done
-    find -name ".tmp.$1*" -print0 | while IFS= read -r -d '' path; do
-        prev=`echo $path | sed -e "s|^\(.*\)/\.tmp\.$1\([^/]*\)$|\1/$1\2|"`
-        name=`echo $path | sed -e "s|^\(.*\)/\.tmp\.$1\([^/]*\)$|\1/$2\2|"`
-	echo "'$prev' -> '$name'"
-        mv -i "$path" "$name";
+    find -name "*.refs" -print0 | while IFS= read -r -d '' path; do
+        sed -i -e "s/^$2/$1/g" "$path" 
+    done    
+
+    find -name "_swapset_$1*" -print0 | while IFS= read -r -d '' path; do
+        prev=`echo $path | sed -e "s|^\(.*\)/_swapset_$1\([^/]*\)$|\1/$1\2|"`
+        name=`echo $path | sed -e "s|^\(.*\)/_swapset_$1\([^/]*\)$|\1/$2\2|"`
+	echo "'$prev' ->	'$name'"
+        mv -i "$path" "$name"
+
+	old=`basename $path | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)$//"`
+	new=`basename $name | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)$//"`
+	find \( -name "*.ref" -or -name "*.refs" \) -exec sed -i -e "s/$old/$new/g" {} \;
+    done
+    find -name "*.refs" -print0 | while IFS= read -r -d '' path; do
+        sed -i -e "s/^_swapset_$1/$2/g" "$path"
     done
 fi
 

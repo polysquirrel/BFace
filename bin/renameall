@@ -2,7 +2,7 @@
 
 
 
-if [[ "$#" == 0 || "$1" == '-h' || "$1" == '--help' ]]; then
+if [[ "$#" == 0 || "$1" == '-h' || "$1" == '--help' || "$#" > 2 ]]; then
     echo "Renames all files matching the given pattern."
     echo "Usage:"
     echo "  $0 <from> <to> [dir]*"
@@ -20,6 +20,11 @@ if [[ "$#" == 0 || "$1" == '-h' || "$1" == '--help' ]]; then
     echo "between wildcards i and i+1 are matched to the fixed fragments of the second"
     echo "pattern between wildcards i and i+1. For the purpose of this definition only"
     echo "it is assumed that the patterns start and end with a wildcard."
+    echo ""
+    echo "All .ref and .refs files are updated, changing the references to all"
+    echo "renamed files, regardless of path in the reference file. Additionally,"
+    echo "target file names in .refs files which match the first pattern are"
+    echo "renamed just as if they where a .ref file"
 
 else 
     pattern=`echo "$1" | sed -e "s|\*|\\\\\(.*\\\\\)|g" -e "s|\?|\\\\\(.\\\\\)|g"`
@@ -30,19 +35,14 @@ else
         target=`echo "$target" | sed -e "$expr$i|"`
     done
     echo "$pattern -> $target"
-
-    if [[ "$#" == 2 ]]; then
-        find -name "$1" -print0 | while IFS= read -r -d '' file; do
-            dst=`echo "$file" | sed -e "s|$pattern$|$target|"`
-            mv -i -v "$file" "$dst"
-        done
-    else
-        for i in `seq 3 $#`; do
-            find -name "$1" -print0 | while IFS= read -r -d '' file; do
-                dst=`echo "$file" | sed -e "s|$pattern$|$target|"`
-		mv -i -v "$file" "$dst"
-            done
-	done
-    fi
+    
+    find -name "$1" -print0 | while IFS= read -r -d '' file; do
+        dst=`echo "$file" | sed -e "s|$pattern$|$target|"`
+        mv -i -v "$file" "$dst"
+	old=`basename "$file" | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)$//"`
+	new=`basename "$dst" | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)$//"`
+        find \( -name "*.ref" -or -name "*.refs" \) -exec sed -i -e "s/$old/$new/g" {} \;
+        find -name "*.refs" -exec sed -i -e "s/^$1/$2/g" {} \;
+    done
 fi
 
