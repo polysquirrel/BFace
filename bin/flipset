@@ -7,5 +7,5 @@ else
 fi
 
 for prefix in $@; do
-    find -name "$prefix"\* -exec $magic convert -flop {} {} \;
+    find \( -name "$prefix*.jpg" -or -name "$prefix*.jpeg" -or -name "$prefix*.png" -or -name "$prefix*.bmp" \) -exec $magic convert -flop {} {} \;
 done

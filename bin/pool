@@ -17,7 +17,7 @@ if [[ ! -d "$dir/charname/pool" ]]; then
     mkdir "$dir/charname/pool"
 fi
 
-find "$dir/charname/override" \( -name "*.bmp" -or -name ".ref" \) -exec cp -a {} "$dir/charname/pool" \; 
+find "$dir/charname/override" \( -name "*.bmp" -or -name "*.jpg" -or -name "*.jpeg" -or -name "*.png" -or -name ".ref" \) -exec cp -a {} "$dir/charname/pool" \; 
 
 find "$dir/charname/override" -name "*.refs" -print0 | while IFS= read -r -d '' file; do
     cat "$file" | while IFS="	" read -r name path; do
@@ -28,6 +28,15 @@ find "$dir/charname/override" -name "*.refs" -print0 | while IFS= read -r -d '' 
 	        if [[ -f "$dir/$src.bmp" ]]; then 
 	            src="$src.bmp"
 		    dst="$dst.bmp"
+                elif [[ -f "$dir/$src.jpg" ]]; then
+                    src="$src.jpg"
+                    dst="$dst.jpg"
+                elif [[ -f "$dir/$src.jpeg" ]]; then
+                    src="$src.jpeg"
+                    dst="$src.jpg"
+                elif [[ -f "$dir/$src.png" ]]; then
+                    src="$src.png"
+                    dst="$dst.png"  		    
 	        elif [[ -f "$dir/$src.ref" ]]; then
 	            src="$src.ref"
 		    dst="$dst.ref"
