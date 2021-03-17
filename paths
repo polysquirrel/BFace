@@ -1,3 +1,5 @@
 dir=`pwd`
 export SRC=$dir/main/src
 export PATH=$dir/bin:$PATH
+alias gimp=/c/Program\ Files/GIMP\ 2/bin/gimp-2.10.exe
+

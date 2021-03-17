@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [[ "$#" -lt 2 ]]; then
-    echo "Usage: $0 [<bmp file>|<ref file>|<refs file>]* dir"
+    echo "Usage: $0 [<bmp file>|<jpg file>|<png file>|<ref file>|<refs file>]* dir"
     echo "Copies to the destination directory dir while resolving reference files"
 elif [[ ! -d "$$($#)" ]]; then
     echo "Not a directory: $$($#)" > &2
@@ -23,8 +23,8 @@ for param in "$@"; do
 	"-d") action="basedir"
 	    ;;
         "-h")
-            echo "Usage: $0 [OPTION]* [<bmp file>|<ref file>|<refs file>]+ destdir"
-            echo "       $0 [OPTION]* [<bmp file>|<ref file>] destfile"
+            echo "Usage: $0 [OPTION]* [<bmp file>|<jpg file>|<png file>|<ref file>|<refs file>]+ destdir"
+            echo "       $0 [OPTION]* [<bmp file>|<jpg file>|<png file>|<ref file>] destfile"
             echo "Copies portrait files to the destination while following the references."
             echo "Options:"
             echo "    -h	print this help"

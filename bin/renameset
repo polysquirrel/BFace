@@ -10,18 +10,50 @@ if [[ "$#" == 0 || "$#" == 1 && ("$1" == "-h" || "$1" == "--help") ]]; then
     echo "given as the first parameter and renames them, substituting the old prefix with"
     echo "the new one, given as the second parameter. Any characters in the file name"
     echo "between the prefix and the extension are preserved."
-
-elif [[ "$#" == 2 ]]; then
-    find -name "$1*" -print0 | while IFS= read -r -d '' path; do
-        name=`echo $path | sed -e "s|^\(.*\)/$1\([^/]*\)$|\1/$2\2|"`
-        mv -i -v "$path" "$name";
-    done
+    echo "Additionally, any .refs file in the directory tree is updated by"
+    echo "renaming the target file names matching the prefix just as if the"
+    echo "reference was an equivalent .ref file with a matching name"
+    echo "For all renamed files, the directory tree is searched for .ref and .refs"
+    echo "files pointing to the file, and the reference is updated with the new name"
+    echo "This happens regardless of the path specified in the reference file"
+    echo "and includes also references containing only the basename (without"
+    echo "the file type extension)."
+    
 else
-    for i in `seq 3 $#`; do
-        find -name "$1*" -print0 | while IFS= read -r -d '' path; do
-	    name=`echo $path | sed -e "s|^\(.*\)/$1\([^/]*\)$|\1/$2\2|"`
+    lastprefix=`expr $# - 1`
+    params=$#
+    tmpfile=".renameset.$$"
+    for i in `seq 1 $lastprefix`; do    
+	find -name "${!i}*" -print0 | while IFS= read -r -d '' path; do
+            name=`echo $path | sed -e "s|^\(.*\)/${!i}\([^/]*\)$|\1/${!params}\2|"`
 	    mv -i -v "$path" "$name"
+	   
+	    basename "$path" | sed -e "s/\.\(bmp\|jpg\|jpeg\|png\|ref\)\$//" -e "s/^${!i}//" >> "$tmpfile"
 	done
+
+        	
+        find -name "*.refs" -print0 | while IFS= read -r -d '' path; do
+            grep "^${!i}" "$path" | sed -e "s|^${!i}\([^ 	]*\)[ 	].*\$|$path: '${!i}\1' -> '${!params}\1'|g" 
+            grep "^${!i}" "$path" | sed -e "s|^${!i}\([^ 	]*\).*\$|\1|g" >> "$tmpfile"
+	    sed -e "s|^${!i}\(.*\)\$|${!params}\1|g" -i "$paths"
+        done	
+
+	first="true"
+        suffices=`cat "$tmpfile" | while read suffix; do
+            if [[ "$first" == "true" ]]; then
+                echo -n "$suffix"
+                first="false"
+            else
+                echo -n "\\|$suffix"
+            fi		
+        done`
+	rm "$tmpfile"
+
+	find \( -name "*.ref" -or -name "*.refs" \) -print0 | while IFS= read -r -d '' ref; do
+            cp "$ref" "$ref.bak"
+	    sed -e "s/${!i}\($suffices\)/${!params}\1/g" "$ref.bak" > "$ref"
+	    rm "$ref.bak"
+        done	
     done	    
 fi
 
